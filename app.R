@@ -30,6 +30,7 @@ ui <- fluidPage(
                                             .tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}
                               ")),
                               tabsetPanel(type = "tabs",
+                                          #SELECT DATA TAB
                                           tabPanel("Select Data", style = "background-color: #383a40;",
                                                    #Drop down for classifier selection
                                                    selectInput("classifierSelect", 
@@ -53,6 +54,7 @@ ui <- fluidPage(
                                                    actionButton("addToQueueButton", "Add to Queue")
                                           ),
                                           
+                                          #GENERATE CLASSIFIER TAB
                                           tabPanel("Generate Classifier", style = "background-color:#383a40;",
                                                    #File browser for data cubes
                                                    #accept gives the browser a hint of what kind of files the server is expecting.
@@ -79,6 +81,7 @@ ui <- fluidPage(
                               
                             ),
                             
+                            #RANDOM PARAMETERS
                             mainPanel(
                               style = "background-color: #383a40;",
                               
@@ -105,6 +108,24 @@ ui <- fluidPage(
                             )  
                         
                       ),
+                      br(),
+                      br(),
+                      
+                      #QUEUE
+                      fluidRow(
+                        style = "background-color: #383a40;",
+                        br(),
+                        fluidRow(
+                          column(2, p("Queue:", style = "color: white; size: 20pt; padding-left: 10px;")),
+                          column(1, actionButton("runQueue", "Run")),
+                          column(1, actionButton("stopQueue", "Stop"))
+                        ),
+                        br(),
+                        
+                        tags$head(tags$style("#queue {color: white; font-size: 15px; padding-left: 10px;}")),
+                        textOutput("queue"),
+                        br(),
+                      ),
           
                       img(src="logo.png", height="10%", width="10%", align="right")
              ),
@@ -120,12 +141,45 @@ ui <- fluidPage(
   
 )
 
-
 server <- function(input, output) {
   observeEvent(input$generateClassifierButton, {
     #this code is executed when the generateClassifierButton is pressed
     print("button clicked")
   })
+  
+  #update queue
+  queueText <- c()
+  #if add to queue button is pressed
+  observeEvent(input$addToQueueButton, {
+    #chck if a file has been selected
+    if (is.null(input$dataCubeFileInput$name)) {
+      print("no file selected")
+    } else {
+      #create string to add to queue
+      string <- "{{Data Cube: "
+      string <- paste(string, input$dataCubeFileInput$name, sep = "")
+      string <- paste(string, "} Classifier: ", sep = "")
+      string <- paste(string, input$classifierSelect, sep = "")
+      string <- paste(string, "}", sep = "")
+      
+      #TODO: currently erasing previous elements. only the last string entered is displayed
+      queueText <- c(queueText, string)
+    }
+    
+    if (length(queueText) == 0) {
+      output$queue <- renderText({"queue is empty"})
+    } else {
+      #create one string seperated by new lines
+      string <- ""
+      for (i in 1:length(queueText)) {
+        string <- paste(string, queueText[i], sep = "\n")
+      }
+      
+      output$queue <- renderText({string})
+    }
+  })
+  
+  output$queue <- renderText({"queue is empty"})
 }
 
 shinyApp(ui = ui, server = server)
