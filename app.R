@@ -22,6 +22,13 @@ ui <- fluidPage(
                           sidebarLayout(
                             
                             sidebarPanel(
+                              #Change the background color of the Select Data/Generate Class tab buttons to black when selected and gray otherwise
+                              tags$style(HTML("
+                                            .tabbable > .nav > li > a {background-color: #121212;  color:white}
+                                            .tabbable > .nav > li > a[data-value='Select Data'] {background-color: gray;   color:white}
+                                            .tabbable > .nav > li > a[data-value='Generate Class'] {background-color: gray;   color:white}
+                                            .tabbable > .nav > li[class=active] > a {background-color: black; color:white}
+                              ")),
                               tabsetPanel(type = "tabs",
                                           tabPanel("Select Data", 
                                                    fluidRow(
