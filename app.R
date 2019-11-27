@@ -1,6 +1,8 @@
 library(shiny)
 library(shinyWidgets)
 
+source("processQueue.R")
+
 ui <- fluidPage(
   tags$head(
     tags$style(HTML("
@@ -144,7 +146,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   #VARIABLES
   queueText <- c() #vector of strings to be displayed in the ui queue
-  queue <- c() #vector of string vectors. each element = (data cube file directory, classifier name)
+  queue <- list() #vector of string vectors. each element = (data cube file directory, classifier name)
   
   
   observeEvent(input$generateClassifierButton, {
@@ -162,7 +164,11 @@ server <- function(input, output) {
       print("no file selected")
     } else {
       #add process to queue
-      queue <<- c(queue, c(input$dataCubeFileInput$name, input$classifierSelect))
+      #queue <<- c(queue, c(input$dataCubeFileInput$name, input$classifierSelect))
+      print(length(queue) + 1)
+      queue[[length(queue) + 1]] <<- c(input$dataCubeFileInput$name, input$classifierSelect)
+      
+      print(queue)
       
       #create string to add to queue
       string <- "{{Data Cube: "
@@ -203,8 +209,8 @@ server <- function(input, output) {
     if (length(queue) > 0) {
       print("run queue")
       print(queue)
-      #GET CLASSIFIER AND DATA CUBE
-      #CALL BACKEND FUNCTIONS
+      
+      processQueue(queue)
     } else {
       print("queue is empty")
     }
