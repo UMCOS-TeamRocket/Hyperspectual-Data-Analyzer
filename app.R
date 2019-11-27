@@ -2,6 +2,7 @@ library(shiny)
 library(shinyWidgets)
 
 source("processQueue.R")
+source("generateRFClassifier.R")
 
 ui <- fluidPage(
   tags$head(
@@ -36,8 +37,7 @@ ui <- fluidPage(
                                           tabPanel("Select Data", style = "background-color: #383a40;",
                                                    #Drop down for classifier selection
                                                    selectInput("classifierSelect", 
-                                                               label = div(style="color: white;", "Classifier:"),
-                                                               c("Classifier 1", "Classifier 2", "Classifier 3")),
+                                                               label = div(style="color: white;", "Classifier:"), c()),
                                                    
                                                    tags$head(tags$style(
                                                           HTML('
@@ -143,19 +143,19 @@ ui <- fluidPage(
   
 )
 
-server <- function(input, output) {
+
+
+server <- function(input, output, session) {
   #VARIABLES
   queueText <- c() #vector of strings to be displayed in the ui queue
   queue <- list() #vector of string vectors. each element = (data cube file directory, classifier name)
+  classifierChoices <- c("Classifier 1", "Classifier 2")
   
   
-  observeEvent(input$generateClassifierButton, {
-    #this code is executed when the generateClassifierButton is pressed
-    print("button clicked")
-  })
-  
+  #INITIALIZE
   #initialize queue
   output$queue <- renderText({"queue is empty"})
+  updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
   
   #if add to queue button is pressed
   observeEvent(input$addToQueueButton, {
@@ -164,11 +164,7 @@ server <- function(input, output) {
       print("no file selected")
     } else {
       #add process to queue
-      #queue <<- c(queue, c(input$dataCubeFileInput$name, input$classifierSelect))
-      print(length(queue) + 1)
       queue[[length(queue) + 1]] <<- c(input$dataCubeFileInput$name, input$classifierSelect)
-      
-      print(queue)
       
       #create string to add to queue
       string <- "{{Data Cube: "
@@ -213,6 +209,23 @@ server <- function(input, output) {
       processQueue(queue)
     } else {
       print("queue is empty")
+    }
+  })
+  
+  #Generate Classifier
+  observeEvent(input$generateClassifierButton, {
+    if (is.null(input$ClassifierNameInput)) {
+      print("no classifier name entered")
+    } else {
+      #generateRFClassifier(name, parameterList)
+      
+      #add to the list of classifier names
+      classifierChoices <<- c(classifierChoices, input$ClassifierNameInput)
+      
+      #add the new classifier name to the drop down in the select data tab
+      updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
+      
+      print("classifier generated")
     }
   })
 }
