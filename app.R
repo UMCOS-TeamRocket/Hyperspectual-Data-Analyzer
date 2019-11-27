@@ -122,8 +122,8 @@ ui <- fluidPage(
                         ),
                         br(),
                         
-                        tags$head(tags$style("#queue {color: white; font-size: 15px; padding-left: 10px;}")),
-                        textOutput("queue"),
+                        verbatimTextOutput("queue"),
+                        tags$head(tags$style(HTML("#queue {background-color: #383a40; border-color: #383a40; color: white; font-size: 15px; padding-left: 10px;}"))),
                         br(),
                       ),
           
@@ -147,14 +147,21 @@ server <- function(input, output) {
     print("button clicked")
   })
   
-  #update queue
+  #vector of strings to be displayed in the ui queue
   queueText <- c()
+  
+  #vector of string vectors. each element = (data cube file directory, classifier name)
+  queue <- c()
+  
   #if add to queue button is pressed
   observeEvent(input$addToQueueButton, {
     #chck if a file has been selected
     if (is.null(input$dataCubeFileInput$name)) {
       print("no file selected")
     } else {
+      #add process to queue
+      queue <<- c(queue, c(input$dataCubeFileInput$name, input$classifierSelect))
+      
       #create string to add to queue
       string <- "{{Data Cube: "
       string <- paste(string, input$dataCubeFileInput$name, sep = "")
@@ -162,17 +169,19 @@ server <- function(input, output) {
       string <- paste(string, input$classifierSelect, sep = "")
       string <- paste(string, "}", sep = "")
       
-      #TODO: currently erasing previous elements. only the last string entered is displayed
-      queueText <- c(queueText, string)
+      queueText <<- c(queueText, string)
     }
     
     if (length(queueText) == 0) {
       output$queue <- renderText({"queue is empty"})
     } else {
       #create one string seperated by new lines
-      string <- ""
-      for (i in 1:length(queueText)) {
-        string <- paste(string, queueText[i], sep = "\n")
+      string <- queueText[1]
+      
+      if (length(queueText) > 1) {
+        for (i in 2:length(queueText)) {
+          string <- paste(string, queueText[i], sep = "\n")
+        }
       }
       
       output$queue <- renderText({string})
