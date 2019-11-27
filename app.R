@@ -118,7 +118,7 @@ ui <- fluidPage(
                         fluidRow(
                           column(2, p("Queue:", style = "color: white; size: 20pt; padding-left: 10px;")),
                           column(1, actionButton("runQueue", "Run")),
-                          column(1, actionButton("stopQueue", "Stop"))
+                          column(1, actionButton("clearQueue", "clear"))
                         ),
                         br(),
                         
@@ -152,6 +152,9 @@ server <- function(input, output) {
   
   #vector of string vectors. each element = (data cube file directory, classifier name)
   queue <- c()
+  
+  #initialize queue
+  output$queue <- renderText({"queue is empty"})
   
   #if add to queue button is pressed
   observeEvent(input$addToQueueButton, {
@@ -188,7 +191,13 @@ server <- function(input, output) {
     }
   })
   
-  output$queue <- renderText({"queue is empty"})
+  #Clear all items from queue
+  observeEvent(input$clearQueue, {
+    queueText <<- c()
+    queue <<- c()
+    
+    output$queue <- renderText({"queue is empty"})
+  })
 }
 
 shinyApp(ui = ui, server = server)
