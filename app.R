@@ -142,16 +142,15 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+  #VARIABLES
+  queueText <- c() #vector of strings to be displayed in the ui queue
+  queue <- c() #vector of string vectors. each element = (data cube file directory, classifier name)
+  
+  
   observeEvent(input$generateClassifierButton, {
     #this code is executed when the generateClassifierButton is pressed
     print("button clicked")
   })
-  
-  #vector of strings to be displayed in the ui queue
-  queueText <- c()
-  
-  #vector of string vectors. each element = (data cube file directory, classifier name)
-  queue <- c()
   
   #initialize queue
   output$queue <- renderText({"queue is empty"})
