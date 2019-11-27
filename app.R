@@ -198,6 +198,18 @@ server <- function(input, output) {
     
     output$queue <- renderText({"queue is empty"})
   })
+  
+  #Run all processes in queue
+  observeEvent(input$runQueue, {
+    if (length(queue) > 0) {
+      print("run queue")
+      print(queue)
+      #GET CLASSIFIER AND DATA CUBE
+      #CALL BACKEND FUNCTIONS
+    } else {
+      print("queue is empty")
+    }
+  })
 }
 
 shinyApp(ui = ui, server = server)
