@@ -60,7 +60,7 @@ ui <- fluidPage(
                                           tabPanel("Generate Classifier", style = "background-color:#383a40;",
                                                    #File browser for data cubes
                                                    #accept gives the browser a hint of what kind of files the server is expecting.
-                                                   textInput("speciesSelect", label = div(style="color: white;", "Species:"), value = "Species"),
+                                                   selectInput("speciesSelect", label = div(style="color: white;", "Species:"), c("Shrub", "Lichen"), multiple = TRUE),
                                                    
                                                    tags$head(tags$style(
                                                      HTML('
@@ -157,7 +157,7 @@ server <- function(input, output, session) {
   output$queue <- renderText({"queue is empty"})
   updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
   
-  #if add to queue button is pressed
+  #add to queue button is pressed
   observeEvent(input$addToQueueButton, {
     #chck if a file has been selected
     if (is.null(input$dataCubeFileInput$name)) {
