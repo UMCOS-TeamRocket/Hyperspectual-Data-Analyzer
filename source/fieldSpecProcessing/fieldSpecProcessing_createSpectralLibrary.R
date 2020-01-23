@@ -399,13 +399,12 @@ createSpectralLibrary <- function(vectorOfSampleDirectories, outputName) {
     write.csv(spectralLibrary_smooth_010nm_equal25, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_010nm_equal25.csv", sep = ""),row.names = F)
     write.csv(spectralLibrary_smooth_050nm_equal25, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_050nm_equal25.csv", sep = ""),row.names = F)
     write.csv(spectralLibrary_smooth_100nm_equal25, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_100nm_equal25.csv", sep = ""),row.names = F)
+  
   }, warning = function(warning) {
-    message <- paste("WARNING - While processing", directory)
-    message <- paste(message, warning, sep = " : ")
+    message <- paste("WARNING - While creating specral library", warning, sep = " : ")
     print(message)
   }, error = function(error) {
-    message <- paste("ERROR - While processing", directory)
-    message <- paste(message, error, sep = " : ")
+    message <- paste("ERROR - While while creating spectral library", error, sep = " : ")
     print(message)
   })
 }

@@ -53,16 +53,16 @@ fieldSpecResampled <- function(directory, outputName = "spectralLibrary") {
     ##all those columns that we know have rows that have negative values
     
     ###Lets save our new dfs
-    write.csv(spectralLibrary_HDW_010nm, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_HDW_010nm_equal25.csv", sep = ""), row.names = FALSE)
-    write.csv(spectralLibrary_HDW_050nm, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_HDW_050nm_equal25.csv", sep = ""), row.names = FALSE)
-    write.csv(spectralLibrary_HDW_100nm, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_HDW_100nm_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_HDW_010nm, paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW_010nm_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_HDW_050nm, paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW_050nm_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_HDW_100nm, paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW_100nm_equal25.csv", sep = ""), row.names = FALSE)
     
   }, warning = function(warning) {
-    message <- paste("WARNING - While processing", directory)
+    message <- paste("WARNING - While resampling", directory)
     message <- paste(message, warning, sep = " : ")
     print(message)
   }, error = function(error) {
-    message <- paste("ERROR - While processing", directory)
+    message <- paste("ERROR - While resampling", directory)
     message <- paste(message, error, sep = " : ")
     print(message)
   })
