@@ -13,7 +13,7 @@ processFieldSpec <- function(fieldSpecDirectory) {
       ####Read in data as spectra (all scans collected at this location)
       spectra <- read_spectra(directory, format="sed")
     
-      ##Fix Names 
+      ##Fix Names (removes file extensions)
       names(spectra) <- gsub(".sed","",names(spectra))
     
       ###Create Metadata
