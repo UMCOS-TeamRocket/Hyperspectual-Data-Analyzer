@@ -4,6 +4,7 @@ main <- function(){
   source("source/fieldSpecProcessing/createSpectralLibrary.r", echo = TRUE)
   source("source/fieldSpecProcessing/resampled.r", echo = TRUE)
   source("source/fieldSpecProcessing/VIs.r", echo = TRUE)
+  source("source/imageProcessing/headwallSpectralLibrary.r", echo = TRUE)
 }
 main()
 
