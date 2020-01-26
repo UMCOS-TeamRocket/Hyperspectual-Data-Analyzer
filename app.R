@@ -1,29 +1,32 @@
 library(shiny)
 library(shinyWidgets)
+library(magrittr)
 
 source("processQueue.R")
 source("generateRFClassifier.R")
 
-ui <- fluidPage(
+ui <- 
+  fluidPage(
   tags$head(
-    tags$style(HTML("
+   tags$style(HTML("
           .navbar .navbar-nav {float: right}
           .navbar .navbar-header {float: left;}
           .navbar-inner { background-color: #23262b }
-          .navbar-static-top {
-  position: static;
-  margin-bottom: 0px;
-  background-color: #23262b
-
+          .navbar-static-top 
+          {
+            position: static;
+            margin-bottom: 0px;
+            background-color: #23262b
           }
         "))
   ),
+ 
   navbarPage("Hyperspectral Data Analyzer",
              tabPanel("Home",
                       br(),
                       br(),
                           sidebarLayout(
-                            
+
                             sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
                               #Change the background color of the Select Data/Generate Class tab buttons to black when selected and gray otherwise
                               tags$style(HTML("
@@ -36,61 +39,61 @@ ui <- fluidPage(
                                           #SELECT DATA TAB
                                           tabPanel("Select Data", style = "background-color: #383a40;",
                                                    #Drop down for classifier selection
-                                                   selectInput("classifierSelect", 
+                                                   selectInput("classifierSelect",
                                                                label = div(style="color: white;", "Classifier:"), c()),
-                                                   
+
                                                    tags$head(tags$style(
                                                           HTML('
-                                                            body, input, button, select { 
+                                                            body, input, button, select {
                                                                 font-family: "Calibri";
                                                                 background-color: #121212;
                                                             }')
                                                    )),
-                                                   
+
                                                    #File browser for data cubes
                                                    #accept gives the browser a hint of what kind of files the server is expecting.
                                                    fileInput("dataCubeFileInput", label = div(style="color: white;", "Data Cube:"),, accept = c(".txt")),
-                                                     
-                                                   
+
+
                                                    #Button to generate a classifier
                                                    actionButton("addToQueueButton", "Add to Queue")
                                           ),
-                                          
+
                                           #GENERATE CLASSIFIER TAB
                                           tabPanel("Generate Classifier", style = "background-color:#383a40;",
                                                    #File browser for data cubes
                                                    #accept gives the browser a hint of what kind of files the server is expecting.
                                                    selectInput("speciesSelect", label = div(style="color: white;", "Species:"), c("Shrub", "Lichen"), multiple = TRUE),
-                                                   
+
                                                    tags$head(tags$style(
                                                      HTML('
-                                                            body, input, button, select { 
+                                                            body, input, button, select {
                                                                 font-family: "Calibri";
                                                                 background-color: #23262b;
                                                             }')
                                                    )),
-                                                  
+
                                                    #File browser for data cubes
                                                    #accept gives the browser a hint of what kind of files the server is expecting.
                                                    textInput("ClassifierNameInput", label = div(style="color: white;", "Classifier Name:"), value = ""),
-                                                   
+
                                                    #Button to generate a classifier
                                                    actionButton("generateClassifierButton", "Generate Classifier")
-                                                 
+
                                         )
-                                          
+
                               ),
-                              
+
                             ),
-                            
+
                             #RANDOM PARAMETERS
                             mainPanel(
                               style = "background-color: #383a40;",
-                              
+
                               #change the color of the min and max values on the slider to white
                               tags$style(HTML(".irs-max {color: white;}
                                               .irs-min {color: white;}")),
-                              
+
                               setSliderColor(c("red", "red", "red", "red"), c(1, 2, 3, 4)),
                               sliderInput("integer", label = div(style="color: white;", "Integer:"),
                                           min = 0, max = 1000,
@@ -105,14 +108,14 @@ ui <- fluidPage(
                               sliderInput("integer", label = div(style="color: white;", "Integer:"),
                                           min = 0, max = 1000,
                                           value = 500),
-                              
-                              
-                            )  
-                        
+
+
+                            )
+
                       ),
                       br(),
                       br(),
-                      
+
                       #QUEUE
                       fluidRow(
                         style = "background-color: #383a40;",
@@ -123,21 +126,87 @@ ui <- fluidPage(
                           column(1, actionButton("clearQueue", "clear"))
                         ),
                         br(),
-                        
+
                         verbatimTextOutput("queue"),
                         tags$head(tags$style(HTML("#queue {background-color: #383a40; border-color: #383a40; color: white; font-size: 15px; padding-left: 10px;}"))),
                         br(),
                       ),
-          
+
                       img(src="logo.png", height="10%", width="10%", align="right")
              ),
-             
+             #UPLOAD DATA TAB
              tabPanel("Upload Data",
-                      verbatimTextOutput("Upload Data")
+                      fluidPage(
+
+                        br(),
+                        #UPLOAD CLASSIFIER
+                        sidebarPanel(
+                          width = 12,
+                          style = "background-color: #383a40;",
+                          fileInput(
+                          inputId = "files",
+                          label = div(style="color: white;", "Drag and Drop or Browse:"),
+                          multiple = TRUE,
+                          buttonLabel = "Browse",
+                          placeholder = "No file selected"
+                          ),
+                          textInput("uploadClassifierNameInput", label = div(style="color: white;", "Classifier Name:"), value = ""),
+                          
+                          #Button to upload a classifier
+                          actionButton("uploadClassifierButton", "Upload Classifier"),
+
+                        ),
+                        #UPLOAD DATA CUBE
+                        sidebarPanel(
+                          width = 12,
+                          style = "background-color: #383a40;",
+                          fileInput(
+                            inputId = "files",
+                            label = div(style="color: white;", "Drag and Drop or Browse:"),
+                            multiple = TRUE,
+                            buttonLabel = "Browse",
+                            placeholder = "No file selected"
+                          ),
+                          textInput("uploadDataCubeInput", label = div(style="color: white;", "Data Cube Name:"), value = ""),
+                          
+                          #Button to upload a dataCube
+                          actionButton("uploadDataCube", "Upload Data Cube"),
+                          
+                        ),
+                        
+                      ),
+                      img(src="logo.png", height="10%", width="10%", align="right")
              ),
-             
+             #VIEW DATA TAB
              tabPanel("View Data",
-                      verbatimTextOutput("View Data")
+                      sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
+                                   #Change the background color of the Select Data/Generate Class tab buttons to black when selected and gray otherwise
+                                   tags$style(HTML("
+                                            .tabbable > .nav > li > a {background-color: #383a40;  color:white}
+                                            .tabbable > .nav > li > a[data-value='Classifiers'] {border-color: #2b2b2b; background-color: #2b2b2b;  color:white}
+                                            .tabbable > .nav > li > a[data-value='Output'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
+                                            .tabbable > .nav > li > a[data-value='Config'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
+                                            .tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}
+                              ")),
+                                   tabsetPanel(type = "tabs",
+                                               #CLASSIFIER DATA TAB
+                                               tabPanel("Classifiers", style = "background-color: #383a40;",
+                                                  
+                                               ),
+
+                                               #OUTPUT TAB
+                                               tabPanel("Output", style = "background-color:#383a40;",
+                                               ),
+                                               #CONFIGURATION TAB  
+                                               tabPanel("Config", style = "background-color: #383a40;",
+                                                        
+                                               )
+
+
+                                   ),
+                      ),
+
+
              )
   )
   
@@ -226,6 +295,21 @@ server <- function(input, output, session) {
       updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
       
       print("classifier generated")
+    }
+  })
+  #Upload classifier
+  observeEvent(input$uploadClassifierButton, {
+    if (is.null(input$uploadClassifierNameInput)) {
+      print("no classifier name entered")
+    } else {
+      
+      #add to the list of classifier names
+      classifierChoices <<- c(classifierChoices, input$uploadClassifierNameInput)
+      
+      #add the new classifier name to the drop down in the select data tab
+      updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
+      
+      print("classifier uploaded")
     }
   })
 }
