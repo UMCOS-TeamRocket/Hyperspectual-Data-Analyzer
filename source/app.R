@@ -64,7 +64,7 @@ ui <-
                                                  
                                                  multiInput(
                                                    inputId = "spectralList", label = "List of Spectral Objects By Site",
-                                                   choices = c("Spectral Object 1", "Spectral Object 2", "Spectral Object 3"),
+                                                   choices = list.files(path = "output/fieldSpec", full.names = FALSE),
                                                    options = list(
                                                      enable_search = TRUE
                                                    )
@@ -305,6 +305,15 @@ server <- function(input, output, session) {
       print("Processing Spectra By Field...")
       processFieldSpec("data/Field_spec/Alaska")
       print("Finished Processing Spectra By Field")
+      
+      spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)
+      updateMultiInput(
+        session = session,
+        inputId = "spectralList",
+        selected = c(),
+        choices = spectraList
+      )
+      
     }, warning = function(warning) {
       print(warning)
     }, error = function(error) {
