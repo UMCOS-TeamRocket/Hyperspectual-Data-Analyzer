@@ -2,8 +2,10 @@ library(shiny)
 library(shinyWidgets)
 library(magrittr)
 
-source("processQueue.R")
-source("generateRFClassifier.R")
+library(here)
+setwd(here())
+
+source("source/fieldSpecProcessing/bySite.R")
 
 ui <- 
   fluidPage(
@@ -32,57 +34,56 @@ ui <-
                               tags$style(HTML("
                                             .tabbable > .nav > li > a {background-color: #383a40;  color:white}
                                             .tabbable > .nav > li > a[data-value='Select Data'] {border-color: #2b2b2b; background-color: #2b2b2b;  color:white}
-                                            .tabbable > .nav > li > a[data-value='Generate Classifier'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
-                                            .tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}
-                              ")),
+                                            
+                              ")), #.tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}
                               tabsetPanel(type = "tabs",
                                           #SELECT DATA TAB
                                           tabPanel("Select Data", style = "background-color: #383a40;",
-                                                   #Drop down for classifier selection
-                                                   selectInput("classifierSelect",
-                                                               label = div(style="color: white;", "Classifier:"), c()),
-
-                                                   tags$head(tags$style(
-                                                          HTML('
-                                                            body, input, button, select {
-                                                                font-family: "Calibri";
-                                                                background-color: #121212;
-                                                            }')
-                                                   )),
+                                                   #Drop down for Spectral Library selection
+                                                   selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), c()),
 
                                                    #File browser for data cubes
-                                                   #accept gives the browser a hint of what kind of files the server is expecting.
-                                                   fileInput("dataCubeFileInput", label = div(style="color: white;", "Data Cube:"),, accept = c(".txt")),
-
+                                                   #accept gives the browser a hint of what kind of files the server is expecting. (but i think im doing it wrong somehow)
+                                                   fileInput("imageAvDirectory", label = div(style="color: white;", "Data Cube:"), accept = c(".txt")),
+                                                   fileInput("imageHdwDirectory", label = div(style="color: white;", "Data Cube:"), accept = c(".txt")),
+                                                   fileInput("imageAvViDirectory", label = div(style="color: white;", "Data Cube:"), accept = c(".txt")),
+                                                   
+                                                   #label to be used as the filename for the output
+                                                   textInput("outputLabel", "Output Label:"),
 
                                                    #Button to generate a classifier
                                                    actionButton("addToQueueButton", "Add to Queue")
                                           ),
-
-                                          #GENERATE CLASSIFIER TAB
-                                          tabPanel("Generate Classifier", style = "background-color:#383a40;",
-                                                   #File browser for data cubes
-                                                   #accept gives the browser a hint of what kind of files the server is expecting.
-                                                   selectInput("speciesSelect", label = div(style="color: white;", "Species:"), c("Shrub", "Lichen"), multiple = TRUE),
-
-                                                   tags$head(tags$style(
-                                                     HTML('
-                                                            body, input, button, select {
-                                                                font-family: "Calibri";
-                                                                background-color: #23262b;
-                                                            }')
-                                                   )),
-
-                                                   #File browser for data cubes
-                                                   #accept gives the browser a hint of what kind of files the server is expecting.
-                                                   textInput("ClassifierNameInput", label = div(style="color: white;", "Classifier Name:"), value = ""),
-
-                                                   #Button to generate a classifier
-                                                   actionButton("generateClassifierButton", "Generate Classifier")
-
+                                        
+                                        #Spectral Library Tab
+                                        tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;",
+                                                 actionButton("updateSpectralBySite", "Update"),
+                                                 
+                                                 br(),
+                                                 br(),
+                                                 
+                                                 multiInput(
+                                                   inputId = "spectralList", label = "List of Spectral Objects By Site",
+                                                   choices = c("Spectral Object 1", "Spectral Object 2", "Spectral Object 3"),
+                                                   options = list(
+                                                     enable_search = TRUE
+                                                   )
+                                                 ),
+                                                 
+                                                 textInput("spectralLibraryName", "Spectral Library Name"),
+                                                 
+                                                 actionButton("createSpectralLibrary", "Create Spectral Library")
                                         )
 
                               ),
+                              
+                              tags$head(tags$style(
+                                HTML('
+                                                            body, input, button, select {
+                                                                font-family: "Calibri";
+                                                                background-color: #121212;
+                                                            }')
+                              )),
 
                             ),
 
@@ -275,7 +276,7 @@ server <- function(input, output, session) {
       print("run queue")
       print(queue)
       
-      processQueue(queue)
+      #processQueue(queue)
     } else {
       print("queue is empty")
     }
@@ -297,6 +298,20 @@ server <- function(input, output, session) {
       print("classifier generated")
     }
   })
+  
+  #Update Spectra Objects By Site
+  observeEvent(input$updateSpectralBySite, {
+    tryCatch({
+      print("Processing Spectra By Field...")
+      processFieldSpec("data/Field_spec/Alaska")
+      print("Finished Processing Spectra By Field")
+    }, warning = function(warning) {
+      print(warning)
+    }, error = function(error) {
+      print(error)
+    })
+  })
+  
   #Upload classifier
   observeEvent(input$uploadClassifierButton, {
     if (is.null(input$uploadClassifierNameInput)) {
