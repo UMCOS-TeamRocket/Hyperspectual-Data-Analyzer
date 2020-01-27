@@ -39,12 +39,10 @@ fieldSpecAllPreds <- function(directories, outputName = "spectralLibrary") {
     write.csv(alaskaSpecLib_data_HDW, paste(paste("output/hdwImagery/", outputName, sep = ""), "_data_HDW.csv", sep = ""),row.names = FALSE)
     
   }, warning = function(warning) {
-    message <- paste("WARNING - While processing all preds", directory)
-    message <- paste(message, warning, sep = " : ")
+    message <- paste("WARNING - While processing all preds", warning, sep = " : ")
     print(message)
   }, error = function(error) {
-    message <- paste("ERROR - While processing all preds", directory)
-    message <- paste(message, error, sep = " : ")
+    message <- paste("ERROR - While processing all preds", error, sep = " : ")
     print(message)
   })
 }

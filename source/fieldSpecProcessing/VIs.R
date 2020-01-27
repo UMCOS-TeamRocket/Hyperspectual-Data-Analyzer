@@ -13,7 +13,7 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
     tst$V2%>%range()##There are no weird values, those are values outside of 0 and 2
     
     ##Reads in bandpasses for imagery to be used later
-    HDW_ng_wv<-scan("Outputs/2_HDW_Imagery/1_Processing/Headwall_wv", numeric())
+    HDW_ng_wv<-scan("output/hdwImagery/Headwall_wv", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans

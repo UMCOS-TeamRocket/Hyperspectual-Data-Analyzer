@@ -11,7 +11,7 @@ createSpectralLibrary <- function(vectorOfSampleDirectories, outputName) {
     
     for (directory in vectorOfSampleDirectories) {
       listOfSpectra[[index]] <- readRDS(directory)
-      index <<- index + 1
+      index <- index + 1
     }
     
     ##This function combines the list of spectral objects above

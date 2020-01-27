@@ -6,6 +6,7 @@ library(here)
 setwd(here())
 
 source("source/fieldSpecProcessing/bySite.R")
+source("source/generateSpectralLibraryFiles.R")
 
 ui <- 
   fluidPage(
@@ -319,6 +320,27 @@ server <- function(input, output, session) {
     }, error = function(error) {
       print(error)
     })
+  })
+  
+  observeEvent(input$createSpectralLibrary, {
+    spectralLibraryName <- input$spectralLibraryName
+    
+    if (is.null(spectralLibraryName)) {
+      print("no name entered")
+    } else {
+      listOfSpectraObjects <- c()
+      index <- 1
+      for(fileName in input$spectralList) {
+        listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
+        index <- index + 1
+      }
+    
+      print("Generating Spectral Library Files...")
+      
+      generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
+      
+      print("Generated Spectral Library Files")
+    }
   })
   
   #Upload classifier

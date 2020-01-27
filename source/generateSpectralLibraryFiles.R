@@ -2,7 +2,7 @@ source("source/fieldSpecProcessing/createSpectralLibrary.R")
 source("source/imageProcessing/headwallSpectralLibrary.R")
 source("source/fieldSpecProcessing/resampled.R")
 source("source/fieldSpecProcessing/VIs.R")
-source("source/filedSpecProcessing/allPreds.R")
+source("source/fieldSpecProcessing/allPreds.R")
 
 generateSpectralLibraryFiles <- function(spectraDirectories, name) {
   tryCatch({
@@ -23,7 +23,7 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
     hdwDirectories <- c(hdw10nm, hdw50nm, hdw100nm, hdwVi)
     
     fieldSpecAllPreds(hdwDirectories, name)
-  }), warning = function(warning) {
+  }, warning = function(warning) {
     print(warning)
   }, error = function(error) {
     print(error)
