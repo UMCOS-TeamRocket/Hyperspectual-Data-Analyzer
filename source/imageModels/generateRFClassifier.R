@@ -1,6 +1,6 @@
 library(randomForest)
 
-generateRFClassifier <- function(classifierName, spectralLibraryDirectory, mtry = 3, ntree = 500, importance = TRUE) {
+generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOfSampledVariables = 3, treeNum = 500, importance = TRUE) {
   tryCatch({
     ##Reads in VIs for specctral library each functional group has a total of 25 scans and imagery 
     spectralLibrary_VIs_equal25<-read.csv(spectralLibraryDirectory)
@@ -9,11 +9,12 @@ generateRFClassifier <- function(classifierName, spectralLibraryDirectory, mtry 
     spectralLibrary_VIs_equal25 [c("ScanID","PFT","PFT_2","area","Freq1","Freq2")] = NULL
     
     ##We can build randomforest model
-    rf_AV_VIs <- randomForest(PFT_3~., data=alaskaSpeclib_VIs_equal25, mtry = mtry, ntree = ntree, importance = importance)
+    rf_AV_VIs <- randomForest(PFT_3~., data=alaskaSpeclib_VIs_equal25, mtry = numOfSampledVariables, ntree = treeNum, importance = importance)
     
     ##Now lets save the random forest classifier that was created
     saveRDS(rf_AV_VIs, paste(paste("output/classifiers/", classifierName, sep = ""), ".rds", sep = ""))
     
+    return(paste(paste("output/classifiers/", classifierName, sep = ""), ".rds", sep = ""))
   }, warning = function(warning) {
     message <- paste("WARNING - While Generating RF Classifier", spectralLibraryDirectory)
     message <- paste(message, warning, sep = " : ")
