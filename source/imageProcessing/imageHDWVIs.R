@@ -3,7 +3,7 @@ library(spectrolab)
 library(tidyverse)
 library(hsdar)
 
-createImgVi <- function(imgHdwDfDirectory, fileName = "image") {
+createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe
     IMG_HDW<-read.csv(imgHdwDfDirectory, check.names = FALSE)
@@ -269,6 +269,8 @@ createImgVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
     write.csv(IMG_VIs_A, paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
+    
+    return(paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
   }, warning = function(warning) {
     message <- paste ("WARNING - While creating image VI", imgHdwDfDirectory)
     message <- paste(message, warning, sep = " : ")

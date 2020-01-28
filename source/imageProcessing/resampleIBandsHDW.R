@@ -3,7 +3,7 @@ library(spectrolab)
 library(tidyverse)
 library(hsdar)
 
-resampleIMGBands <- function(imageDirectory, fileName = "image") {
+resampleBandsHDW <- function(imageDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe 
     IMG_HDW<-brick(imageDirectory)%>%rasterToPoints()%>%as.data.frame()
@@ -87,6 +87,13 @@ resampleIMGBands <- function(imageDirectory, fileName = "image") {
     write.csv(IMG_HDW_010nm , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""), row.names = FALSE)
     write.csv(IMG_HDW_050nm , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""), row.names = FALSE)
     write.csv(IMG_HDW_100nm , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""),row.names = FALSE)
+    
+    directories <- c(paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_df.csv", sep = ""),
+                     paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""),
+                     paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""),
+                     paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""))
+    
+    return(directories)
   }, warning = function(warning) {
     message <- paste ("WARNING - While resampling bands", imageDirectory)
     message <- paste(message, warning, sep = " : ")

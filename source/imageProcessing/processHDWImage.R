@@ -1,19 +1,19 @@
 source("source/imageProcessing/resampleImgBands.R")
 source("source/imageProcessing/createImgVIs.R")
 
-processImage <- (imageDirectory) {
+processHDWImage <- (imageDirectory) {
   tryCatch({
     #get file name from directory
     fileName <- baseName(imageDirectory)
     #remove file extension
     fileName <- substr(fileName, 1, nchar(fileName) - 4)
     
-    resampleIMGBands(imageDirectory, fileName)
+    resampeldDirectories <- resampleBandsHDW(imageDirectory, fileName)
     
-    #directory where resampleIMGBands() saves the df
-    dfDirectory <- paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_df.csv", sep = "")
+    dfDirectory <- resampledDirectories[1]
+    hdwViDirectory <- createImgHDWVi(dfDirectory, fileName)
     
-    createImgVi(dfDirectory, fileName)
+    return(hdwViDirectory)
   }, warning = function(warning) {
     print(warning)
   }, error = function(error) {
