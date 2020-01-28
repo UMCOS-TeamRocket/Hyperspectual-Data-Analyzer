@@ -1,5 +1,5 @@
 source("source/fieldSpecProcessing/createSpectralLibrary.R")
-source("source/imageProcessing/headwallSpectralLibrary.R")
+source("source/fieldSpecProcessing/headwallSpectralLibrary.R")
 source("source/fieldSpecProcessing/resampled.R")
 source("source/fieldSpecProcessing/VIs.R")
 source("source/fieldSpecProcessing/allPreds.R")
