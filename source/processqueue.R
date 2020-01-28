@@ -1,11 +1,43 @@
+source("source/imageModels/generateRFClassifier.R")
+source("source/imageModels/predict.R")
+source("source/imageProcessing/processHDWImage.R")
+
+#TODO: get file paths in app.R and add then pass them into this function. Then uncomment functions below
+
 processQueue <- function(queue) {
-  for (process in queue) {
-    dataCube <- process[1]
-    classifier <- process[2]
-    
-    print(paste("Processing Data Cube:", dataCube))
-    #TODO: LOAD CLASSIFIER
-    #TODO: GET DATA CUBE FILE PATH?
-    #TODO: PREDICT
-  }
+  tryCatch({
+    for (process in queue) {
+      print("Current Process:")
+      print(process)
+      
+      classifier <- process[[1]]
+      spectralLibrary <- classifier[1]
+      mtry <- classifier[2]
+      ntree <- classifier[3]
+      importance <- classifier[4]
+      classifierFileName <- classifier[5]
+      
+      images <- process[[2]]
+      image <- images[1]
+      hdwImage <- images[2]
+      
+      outputFileName <- process[[3]]
+      
+      print("Generating RF Classifier")
+      #classifierDirectory <- generateRFClassifier(classifierFileName, spectralLibrary, mtry, ntree, importance)
+      
+      print("Processing HDW Image")
+      #hdwViDirectory <- processHDWImage(image)
+      
+      print("Predicting")
+      #outputDirectory <- predict(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
+      
+      print("Process Finished")
+    }
+  }, warning = function(warning) {
+    print(warning)
+  }, error = function(error) {
+    print(error)
+  })
+  
 }

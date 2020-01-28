@@ -7,6 +7,7 @@ setwd(here())
 
 source("source/fieldSpecProcessing/bySite.R")
 source("source/generateSpectralLibraryFiles.R")
+source("source/processQueue.R")
 
 ui <- 
   fluidPage(
@@ -41,16 +42,19 @@ ui <-
                                           #SELECT DATA TAB
                                           tabPanel("Select Data", style = "background-color: #383a40;",
                                                    #Drop down for Spectral Library selection
-                                                   selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), c()),
+                                                   selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), list.files(path = "output/hdwImagery", full.names = FALSE)),
+                                                   
+                                                   #label to be used as the filename for the classifier
+                                                   textInput("classifierName", "Classifier File Name:"),
 
-                                                   #File browser for data cubes
-                                                   #accept gives the browser a hint of what kind of files the server is expecting. (but i think im doing it wrong somehow)
-                                                   fileInput("imageAvDirectory", label = div(style="color: white;", "Data Cube:"), accept = c(".txt")),
-                                                   fileInput("imageHdwDirectory", label = div(style="color: white;", "Data Cube:"), accept = c(".txt")),
-                                                   fileInput("imageAvViDirectory", label = div(style="color: white;", "Data Cube:"), accept = c(".txt")),
+                                                   #images that have been uploaded to the server
+                                                   #temporarily looking in this directory
+                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
+                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
+                                                   #filenames<-list.files(pattern="\\.csv$")
                                                    
                                                    #label to be used as the filename for the output
-                                                   textInput("outputLabel", "Output Label:"),
+                                                   textInput("outputFileName", "Output File Name:"),
 
                                                    #Button to generate a classifier
                                                    actionButton("addToQueueButton", "Add to Queue")
@@ -96,22 +100,15 @@ ui <-
                               tags$style(HTML(".irs-max {color: white;}
                                               .irs-min {color: white;}")),
 
-                              setSliderColor(c("red", "red", "red", "red"), c(1, 2, 3, 4)),
-                              sliderInput("integer", label = div(style="color: white;", "Integer:"),
-                                          min = 0, max = 1000,
-                                          value = 500,
+                              setSliderColor(c("red", "red"), c(1, 2)),
+                              sliderInput("mtry", label = div(style="color: white;", "Number Of Sampled Variables:"),
+                                          min = 0, max = 10,
+                                          value = 3,
                                           ),
-                              sliderInput("integer", label = div(style="color: white;", "Integer:"),
+                              sliderInput("ntree", label = div(style="color: white;", "Number of trees to grow:"),
                                           min = 0, max = 1000,
                                           value = 500),
-                              sliderInput("integer", label = div(style="color: white;", "Integer:"),
-                                          min = 0, max = 1000,
-                                          value = 500),
-                              sliderInput("integer", label = div(style="color: white;", "Integer:"),
-                                          min = 0, max = 1000,
-                                          value = 500),
-
-
+                              checkboxInput("importance", label = div(style="color: white;", "Importance"), value = TRUE)
                             )
 
                       ),
@@ -231,20 +228,28 @@ server <- function(input, output, session) {
   #add to queue button is pressed
   observeEvent(input$addToQueueButton, {
     #chck if a file has been selected
-    if (is.null(input$dataCubeFileInput$name)) {
-      print("no file selected")
+    if (is.null(input$classifierName)) {
+      print("Please enter a Classifier Name")
+    } else if (is.null(input$imageAvDirectory$name)) {
+      print("Please select an AV image")
+    } else if (is.null(input$imageHdwDirectory$name)) {
+      print("Please select an HDW image")
+    } else if (is.null(input$imageAvViDirectory$name)) {
+      print("Please select an AV VI image")
+    } else if (is.null(input$outputFileName)) {
+      print("Please enter an Output File Name")
     } else {
+      #gather process parameters
+      classifier <- c(input$librarySelect, input$mtry, input$ntree, input$importance, input$classifierName)
+      images <- c(input$imageDirectory, input$imageHdwDirectory)
+      newProcess <- list(classifier, images, input$outputFileName)
+      
       #add process to queue
-      queue[[length(queue) + 1]] <<- c(input$dataCubeFileInput$name, input$classifierSelect)
+      queue[[length(queue) + 1]] <<- newProcess
       
-      #create string to add to queue
-      string <- "{{Data Cube: "
-      string <- paste(string, input$dataCubeFileInput$name, sep = "")
-      string <- paste(string, "} Classifier: ", sep = "")
-      string <- paste(string, input$classifierSelect, sep = "")
-      string <- paste(string, "}", sep = "")
+      #TODO: create a better string to add to queue
       
-      queueText <<- c(queueText, string)
+      queueText <<- c(queueText, newProcess)
     }
     
     if (length(queueText) == 0) {
@@ -274,29 +279,13 @@ server <- function(input, output, session) {
   #Run all processes in queue
   observeEvent(input$runQueue, {
     if (length(queue) > 0) {
-      print("run queue")
-      print(queue)
+      print("Processing Queue...")
       
-      #processQueue(queue)
+      processQueue(queue)
+      
+      print("Finished Processing Queue")
     } else {
       print("queue is empty")
-    }
-  })
-  
-  #Generate Classifier
-  observeEvent(input$generateClassifierButton, {
-    if (is.null(input$ClassifierNameInput)) {
-      print("no classifier name entered")
-    } else {
-      #generateRFClassifier(name, parameterList)
-      
-      #add to the list of classifier names
-      classifierChoices <<- c(classifierChoices, input$ClassifierNameInput)
-      
-      #add the new classifier name to the drop down in the select data tab
-      updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
-      
-      print("classifier generated")
     }
   })
   
