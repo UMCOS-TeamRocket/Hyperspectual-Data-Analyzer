@@ -1,2 +1,2 @@
 # Hyperspectual-Data-Analyzer
-COS 397 Capstone Project
+COS 397/497 Capstone Project
