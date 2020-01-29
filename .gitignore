@@ -41,3 +41,6 @@ output/fieldSpec/
 output/hdwImagery/
 output/plots/
 output/spectralLibraries/
+
+#weird test data
+tests/
