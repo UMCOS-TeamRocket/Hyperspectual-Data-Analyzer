@@ -2,8 +2,6 @@ source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
 source("source/imageProcessing/processHDWImage.R")
 
-#TODO: get file paths in app.R and add then pass them into this function. Then uncomment functions below
-
 processQueue <- function(queue) {
   tryCatch({
     for (process in queue) {
@@ -24,13 +22,13 @@ processQueue <- function(queue) {
       outputFileName <- process[[3]]
       
       print("Generating RF Classifier")
-      #classifierDirectory <- generateRFClassifier(classifierFileName, spectralLibrary, mtry, ntree, importance)
+      classifierDirectory <- generateRFClassifier(classifierFileName, spectralLibrary, mtry, ntree, importance)
       
       print("Processing HDW Image")
-      #hdwViDirectory <- processHDWImage(image)
+      hdwViDirectory <- processHDWImage(image)
       
       print("Predicting")
-      #outputDirectory <- predict(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
+      outputDirectory <- predict(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
       
       print("Process Finished")
     }
