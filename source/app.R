@@ -240,8 +240,13 @@ server <- function(input, output, session) {
       print("Please enter an Output File Name")
     } else {
       #gather process parameters
-      classifier <- c(input$librarySelect, input$mtry, input$ntree, input$importance, input$classifierName)
-      images <- c(input$imageDirectory, input$imageHdwDirectory)
+      ##temporary paths
+      libraryDirectory <- paste("output/hdwImagery/", input$librarySelect, sep = "")
+      imageDirecotry <- paste("data/Test_imagery_AVIRIS/", input$imageDirectory, sep = "")
+      imageHdwDirectory <- paste("data/Test_imagery_HDW", input$imageHdwDirectory, sep = "")
+      
+      classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
+      images <- c(imageDirecotry, imageHdwDirectory)
       newProcess <- list(classifier, images, input$outputFileName)
       
       #add process to queue
