@@ -34,3 +34,13 @@ vignettes/*.pdf
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
+
+#output files
+output/classifiers/
+output/fieldSpec/
+output/hdwImagery/
+output/plots/
+output/spectralLibraries/
+
+#weird test data
+tests/
