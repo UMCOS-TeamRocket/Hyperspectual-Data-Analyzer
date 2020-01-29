@@ -1,7 +1,7 @@
 source("source/imageProcessing/resampleImgBands.R")
 source("source/imageProcessing/createImgVIs.R")
 
-processHDWImage <- (imageDirectory) {
+processHDWImage <- function (imageDirectory) {
   tryCatch({
     #get file name from directory
     fileName <- baseName(imageDirectory)

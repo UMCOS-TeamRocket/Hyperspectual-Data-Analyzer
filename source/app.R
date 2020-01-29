@@ -45,7 +45,7 @@ ui <-
                                                    selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), list.files(path = "output/hdwImagery", full.names = FALSE)),
                                                    
                                                    #label to be used as the filename for the classifier
-                                                   textInput("classifierName", "Classifier File Name:"),
+                                                   textInput("classifierName",label = div(style="color: white;", "Classifier File Name:")),
 
                                                    #images that have been uploaded to the server
                                                    #temporarily looking in this directory
@@ -54,7 +54,7 @@ ui <-
                                                    #filenames<-list.files(pattern="\\.csv$")
                                                    
                                                    #label to be used as the filename for the output
-                                                   textInput("outputFileName", "Output File Name:"),
+                                                   textInput("outputFileName",label = div(style="color: white;", "Output File Name:")),
 
                                                    #Button to generate a classifier
                                                    actionButton("addToQueueButton", "Add to Queue")
@@ -75,7 +75,7 @@ ui <-
                                                    )
                                                  ),
                                                  
-                                                 textInput("spectralLibraryName", "Spectral Library Name"),
+                                                 textInput("spectralLibraryName",label = div(style="color: white;", "Spectral Library Name")),
                                                  
                                                  actionButton("createSpectralLibrary", "Create Spectral Library")
                                         )
