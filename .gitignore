@@ -38,9 +38,13 @@ rsconnect/
 #output files
 output/classifiers/
 output/fieldSpec/
+<<<<<<< Updated upstream
 output/hdwImagery/
 output/plots/
 output/spectralLibraries/
 
 #weird test data
 tests/
+=======
+output/plots/
+>>>>>>> Stashed changes
