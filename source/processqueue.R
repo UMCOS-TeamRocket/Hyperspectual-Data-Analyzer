@@ -3,8 +3,8 @@ source("source/imageModels/predict.R")
 source("source/imageProcessing/processHDWImage.R")
 
 processQueue <- function(queue) {
-  tryCatch({
-    for (process in queue) {
+  for (process in queue) {
+    tryCatch({
       print("Current Process:")
       print(process)
       
@@ -31,11 +31,10 @@ processQueue <- function(queue) {
       outputDirectory <- predict(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
       
       print("Process Finished")
-    }
-  }, warning = function(warning) {
-    print(warning)
-  }, error = function(error) {
-    print(error)
-  })
-  
+    }, warning = function(warning) {
+      print(warning)
+    }, error = function(error) {
+      print(error)
+    })
+  }
 }
