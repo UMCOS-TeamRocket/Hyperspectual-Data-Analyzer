@@ -8,7 +8,7 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
   tryCatch({
     createSpectralLibrary(spectraDirectories, name)
     
-    spectralLibraryRDSDirectory <- paste(paste("output/spectralLibraries/", name, sep = ""), ".rds", sep = "")
+    spectralLibraryRDSDirectory <- paste(paste("output/fieldSpec/", name, sep = ""), ".rds", sep = "")
     headwallSpectralLibrary(spectralLibraryRDSDirectory, name)
     
     hdwDfEqual25Directory <- paste(paste("output/hdwImagery/", name, sep = ""), "_HDW_df_equal25.csv", sep = "")
