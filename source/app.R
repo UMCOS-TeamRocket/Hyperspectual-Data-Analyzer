@@ -296,7 +296,9 @@ server <- function(input, output, session) {
   observeEvent(input$updateSpectralBySite, {
     tryCatch({
       print("Processing Spectra By Field...")
+      
       processFieldSpec("data/Field_spec/Alaska")
+      
       print("Finished Processing Spectra By Field")
       
       spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)

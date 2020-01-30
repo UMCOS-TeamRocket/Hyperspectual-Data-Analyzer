@@ -25,7 +25,7 @@ processQueue <- function(queue) {
         
         print(paste("Current Process:", outputFileName))
         
-        print(index)
+        #increase progress bar and change detail text
         setProgress(index, detail = outputFileName)
         
         print("Generating RF Classifier")
@@ -44,10 +44,12 @@ processQueue <- function(queue) {
         print(warning)
       }, error = function(error) {
         print(error)
+      }, finally = {
+        index <- index + 1
       })
-      
-      setProgress(length(queue))
     }
+    
+    setProgress(length(queue))
   })
   
 }
