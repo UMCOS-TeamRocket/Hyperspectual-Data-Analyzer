@@ -230,11 +230,9 @@ server <- function(input, output, session) {
     #chck if a file has been selected
     if (is.null(input$classifierName)) {
       print("Please enter a Classifier Name")
-    } else if (is.null(input$imageAvDirectory$name)) {
+    } else if (is.null(input$imageDirectory)) {
       print("Please select an AV image")
-    } else if (is.null(input$imageHdwDirectory$name)) {
-      print("Please select an HDW image")
-    } else if (is.null(input$imageAvViDirectory$name)) {
+    } else if (is.null(input$imageHdwDirectory)) {
       print("Please select an AV VI image")
     } else if (is.null(input$outputFileName)) {
       print("Please enter an Output File Name")
