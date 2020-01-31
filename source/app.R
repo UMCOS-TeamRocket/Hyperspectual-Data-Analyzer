@@ -68,7 +68,7 @@ ui <-
                                                  br(),
                                                  
                                                  multiInput(
-                                                   inputId = "spectralList", label = "List of Spectral Objects By Site",
+                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white")
                                                    choices = list.files(path = "output/fieldSpec", full.names = FALSE),
                                                    options = list(
                                                      enable_search = TRUE
