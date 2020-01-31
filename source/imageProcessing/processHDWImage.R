@@ -1,5 +1,5 @@
-source("source/imageProcessing/resampleImgBands.R")
-source("source/imageProcessing/createImgVIs.R")
+source("source/imageProcessing/resampleBandsHDW.R")
+source("source/imageProcessing/imageHDWVIs.R")
 
 processHDWImage <- function (imageDirectory) {
   tryCatch({

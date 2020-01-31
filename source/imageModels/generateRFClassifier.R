@@ -1,6 +1,4 @@
 library(randomForest)
-library(foreach)
-library(ranger)
 
 generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOfSampledVariables = 3, treeNum = 500, importance = TRUE) {
   tryCatch({
@@ -9,11 +7,8 @@ generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOf
     
     ##Remove unwanted metadata from spectral library
     spectralLibrary_VIs_equal25 [c("ScanID","PFT","PFT_2","area","Freq1","Freq2")] = NULL
-   
     
-    ##Builds randomforest model with ranger
-    
-    #rf_AV_VIs <- ranger(PFT_3~., data=alaskaSpeclib_VIs_equal25, mtry = numOfSampledVariables, ntree = treeNum, importance = importance)
+    ##We can build randomforest model
     rf_AV_VIs <- randomForest(PFT_3~., data=alaskaSpeclib_VIs_equal25, mtry = numOfSampledVariables, ntree = treeNum, importance = importance)
     
     ##Now lets save the random forest classifier that was created
