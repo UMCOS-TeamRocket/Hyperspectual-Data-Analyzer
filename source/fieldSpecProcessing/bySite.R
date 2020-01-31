@@ -40,7 +40,6 @@ processFieldSpec <- function(fieldSpecDirectory) {
         ##save spectra (Raw)
         saveRDS(spectra, fileName)
         
-        index <- index + 1
       }, warning = function(warning) {
         message <- paste("WARNING - While processing by site", directory)
         message <- paste(message, warning, sep = " : ")

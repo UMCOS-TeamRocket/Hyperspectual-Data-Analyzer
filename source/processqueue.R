@@ -39,7 +39,6 @@ processQueue <- function(queue) {
         
         print("Process Finished")
         
-        index <- index + 1
       }, warning = function(warning) {
         print(warning)
       }, error = function(error) {
