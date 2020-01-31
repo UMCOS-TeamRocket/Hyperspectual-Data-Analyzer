@@ -402,9 +402,9 @@ createSpectralLibrary <- function(vectorOfSampleDirectories, outputName) {
   
   }, warning = function(warning) {
     message <- paste("WARNING - While creating specral library", warning, sep = " : ")
-    print(message)
+    warning(message)
   }, error = function(error) {
     message <- paste("ERROR - While while creating spectral library", error, sep = " : ")
-    print(message)
+    stop(message)
   })
 }

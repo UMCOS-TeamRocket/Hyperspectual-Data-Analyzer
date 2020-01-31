@@ -37,9 +37,9 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
       
       setProgress(1)
     }, warning = function(warning) {
-      print(warning)
+      warning(warning)
     }, error = function(error) {
-      print(error)
+      stop(error)
     })
   })
  

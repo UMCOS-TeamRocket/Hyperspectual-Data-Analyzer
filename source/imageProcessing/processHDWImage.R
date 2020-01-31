@@ -15,8 +15,8 @@ processHDWImage <- function (imageDirectory) {
     
     return(hdwViDirectory)
   }, warning = function(warning) {
-    print(warning)
+    warning(warning)
   }, error = function(error) {
-    print(error)
+    stop(error)
   })
 }

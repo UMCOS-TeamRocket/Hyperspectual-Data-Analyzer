@@ -388,10 +388,10 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
   }, warning = function(warning) {
     message <- paste("WARNING - While processing headwall spectral library", directory)
     message <- paste(message, warning, sep = " : ")
-    print(message)
+    warning(message)
   }, error = function(error) {
     message <- paste("ERROR - While processing headwall spectral library", directory)
     message <- paste(message, error, sep = " : ")
-    print(message)
+    stop(message)
   })
 }
