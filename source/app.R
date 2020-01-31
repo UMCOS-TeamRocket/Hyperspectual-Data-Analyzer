@@ -23,6 +23,7 @@ ui <-
             margin-bottom: 0px;
             background-color: #23262b
           }
+          a{color:#D2403A}
         "))
   ),
  
@@ -69,7 +70,7 @@ ui <-
                                                  br(),
                                                  
                                                  multiInput(
-                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:"),
+                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white"),
                                                    choices = list.files(path = "output/fieldSpec", full.names = FALSE),
                                                    options = list(
                                                      enable_search = TRUE
@@ -101,7 +102,7 @@ ui <-
                               tags$style(HTML(".irs-max {color: white;}
                                               .irs-min {color: white;}")),
 
-                              setSliderColor(c("red", "red"), c(1, 2)),
+                              setSliderColor(c("#D2403A", "#D2403A"), c(1, 2)),
                               sliderInput("mtry", label = div(style="color: white;", "Number Of Sampled Variables:"),
                                           min = 0, max = 10,
                                           value = 3,
