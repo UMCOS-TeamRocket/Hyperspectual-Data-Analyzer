@@ -40,9 +40,9 @@ fieldSpecAllPreds <- function(directories, outputName = "spectralLibrary") {
     
   }, warning = function(warning) {
     message <- paste("WARNING - While processing all preds", warning, sep = " : ")
-    print(message)
+    warning(message)
   }, error = function(error) {
     message <- paste("ERROR - While processing all preds", error, sep = " : ")
-    print(message)
+    stop(message)
   })
 }

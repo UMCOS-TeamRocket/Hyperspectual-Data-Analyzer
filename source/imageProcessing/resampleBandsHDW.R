@@ -97,11 +97,11 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
   }, warning = function(warning) {
     message <- paste ("WARNING - While resampling bands", imageDirectory)
     message <- paste(message, warning, sep = " : ")
-    print(message)
+    warning(message)
   }, error = function(error) {
     message <- paste ("ERROR - While resampling bands", imageDirectory)
     message <- paste(message, error, sep = " : ")
-    print(message)
+    stop(message)
   })
   
 }

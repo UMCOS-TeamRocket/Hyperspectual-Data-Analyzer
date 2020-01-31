@@ -71,9 +71,9 @@ predict <- function(classifierDirectory, imageAvDirectory, imageHdwDirectory, im
     return(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""))
   }, warning = function(warning) {
     message <- paste("WARNING - While predicting", warning, sep = " : ")
-    print(message)
+    warning(message)
   }, error = function(error) {
     message <- paste("ERROR - While predicting", error, sep = " : ")
-    print(message)
+    stop(message)
   })
 }
