@@ -34,12 +34,9 @@ ui <-
                           sidebarLayout(
 
                             sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
-                              #Change the background color of the Select Data/Generate Class tab buttons to black when selected and gray otherwise
-                              tags$style(HTML("
-                                            .tabbable > .nav > li > a {background-color: #383a40;  color:white}
-                                            .tabbable > .nav > li > a[data-value='Select Data'] {border-color: #2b2b2b; background-color: #2b2b2b;  color:white}
-                                            
-                              ")), #.tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}
+                              
+                              tags$style(HTML(".tabbable > .nav > li > a {background-color: #383a40;  color:white}")),
+                              
                               tabsetPanel(type = "tabs",
                                           #SELECT DATA TAB
                                           tabPanel("Select Data", style = "background-color: #383a40;",
@@ -70,11 +67,7 @@ ui <-
                                                  br(),
                                                  
                                                  multiInput(
-<<<<<<< HEAD
-                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white")
-=======
                                                    inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white"),
->>>>>>> LEAF-2
                                                    choices = list.files(path = "output/fieldSpec", full.names = FALSE),
                                                    options = list(
                                                      enable_search = TRUE
@@ -88,18 +81,17 @@ ui <-
 
                               ),
                               
-                              tags$head(tags$style(
-                                HTML('
-                                                            body, input, button, select {
+                              tags$head(tags$style(HTML('body, input, button, select {
                                                                 font-family: "Calibri";
-                                                                background-color: #121212;
-                                                            }')
+                                                                background-color: #121212;}')
                               )),
 
                             ),
 
                             #RANDOM PARAMETERS
                             mainPanel(
+                              br(),
+                              
                               style = "background-color: #383a40;",
 
                               #change the color of the min and max values on the slider to white
@@ -340,6 +332,9 @@ server <- function(input, output, session) {
       generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
       
       print("Generated Spectral Library Files")
+      
+      spectralLibraryFiles <- list.files(path = "output/hdwImagery", full.names = FALSE)
+      updateSelectInput(session, librarySelect, label = div(style="color: white;", "Spectral Library:"), spectralLibraryFiles)
     }
   })
   
