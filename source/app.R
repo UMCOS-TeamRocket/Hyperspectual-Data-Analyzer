@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyWidgets)
 library(magrittr)
+library(shinythemes)
 
 library(here)
 setwd(here())
@@ -10,7 +11,7 @@ source("source/generateSpectralLibraryFiles.R")
 source("source/processQueue.R")
 
 ui <- 
-  fluidPage(
+  fluidPage( theme =shinytheme("slate"),
   tags$head(
    tags$style(HTML("
           .navbar .navbar-nav {float: right}
@@ -22,6 +23,7 @@ ui <-
             margin-bottom: 0px;
             background-color: #23262b
           }
+          a{color:#D2403A}
         "))
   ),
  
@@ -45,7 +47,7 @@ ui <-
                                                    selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), list.files(path = "output/hdwImagery", full.names = FALSE)),
                                                    
                                                    #label to be used as the filename for the classifier
-                                                   textInput("classifierName", "Classifier File Name:"),
+                                                   textInput("classifierName",label = div(style="color: white;", "Classifier File Name:")),
 
                                                    #images that have been uploaded to the server
                                                    #temporarily looking in this directory
@@ -54,7 +56,7 @@ ui <-
                                                    #filenames<-list.files(pattern="\\.csv$")
                                                    
                                                    #label to be used as the filename for the output
-                                                   textInput("outputFileName", "Output File Name:"),
+                                                   textInput("outputFileName",label = div(style="color: white;", "Output File Name:")),
 
                                                    #Button to generate a classifier
                                                    actionButton("addToQueueButton", "Add to Queue")
@@ -68,14 +70,18 @@ ui <-
                                                  br(),
                                                  
                                                  multiInput(
-                                                   inputId = "spectralList", label = "List of Spectral Objects By Site",
+<<<<<<< HEAD
+                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white")
+=======
+                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white"),
+>>>>>>> LEAF-2
                                                    choices = list.files(path = "output/fieldSpec", full.names = FALSE),
                                                    options = list(
                                                      enable_search = TRUE
                                                    )
                                                  ),
                                                  
-                                                 textInput("spectralLibraryName", "Spectral Library Name"),
+                                                 textInput("spectralLibraryName",label = div(style="color: white;", "Spectral Library Name")),
                                                  
                                                  actionButton("createSpectralLibrary", "Create Spectral Library")
                                         )
@@ -100,7 +106,7 @@ ui <-
                               tags$style(HTML(".irs-max {color: white;}
                                               .irs-min {color: white;}")),
 
-                              setSliderColor(c("red", "red"), c(1, 2)),
+                              setSliderColor(c("#D2403A", "#D2403A"), c(1, 2)),
                               sliderInput("mtry", label = div(style="color: white;", "Number Of Sampled Variables:"),
                                           min = 0, max = 10,
                                           value = 3,
