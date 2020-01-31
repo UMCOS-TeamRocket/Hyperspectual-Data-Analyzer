@@ -7,6 +7,7 @@ library(tidyverse)
 processFieldSpec <- function(fieldSpecDirectory) {
   directories <- list.dirs(path = fieldSpecDirectory, full.names = TRUE, recursive = TRUE)
   index <- 0
+  errors <- c()
   
   withProgress(message = 'Processing Field Spectra', min = 0, max = length(directories), value = 0, {
     for (directory in directories) {
@@ -43,11 +44,11 @@ processFieldSpec <- function(fieldSpecDirectory) {
       }, warning = function(warning) {
         message <- paste("WARNING - While processing by site", directory)
         message <- paste(message, warning, sep = " : ")
-        print(message)
+        errors <<- c(errors, message)
       }, error = function(error) {
         message <- paste("ERROR - While processing by site", directory)
         message <- paste(message, error, sep = " : ")
-        print(message)
+        errors <<- c(errors, message)
       }, finally = {
         index <- index + 1
       })
@@ -56,4 +57,5 @@ processFieldSpec <- function(fieldSpecDirectory) {
     setProgress(length(directories))
   })
   
+  return(errors)
 }

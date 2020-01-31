@@ -280,11 +280,30 @@ server <- function(input, output, session) {
   #Run all processes in queue
   observeEvent(input$runQueue, {
     if (length(queue) > 0) {
-      print("Processing Queue...")
+      tryCatch({
+        print("Processing Queue...")
+        
+        processQueue(queue)
+        
+        print("Finished Processing Queue")
+      }, warning = function(warning) {
+        showModal(modalDialog(
+          fluidRow(
+            h4(warning)
+          ),
+          title = "Warning",
+          easyClose = TRUE
+        ))
+      }, error = function(error) {
+        showModal(modalDialog(
+          fluidRow(
+            h4(error)
+          ),
+          title = "Error",
+          easyClose = TRUE
+        ))
+      })
       
-      processQueue(queue)
-      
-      print("Finished Processing Queue")
     } else {
       print("queue is empty")
     }
@@ -292,26 +311,30 @@ server <- function(input, output, session) {
   
   #Update Spectra Objects By Site
   observeEvent(input$updateSpectralBySite, {
-    tryCatch({
-      print("Processing Spectra By Field...")
-      
-      processFieldSpec("data/Field_spec/Alaska")
-      
-      print("Finished Processing Spectra By Field")
-      
-      spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)
-      updateMultiInput(
-        session = session,
-        inputId = "spectralList",
-        selected = c(),
-        choices = spectraList
-      )
-      
-    }, warning = function(warning) {
-      print(warning)
-    }, error = function(error) {
-      print(error)
-    })
+    print("Processing Spectra By Field...")
+    
+    errors <- processFieldSpec("data/Field_spec/Alaska")
+    
+    print("Finished Processing Spectra By Field")
+    
+    spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)
+    updateMultiInput(
+      session = session,
+      inputId = "spectralList",
+      selected = c(),
+      choices = spectraList
+    )
+    
+    if (length(errors) > 0) {
+      showModal(modalDialog(
+        fluidRow(
+          h3(paste(length(errors), "Error(s) Occured While Processing Spectra By Field:")),
+          h4(errors)
+        ),
+        title = "Error",
+        easyClose = TRUE
+      ))
+    }
   })
   
   observeEvent(input$createSpectralLibrary, {
@@ -322,16 +345,35 @@ server <- function(input, output, session) {
     } else {
       listOfSpectraObjects <- c()
       index <- 1
+      
       for(fileName in input$spectralList) {
         listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
         index <- index + 1
       }
-    
-      print("Generating Spectral Library Files...")
       
-      generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
-      
-      print("Generated Spectral Library Files")
+      tryCatch({
+        print("Generating Spectral Library Files...")
+        
+        generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
+        
+        print("Generated Spectral Library Files")
+      }, warning = function(warning) {
+        showModal(modalDialog(
+          fluidRow(
+            h4(warning)
+          ),
+          title = "Warning",
+          easyClose = TRUE
+        ))
+      }, error = function(error) {
+        showModal(modalDialog(
+          fluidRow(
+            h4(error)
+          ),
+          title = "Error",
+          easyClose = TRUE
+        ))
+      })
       
       spectralLibraryFiles <- list.files(path = "output/hdwImagery", full.names = FALSE)
       updateSelectInput(session, librarySelect, label = div(style="color: white;", "Spectral Library:"), spectralLibraryFiles)
