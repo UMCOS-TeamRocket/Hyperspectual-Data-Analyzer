@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyWidgets)
 library(magrittr)
+library(shinythemes)
 
 library(here)
 setwd(here())
@@ -10,7 +11,7 @@ source("source/generateSpectralLibraryFiles.R")
 source("source/processQueue.R")
 
 ui <- 
-  fluidPage(
+  fluidPage( theme =shinytheme("slate"),
   tags$head(
    tags$style(HTML("
           .navbar .navbar-nav {float: right}
@@ -68,7 +69,7 @@ ui <-
                                                  br(),
                                                  
                                                  multiInput(
-                                                   inputId = "spectralList", label = "List of Spectral Objects By Site",
+                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:"),
                                                    choices = list.files(path = "output/fieldSpec", full.names = FALSE),
                                                    options = list(
                                                      enable_search = TRUE
