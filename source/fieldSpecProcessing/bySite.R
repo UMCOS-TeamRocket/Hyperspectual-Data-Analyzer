@@ -15,6 +15,7 @@ processFieldSpec <- function(fieldSpecDirectory) {
         #increase progress bar and change detail text
         setProgress(index, detail = directory)
         
+        
         ####Read in data as spectra (all scans collected at this location)
         spectra <- read_spectra(directory, format="sed")
         
