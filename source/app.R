@@ -9,6 +9,9 @@ setwd(here())
 source("source/fieldSpecProcessing/bySite.R")
 source("source/generateSpectralLibraryFiles.R")
 source("source/processQueue.R")
+source("source/createOutputDirectories.R")
+
+createOutputDirectories()
 
 ui <- 
   fluidPage( theme =shinytheme("slate"),
@@ -330,8 +333,8 @@ server <- function(input, output, session) {
     if (length(errors) > 0) {
       showModal(modalDialog(
         fluidRow(
-          h3(paste0(length(errors), "Error(s) Occured While Processing Spectra By Field:")),
-          h4(paste0(errors))
+          h3(paste(length(errors), "Error(s) Occured While Processing Spectra By Field:")),
+          h4(paste(errors, collapse = " "))
         ),
         title = "Error",
         easyClose = TRUE
