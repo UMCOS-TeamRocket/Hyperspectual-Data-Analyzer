@@ -38,6 +38,6 @@ rsconnect/
 #output files
 output/classifiers/
 output/fieldSpec/
-output/hdwImagery/
+output/hdwSpectralLibraries/
 output/plots/
 output/spectralLibraries/

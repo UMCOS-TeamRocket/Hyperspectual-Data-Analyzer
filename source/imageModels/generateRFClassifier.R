@@ -9,19 +9,19 @@ generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOf
     spectralLibrary_VIs_equal25 [c("ScanID","PFT","PFT_2","area","Freq1","Freq2")] = NULL
     
     ##We can build randomforest model
-    rf_AV_VIs <- randomForest(PFT_3~., data=alaskaSpeclib_VIs_equal25, mtry = numOfSampledVariables, ntree = treeNum, importance = importance)
+    rf_AV_VIs <- randomForest(PFT_3~., data=spectralLibrary_VIs_equal25, mtry = strtoi(numOfSampledVariables), ntree = strtoi(treeNum), importance = importance)
     
     ##Now lets save the random forest classifier that was created
     saveRDS(rf_AV_VIs, paste(paste("output/classifiers/", classifierName, sep = ""), ".rds", sep = ""))
     
     return(paste(paste("output/classifiers/", classifierName, sep = ""), ".rds", sep = ""))
   }, warning = function(warning) {
-    message <- paste("WARNING - While Generating RF Classifier", spectralLibraryDirectory)
-    message <- paste(message, warning, sep = " : ")
+    message <- paste0("WARNING - While Generating RF Classifier", spectralLibraryDirectory)
+    message <- paste0(message, warning, sep = " : ")
     warning(message)
   }, error = function(error) {
-    message <- paste("ERROR - While Generating RF Classifier", spectralLibraryDirectory)
-    message <- paste(message, error, sep = " : ")
+    message <- paste0("ERROR - While Generating RF Classifier", spectralLibraryDirectory)
+    message <- paste0(message, error, sep = " : ")
     stop(message)
   })
 
