@@ -6,10 +6,11 @@ library(hsdar)
 #directories: a character vector containing the directories to HDW 010nm, 050nm, 100nm, and VIs .csv files
 fieldSpecAllPreds <- function(directories, outputName = "spectralLibrary") {
   tryCatch({
-    alaskaSpeclib_HDW_010nm_equal25 <- ""
-    alaskaSpeclib_HDW_050nm_equal25 <- ""
-    alaskaSpeclib_HDW_100nm_equal25 <- ""
-    alaskaSpeclib_HDW_VIs_equal25 <- ""
+    #cannot assign these variables a 1-dimensional
+    #alaskaSpeclib_HDW_010nm_equal25 <- ""
+    #alaskaSpeclib_HDW_050nm_equal25 <- ""
+    #alaskaSpeclib_HDW_100nm_equal25 <- ""
+    #alaskaSpeclib_HDW_VIs_equal25 <- ""
     
     ###Reads in all predictors for scans
     for (directory in directories) {
