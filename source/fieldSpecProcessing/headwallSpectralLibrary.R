@@ -378,12 +378,12 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
     
     
     ##Lets save our bandpasses and other outputs
-    write(Headwall_wv,"output/hdwImagery/Headwall_wv")
-    write.csv(spectralLibrary_HDW_df        , paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW_df.csv", sep = ""), row.names = FALSE)
-    write.csv(spectralLibrary_HDW_df_equal25, paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW_df_equal25.csv", sep = ""), row.names = FALSE)
+    write(Headwall_wv,"output/Headwall_wv")
+    write.csv(spectralLibrary_HDW_df        , paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_df.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_HDW_df_equal25, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_df_equal25.csv", sep = ""), row.names = FALSE)
     
     ##Now lets save our New headwall spectral library
-    saveRDS(spectralLibrary_HDW, paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW.rds", sep = ""))
+    saveRDS(spectralLibrary_HDW, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW.rds", sep = ""))
     
   }, warning = function(warning) {
     message <- paste("WARNING - While processing headwall spectral library", directory)

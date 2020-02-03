@@ -41,7 +41,9 @@ ui <-
                                           #SELECT DATA TAB
                                           tabPanel("Select Data", style = "background-color: #383a40;",
                                                    #Drop down for Spectral Library selection
-                                                   selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), list.files(path = "output/hdwImagery", full.names = FALSE)),
+                                                   selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), 
+                                                               c(list.files(path = "output/hdwSpectralLibraries", full.names = FALSE), 
+                                                                 list.files(path = "output/spectralLibraries", full.names = FALSE))),
                                                    
                                                    #label to be used as the filename for the classifier
                                                    textInput("classifierName",label = div(style="color: white;", "Classifier File Name:")),
@@ -328,8 +330,8 @@ server <- function(input, output, session) {
     if (length(errors) > 0) {
       showModal(modalDialog(
         fluidRow(
-          h3(paste(length(errors), "Error(s) Occured While Processing Spectra By Field:")),
-          h4(errors)
+          h3(paste0(length(errors), "Error(s) Occured While Processing Spectra By Field:")),
+          h4(paste0(errors))
         ),
         title = "Error",
         easyClose = TRUE
@@ -360,7 +362,7 @@ server <- function(input, output, session) {
       }, warning = function(warning) {
         showModal(modalDialog(
           fluidRow(
-            h4(warning)
+            h4(paste0(warning))
           ),
           title = "Warning",
           easyClose = TRUE
@@ -368,15 +370,17 @@ server <- function(input, output, session) {
       }, error = function(error) {
         showModal(modalDialog(
           fluidRow(
-            h4(error)
+            h4(paste0(error))
           ),
           title = "Error",
           easyClose = TRUE
         ))
       })
       
-      spectralLibraryFiles <- list.files(path = "output/hdwImagery", full.names = FALSE)
-      updateSelectInput(session, librarySelect, label = div(style="color: white;", "Spectral Library:"), spectralLibraryFiles)
+      hdwSpectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
+      spectralLibraryFiles <- list.files(path = "output/spectralLibraries", full.names = FALSE)
+      allLibraryFiles <- c(hdwSpectralLibraryFiles, spectralLibraryFiles)
+      updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
     }
   })
   

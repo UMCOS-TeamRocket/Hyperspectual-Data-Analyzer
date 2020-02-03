@@ -13,7 +13,7 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
     tst$V2%>%range()##There are no weird values, those are values outside of 0 and 2
     
     ##Reads in bandpasses for imagery to be used later
-    HDW_ng_wv<-scan("output/hdwImagery/Headwall_wv", numeric())
+    HDW_ng_wv<-scan("output/Headwall_wv", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
@@ -66,7 +66,7 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
     test5%>%View()###There are no NaNs or Infs
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(spectralLibrary_HDW_VIs, paste(paste("output/hdwImagery/", outputName, sep = ""), "_HDW_VIs_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_HDW_VIs, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_VIs_equal25.csv", sep = ""), row.names = FALSE)
     
   }, warning = function(warning) {
     message <- paste("WARNING - While processing VIs", directory)

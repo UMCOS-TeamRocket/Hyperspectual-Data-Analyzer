@@ -36,7 +36,7 @@ fieldSpecAllPreds <- function(directories, outputName = "spectralLibrary") {
                                               ,alaskaSpeclib_HDW_100nm_equal25[-1:-7]
                                               ,alaskaSpeclib_HDW_VIs_equal25  [-1:-7]))
     ##Lets save this dataframe
-    write.csv(alaskaSpecLib_data_HDW, paste(paste("output/hdwImagery/", outputName, sep = ""), "_data_HDW.csv", sep = ""),row.names = FALSE)
+    write.csv(alaskaSpecLib_data_HDW, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_data_HDW.csv", sep = ""),row.names = FALSE)
     
   }, warning = function(warning) {
     message <- paste("WARNING - While processing all preds", warning, sep = " : ")
