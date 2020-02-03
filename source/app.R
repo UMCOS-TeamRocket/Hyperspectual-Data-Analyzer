@@ -289,7 +289,7 @@ server <- function(input, output, session) {
       }, warning = function(warning) {
         showModal(modalDialog(
           fluidRow(
-            h4(warning)
+            h4(HTML(paste0(warning, collapse = "")))
           ),
           title = "Warning",
           easyClose = TRUE
@@ -297,7 +297,7 @@ server <- function(input, output, session) {
       }, error = function(error) {
         showModal(modalDialog(
           fluidRow(
-            h4(error)
+            h4(HTML(paste0(error, collapse = "")))
           ),
           title = "Error",
           easyClose = TRUE
