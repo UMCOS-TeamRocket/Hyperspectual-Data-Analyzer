@@ -1,7 +1,7 @@
 library(raster)
 library(tidyverse)
 
-predict <- function(classifierDirectory, imageAvDirectory, imageHdwDirectory, imageAvViDirectory, outputName) {
+predictFunction <- function(classifierDirectory, imageAvDirectory, imageHdwDirectory, imageAvViDirectory, outputName) {
   tryCatch({
     #Reads in Imagery
     image_AV<-brick(imageAvDirectory)

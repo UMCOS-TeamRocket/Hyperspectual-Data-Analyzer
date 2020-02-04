@@ -35,7 +35,7 @@ processQueue <- function(queue) {
         hdwViDirectory <- processHDWImage(image)
         
         print("Predicting")
-        outputDirectory <- predict(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
+        outputDirectory <- predictFunction(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
         
         print("Process Finished")
         
