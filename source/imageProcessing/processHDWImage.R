@@ -4,7 +4,7 @@ source("source/imageProcessing/imageHDWVIs.R")
 processHDWImage <- function (imageDirectory) {
   tryCatch({
     #get file name from directory
-    fileName <- baseName(imageDirectory)
+    fileName <- basename(imageDirectory)
     #remove file extension
     fileName <- substr(fileName, 1, nchar(fileName) - 4)
     
