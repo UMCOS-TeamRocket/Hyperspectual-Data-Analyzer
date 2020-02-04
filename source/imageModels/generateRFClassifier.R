@@ -16,11 +16,11 @@ generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOf
     
     return(paste(paste("output/classifiers/", classifierName, sep = ""), ".rds", sep = ""))
   }, warning = function(warning) {
-    message <- paste0("WARNING - While Generating RF Classifier", spectralLibraryDirectory)
+    message <- paste0("WARNING - While Generating RF Classifier ", spectralLibraryDirectory)
     message <- paste0(message, warning, sep = " : ")
     warning(message)
   }, error = function(error) {
-    message <- paste0("ERROR - While Generating RF Classifier", spectralLibraryDirectory)
+    message <- paste0("ERROR - While Generating RF Classifier ", spectralLibraryDirectory)
     message <- paste0(message, error, sep = " : ")
     stop(message)
   })

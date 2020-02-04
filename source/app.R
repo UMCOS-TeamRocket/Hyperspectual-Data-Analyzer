@@ -261,7 +261,7 @@ server <- function(input, output, session) {
     } else {
       #gather process parameters
       ##temporary paths
-      libraryDirectory <- paste("output/hdwImagery/", input$librarySelect, sep = "")   
+      libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
       imageDirecotry <- paste("data/Test_imagery_AVIRIS/", input$imageDirectory, sep = "")
       imageHdwDirectory <- paste("data/Test_imagery_HDW", input$imageHdwDirectory, sep = "")
       
