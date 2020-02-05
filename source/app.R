@@ -53,8 +53,8 @@ ui <-
 
                                                    #images that have been uploaded to the server
                                                    #temporarily looking in this directory
-                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
-                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
+                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
+                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
                                                    #filenames<-list.files(pattern="\\.csv$")
                                                    
                                                    #label to be used as the filename for the output
@@ -252,9 +252,9 @@ server <- function(input, output, session) {
     #chck if a file has been selected
     if (is.null(input$classifierName)) {
       print("Please enter a Classifier Name")
-    } else if (is.null(input$imageDirectory)) {
-      print("Please select an AV image")
     } else if (is.null(input$imageHdwDirectory)) {
+      print("Please select an AV image")
+    } else if (is.null(input$imageDirectory)) {
       print("Please select an AV VI image")
     } else if (is.null(input$outputFileName)) {
       print("Please enter an Output File Name")
@@ -264,11 +264,11 @@ server <- function(input, output, session) {
       
       # The HDW naming is now wrong, didn't change cause would break everything
       libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
-      imageDirecotry <- paste("data/Test_imagery_HDW/", input$imageDirectory, sep = "")
-      imageHdwDirectory <- paste("data/Test_imagery_AVIRIS/", input$imageHdwDirectory, sep = "")
+      imageHdwDirecotry <- paste("data/Test_imagery_HDW/", input$imageHdwDirectory, sep = "")
+      imageDirectory <- paste("data/Test_imagery_AVIRIS/", input$imageDirectory, sep = "")
       
       classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
-      images <- c(imageDirecotry, imageHdwDirectory)
+      images <- c(imageHdwDirecotry, imageDirectory)
       newProcess <- list(classifier, images, input$outputFileName)
       
       #add process to queue

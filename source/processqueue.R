@@ -18,8 +18,8 @@ processQueue <- function(queue) {
         classifierFileName <- classifier[5]
         
         images <- process[[2]]
-        image <- images[1]
-        hdwImage <- images[2]
+        hdwImage <- images[1]
+        image <- images[2]
         
         outputFileName <- process[[3]]
         
@@ -32,10 +32,10 @@ processQueue <- function(queue) {
         classifierDirectory <- generateRFClassifier(classifierFileName, spectralLibrary, mtry, ntree, importance)
         
         print("Processing HDW Image")
-        hdwViDirectory <- processHDWImage(image)
+        hdwViDirectory <- processHDWImage(hdwImage)
         
         print("Predicting")
-        outputDirectory <- predictFunction(classifierDirectory, image, hdwImage, hdwViDirectory, outputFileName)
+        outputDirectory <- predictFunction(classifierDirectory, hdwImage, image, hdwViDirectory, outputFileName)
         
         print("Process Finished")
         
