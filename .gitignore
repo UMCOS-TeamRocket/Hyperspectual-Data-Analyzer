@@ -36,6 +36,7 @@ vignettes/*.pdf
 rsconnect/
 
 #output files
+output/
 output/classifiers/
 output/fieldSpec/
 output/hdwSpectralLibraries/

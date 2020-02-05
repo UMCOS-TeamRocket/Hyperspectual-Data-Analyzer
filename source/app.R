@@ -2,6 +2,7 @@ library(shiny)
 library(shinyWidgets)
 library(magrittr)
 library(shinythemes)
+library(shinyFiles)
 
 library(here)
 setwd(here())
@@ -50,12 +51,17 @@ ui <-
                                                    
                                                    #label to be used as the filename for the classifier
                                                    textInput("classifierName",label = div(style="color: white;", "Classifier File Name:")),
-
-                                                   #images that have been uploaded to the server
-                                                   #temporarily looking in this directory
-                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
-                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
-                                                   #filenames<-list.files(pattern="\\.csv$")
+                                                   
+                                                   #TODO: limit file types
+                                                   fluidRow(
+                                                     column(4, shinyFilesButton("imageHdwInput", "Browse", title = "Select HDW Image", multiple = FALSE)),
+                                                     column(8, verbatimTextOutput("imageHdwOutput", placeholder = TRUE))
+                                                   ),
+                                                   
+                                                   fluidRow(
+                                                     column(4, shinyFilesButton("imageInput", "Browse", title = "Select Image", multiple = FALSE)),
+                                                     column(8, verbatimTextOutput("imageOutput", placeholder = TRUE))
+                                                   ),
                                                    
                                                    #label to be used as the filename for the output
                                                    textInput("outputFileName",label = div(style="color: white;", "Output File Name:")),
@@ -66,6 +72,11 @@ ui <-
                                         
                                         #Spectral Library Tab
                                         tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;",
+                                                 fluidRow(
+                                                   column(4, shinyDirButton("fieldSpecDirInput", "Browse", "Select Directory With Field Spec Data")),
+                                                   column(8, verbatimTextOutput("fieldSpecDirOutput", placeholder = TRUE))
+                                                 ),
+                                                 
                                                  actionButton("updateSpectralBySite", "Update"),
                                                  
                                                  br(),
@@ -93,7 +104,7 @@ ui <-
 
                             ),
 
-                            #RANDOM PARAMETERS
+                            #CLASSIFIER PARAMETERS
                             mainPanel(
                               br(),
                               
@@ -155,49 +166,6 @@ ui <-
 
                       img(src="logo.png", height="10%", width="10%", align="right")
              ),
-             #UPLOAD DATA TAB
-             tabPanel("Upload Data",
-                      fluidPage(
-
-                        br(),
-                        #UPLOAD CLASSIFIER
-                        sidebarPanel(
-                          width = 12,
-                          style = "background-color: #383a40;",
-                          fileInput(
-                          inputId = "files",
-                          label = div(style="color: white;", "Drag and Drop or Browse:"),
-                          multiple = TRUE,
-                          buttonLabel = "Browse",
-                          placeholder = "No file selected"
-                          ),
-                          textInput("uploadClassifierNameInput", label = div(style="color: white;", "Classifier Name:"), value = ""),
-                          
-                          #Button to upload a classifier
-                          actionButton("uploadClassifierButton", "Upload Classifier"),
-
-                        ),
-                        #UPLOAD DATA CUBE
-                        sidebarPanel(
-                          width = 12,
-                          style = "background-color: #383a40;",
-                          fileInput(
-                            inputId = "files",
-                            label = div(style="color: white;", "Drag and Drop or Browse:"),
-                            multiple = TRUE,
-                            buttonLabel = "Browse",
-                            placeholder = "No file selected"
-                          ),
-                          textInput("uploadDataCubeInput", label = div(style="color: white;", "Data Cube Name:"), value = ""),
-                          
-                          #Button to upload a dataCube
-                          actionButton("uploadDataCube", "Upload Data Cube"),
-                          
-                        ),
-                        
-                      ),
-                      img(src="logo.png", height="10%", width="10%", align="right")
-             ),
              #VIEW DATA TAB
              tabPanel("View Data",
                       sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
@@ -237,9 +205,17 @@ ui <-
 
 server <- function(input, output, session) {
   #VARIABLES
+  dataRoot <- c(home = fs::path_home(), data = paste(here(), "data", sep = "/"))
+  outputRoot <- c(home = fs::path_home(), output = paste(here(), "output", sep = "/"))
+  root <- c(home = fs::path_home(), project = here())
+  
   queueText <- c() #vector of strings to be displayed in the ui queue
   queue <- list() #vector of string vectors. each element = (data cube file directory, classifier name)
-  classifierChoices <- c("Classifier 1", "Classifier 2")
+  classifierChoices <- c()
+  fieldSpecDirectory <- ""
+  imageHDWDirectory <- ""
+  imageDirectory <- ""
+  
   
   
   #INITIALIZE
@@ -249,35 +225,50 @@ server <- function(input, output, session) {
   
   #add to queue button is pressed
   observeEvent(input$addToQueueButton, {
-    #chck if a file has been selected
-    if (is.null(input$classifierName)) {
-      print("Please enter a Classifier Name")
-    } else if (is.null(input$imageHdwDirectory)) {
-      print("Please select an AV image")
-    } else if (is.null(input$imageDirectory)) {
-      print("Please select an AV VI image")
-    } else if (is.null(input$outputFileName)) {
-      print("Please enter an Output File Name")
-    } else {
-      #gather process parameters
-      ##temporary paths
-      
-      # The HDW naming is now wrong, didn't change cause would break everything
-      libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
-      imageHdwDirecotry <- paste("data/Test_imagery_HDW/", input$imageHdwDirectory, sep = "")
-      imageDirectory <- paste("data/Test_imagery_AVIRIS/", input$imageDirectory, sep = "")
-      
-      classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
-      images <- c(imageHdwDirecotry, imageDirectory)
-      newProcess <- list(classifier, images, input$outputFileName)
-      
-      #add process to queue
-      queue[[length(queue) + 1]] <<- newProcess
-      
-      #TODO: create a better string to add to queue
-      
-      queueText <<- c(queueText, newProcess)
+    displayMessage <- FALSE
+    message <- ""
+    #check if a file has been selected
+    if (input$classifierName == "") {
+      message <- "Please enter a Classifier Name"
+      displayMessage <- TRUE
+    } else if (imageHDWDirectory == "") {
+      message <- "Please select an HDW image"
+      displayMessage <- TRUE
+    } else if (imageDirectory == "") {
+      message <- "Please select an image"
+      displayMessage <- TRUE
+    } else if (input$outputFileName == "") {
+      message <- "Please enter an Output File Name"
+      displayMessage <- TRUE
     }
+    
+    if (displayMessage) {
+      showModal(modalDialog(
+        fluidRow(
+          h4(message)
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
+      
+      return()
+    }
+    
+    #gather process parameters
+    ##temporary paths
+    
+    # The HDW naming is now wrong, didn't change cause would break everything
+    libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
+    
+    classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
+    images <- c(imageHDWDirectory, imageDirectory)
+    newProcess <- list(classifier, images, input$outputFileName)
+    
+    #add process to queue
+    queue[[length(queue) + 1]] <<- newProcess
+    
+    #TODO: create a better string to add to queue
+    queueText <<- c(queueText, newProcess)
     
     if (length(queueText) == 0) {
       output$queue <- renderText({"queue is empty"})
@@ -338,9 +329,20 @@ server <- function(input, output, session) {
   
   #Update Spectra Objects By Site
   observeEvent(input$updateSpectralBySite, {
+    if (fieldSpecDirectory == "") {
+      showModal(modalDialog(
+        fluidRow(
+          h3("Please select a directory")
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
+      return()
+    }
+    
     print("Processing Spectra By Field...")
     
-    errors <- processFieldSpec("data/Field_spec/Alaska")
+    errors <- processFieldSpec(fieldSpecDirectory)
     
     print("Finished Processing Spectra By Field")
     
@@ -367,63 +369,128 @@ server <- function(input, output, session) {
   observeEvent(input$createSpectralLibrary, {
     spectralLibraryName <- input$spectralLibraryName
     
-    if (is.null(spectralLibraryName)) {
-      print("no name entered")
-    } else {
-      listOfSpectraObjects <- c()
-      index <- 1
+    if (spectralLibraryName == "") {
+      showModal(modalDialog(
+        fluidRow(
+          h3("Please enter a name for the Spectral Library")
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
       
-      for(fileName in input$spectralList) {
-        listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
-        index <- index + 1
-      }
+      return()
+    } else if (is.null(input$spectralList)) {
+      showModal(modalDialog(
+        fluidRow(
+          h3("Please select at least 1 spectral object")
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
       
-      tryCatch({
-        print("Generating Spectral Library Files...")
-        
-        generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
-        
-        print("Generated Spectral Library Files")
-      }, warning = function(warning) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(paste0(warning))
-          ),
-          title = "Warning",
-          easyClose = TRUE
-        ))
-      }, error = function(error) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(paste0(error))
-          ),
-          title = "Error",
-          easyClose = TRUE
-        ))
-      })
-      
-      hdwSpectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
-      spectralLibraryFiles <- list.files(path = "output/spectralLibraries", full.names = FALSE)
-      allLibraryFiles <- c(hdwSpectralLibraryFiles, spectralLibraryFiles)
-      updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
+      return()
     }
+    
+    
+    listOfSpectraObjects <- c()
+    index <- 1
+    
+    for(fileName in input$spectralList) {
+      listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
+      index <- index + 1
+    }
+    
+    tryCatch({
+      print("Generating Spectral Library Files...")
+      
+      generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
+      
+      print("Generated Spectral Library Files")
+    }, warning = function(warning) {
+      showModal(modalDialog(
+        fluidRow(
+          h4(paste0(warning))
+        ),
+        title = "Warning",
+        easyClose = TRUE
+      ))
+    }, error = function(error) {
+      showModal(modalDialog(
+        fluidRow(
+          h4(paste0(error))
+        ),
+        title = "Error",
+        easyClose = TRUE
+      ))
+    })
+    
+    hdwSpectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
+    spectralLibraryFiles <- list.files(path = "output/spectralLibraries", full.names = FALSE)
+    allLibraryFiles <- c(hdwSpectralLibraryFiles, spectralLibraryFiles)
+    updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
   })
   
-  #Upload classifier
-  observeEvent(input$uploadClassifierButton, {
-    if (is.null(input$uploadClassifierNameInput)) {
-      print("no classifier name entered")
-    } else {
-      
-      #add to the list of classifier names
-      classifierChoices <<- c(classifierChoices, input$uploadClassifierNameInput)
-      
-      #add the new classifier name to the drop down in the select data tab
-      updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
-      
-      print("classifier uploaded")
-    }
+  #SELECT FIELD SPEC DIRECTORY
+  observe({
+    shinyDirChoose(
+      input,
+      'fieldSpecDirInput',
+      roots = dataRoot,
+      session = session
+    )
+    
+    output$fieldSpecDirOutput <- renderPrint({
+      if (is.integer(input$fieldSpecDirInput)) {
+        fieldSpecDirectory <<- ""
+        cat("No directory has been selected")
+      } else {
+        fieldSpecDirectory <<- parseDirPath(dataRoot, input$fieldSpecDirInput)
+        parseDirPath(dataRoot, input$fieldSpecDirInput)
+      }
+    })
   })
+  
+  #SELECT HDW IMAGE FILE
+  observe({
+    shinyFileChoose(
+      input,
+      'imageHdwInput',
+      roots = dataRoot,
+      session = session
+    )
+    
+    output$imageHdwOutput <- renderPrint({
+      if (is.integer(input$imageHdwInput)) {
+        imageHDWDirectory <<- ""
+        cat("No HDW image has been selected")
+      } else {
+        imageHDWDirectory <<- parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
+        parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
+      }
+    })
+  })
+  
+  #SELECT IMAGE FILE
+  observe({
+    shinyFileChoose(
+      input,
+      'imageInput',
+      roots = dataRoot,
+      session = session
+    )
+    
+    output$imageOutput <- renderPrint({
+      if (is.integer(input$imageInput)) {
+        imageDirectory <<- ""
+        cat("No image has been selected")
+      } else {
+        imageDirectory <<- parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
+        parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
+      }
+    })
+  })
+  
+  
 }
 
 shinyApp(ui = ui, server = server)
