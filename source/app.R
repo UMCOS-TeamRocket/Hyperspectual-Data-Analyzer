@@ -51,12 +51,17 @@ ui <-
                                                    
                                                    #label to be used as the filename for the classifier
                                                    textInput("classifierName",label = div(style="color: white;", "Classifier File Name:")),
-
-                                                   #images that have been uploaded to the server
-                                                   #temporarily looking in this directory
-                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
-                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
-                                                   #filenames<-list.files(pattern="\\.csv$")
+                                                   
+                                                   #TODO: limit file types
+                                                   fluidRow(
+                                                     column(4, shinyFilesButton("imageHdwInput", "Browse", title = "Select HDW Image", multiple = FALSE)),
+                                                     column(8, verbatimTextOutput("imageHdwOutput", placeholder = TRUE))
+                                                   ),
+                                                   
+                                                   fluidRow(
+                                                     column(4, shinyFilesButton("imageInput", "Browse", title = "Select Image", multiple = FALSE)),
+                                                     column(8, verbatimTextOutput("imageOutput", placeholder = TRUE))
+                                                   ),
                                                    
                                                    #label to be used as the filename for the output
                                                    textInput("outputFileName",label = div(style="color: white;", "Output File Name:")),
@@ -200,10 +205,16 @@ ui <-
 
 server <- function(input, output, session) {
   #VARIABLES
+  dataRoot <- c(home = fs::path_home(), data = paste(here(), "data", sep = "/"))
+  outputRoot <- c(home = fs::path_home(), output = paste(here(), "output", sep = "/"))
+  root <- c(home = fs::path_home(), project = here())
+  
   queueText <- c() #vector of strings to be displayed in the ui queue
   queue <- list() #vector of string vectors. each element = (data cube file directory, classifier name)
   classifierChoices <- c()
   fieldSpecDirectory <- ""
+  imageHDWDirectory <- ""
+  imageDirectory <- ""
   
   
   
@@ -214,35 +225,50 @@ server <- function(input, output, session) {
   
   #add to queue button is pressed
   observeEvent(input$addToQueueButton, {
-    #chck if a file has been selected
-    if (is.null(input$classifierName)) {
-      print("Please enter a Classifier Name")
-    } else if (is.null(input$imageHdwDirectory)) {
-      print("Please select an AV image")
-    } else if (is.null(input$imageDirectory)) {
-      print("Please select an AV VI image")
-    } else if (is.null(input$outputFileName)) {
-      print("Please enter an Output File Name")
-    } else {
-      #gather process parameters
-      ##temporary paths
-      
-      # The HDW naming is now wrong, didn't change cause would break everything
-      libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
-      imageHdwDirecotry <- paste("data/Test_imagery_HDW/", input$imageHdwDirectory, sep = "")
-      imageDirectory <- paste("data/Test_imagery_AVIRIS/", input$imageDirectory, sep = "")
-      
-      classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
-      images <- c(imageHdwDirecotry, imageDirectory)
-      newProcess <- list(classifier, images, input$outputFileName)
-      
-      #add process to queue
-      queue[[length(queue) + 1]] <<- newProcess
-      
-      #TODO: create a better string to add to queue
-      
-      queueText <<- c(queueText, newProcess)
+    displayMessage <- FALSE
+    message <- ""
+    #check if a file has been selected
+    if (input$classifierName == "") {
+      message <- "Please enter a Classifier Name"
+      displayMessage <- TRUE
+    } else if (imageHDWDirectory == "") {
+      message <- "Please select an HDW image"
+      displayMessage <- TRUE
+    } else if (imageDirectory == "") {
+      message <- "Please select an image"
+      displayMessage <- TRUE
+    } else if (input$outputFileName == "") {
+      message <- "Please enter an Output File Name"
+      displayMessage <- TRUE
     }
+    
+    if (displayMessage) {
+      showModal(modalDialog(
+        fluidRow(
+          h4(message)
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
+      
+      return()
+    }
+    
+    #gather process parameters
+    ##temporary paths
+    
+    # The HDW naming is now wrong, didn't change cause would break everything
+    libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
+    
+    classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
+    images <- c(imageHDWDirectory, imageDirectory)
+    newProcess <- list(classifier, images, input$outputFileName)
+    
+    #add process to queue
+    queue[[length(queue) + 1]] <<- newProcess
+    
+    #TODO: create a better string to add to queue
+    queueText <<- c(queueText, newProcess)
     
     if (length(queueText) == 0) {
       output$queue <- renderText({"queue is empty"})
@@ -386,22 +412,61 @@ server <- function(input, output, session) {
   })
   
   #SELECT FIELD SPEC DIRECTORY
-  roots = c(home = paste(here(), "data", sep = "/"))
-  
   observe({
     shinyDirChoose(
       input,
       'fieldSpecDirInput',
-      roots = roots
+      roots = dataRoot,
+      session = session
     )
     
     output$fieldSpecDirOutput <- renderPrint({
       if (is.integer(input$fieldSpecDirInput)) {
         fieldSpecDirectory <<- ""
-        cat("No directory has been selected (shinyDirChoose)")
+        cat("No directory has been selected")
       } else {
-        fieldSpecDirectory <<- parseDirPath(roots, input$fieldSpecDirInput)
-        parseDirPath(roots, input$fieldSpecDirInput)
+        fieldSpecDirectory <<- parseDirPath(dataRoot, input$fieldSpecDirInput)
+        parseDirPath(dataRoot, input$fieldSpecDirInput)
+      }
+    })
+  })
+  
+  #SELECT HDW IMAGE FILE
+  observe({
+    shinyFileChoose(
+      input,
+      'imageHdwInput',
+      roots = dataRoot,
+      session = session
+    )
+    
+    output$imageHdwOutput <- renderPrint({
+      if (is.integer(input$imageHdwInput)) {
+        imageHDWDirectory <<- ""
+        cat("No file has been selected")
+      } else {
+        imageHDWDirectory <<- parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
+        parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
+      }
+    })
+  })
+  
+  #SELECT IMAGE FILE
+  observe({
+    shinyFileChoose(
+      input,
+      'imageInput',
+      roots = dataRoot,
+      session = session
+    )
+    
+    output$imageOutput <- renderPrint({
+      if (is.integer(input$imageInput)) {
+        imageDirectory <<- ""
+        cat("No directory has been selected")
+      } else {
+        imageDirectory <<- parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
+        parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
       }
     })
   })
