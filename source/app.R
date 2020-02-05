@@ -369,46 +369,65 @@ server <- function(input, output, session) {
   observeEvent(input$createSpectralLibrary, {
     spectralLibraryName <- input$spectralLibraryName
     
-    if (is.null(spectralLibraryName)) {
-      print("no name entered")
-    } else {
-      listOfSpectraObjects <- c()
-      index <- 1
+    if (spectralLibraryName == "") {
+      showModal(modalDialog(
+        fluidRow(
+          h3("Please enter a name for the Spectral Library")
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
       
-      for(fileName in input$spectralList) {
-        listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
-        index <- index + 1
-      }
+      return()
+    } else if (is.null(input$spectralList)) {
+      showModal(modalDialog(
+        fluidRow(
+          h3("Please select at least 1 spectral object")
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
       
-      tryCatch({
-        print("Generating Spectral Library Files...")
-        
-        generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
-        
-        print("Generated Spectral Library Files")
-      }, warning = function(warning) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(paste0(warning))
-          ),
-          title = "Warning",
-          easyClose = TRUE
-        ))
-      }, error = function(error) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(paste0(error))
-          ),
-          title = "Error",
-          easyClose = TRUE
-        ))
-      })
-      
-      hdwSpectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
-      spectralLibraryFiles <- list.files(path = "output/spectralLibraries", full.names = FALSE)
-      allLibraryFiles <- c(hdwSpectralLibraryFiles, spectralLibraryFiles)
-      updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
+      return()
     }
+    
+    
+    listOfSpectraObjects <- c()
+    index <- 1
+    
+    for(fileName in input$spectralList) {
+      listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
+      index <- index + 1
+    }
+    
+    tryCatch({
+      print("Generating Spectral Library Files...")
+      
+      generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
+      
+      print("Generated Spectral Library Files")
+    }, warning = function(warning) {
+      showModal(modalDialog(
+        fluidRow(
+          h4(paste0(warning))
+        ),
+        title = "Warning",
+        easyClose = TRUE
+      ))
+    }, error = function(error) {
+      showModal(modalDialog(
+        fluidRow(
+          h4(paste0(error))
+        ),
+        title = "Error",
+        easyClose = TRUE
+      ))
+    })
+    
+    hdwSpectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
+    spectralLibraryFiles <- list.files(path = "output/spectralLibraries", full.names = FALSE)
+    allLibraryFiles <- c(hdwSpectralLibraryFiles, spectralLibraryFiles)
+    updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
   })
   
   #SELECT FIELD SPEC DIRECTORY
@@ -443,7 +462,7 @@ server <- function(input, output, session) {
     output$imageHdwOutput <- renderPrint({
       if (is.integer(input$imageHdwInput)) {
         imageHDWDirectory <<- ""
-        cat("No file has been selected")
+        cat("No HDW image has been selected")
       } else {
         imageHDWDirectory <<- parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
         parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
@@ -463,7 +482,7 @@ server <- function(input, output, session) {
     output$imageOutput <- renderPrint({
       if (is.integer(input$imageInput)) {
         imageDirectory <<- ""
-        cat("No directory has been selected")
+        cat("No image has been selected")
       } else {
         imageDirectory <<- parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
         parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
