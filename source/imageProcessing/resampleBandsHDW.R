@@ -5,6 +5,7 @@ library(hsdar)
 
 resampleBandsHDW <- function(imageDirectory, fileName = "image") {
   tryCatch({
+    print(imageDirectory)
     ##Reads in image as dataframe 
     IMG_HDW<-brick(imageDirectory)%>%rasterToPoints()%>%as.data.frame()
   

@@ -53,8 +53,8 @@ ui <-
 
                                                    #images that have been uploaded to the server
                                                    #temporarily looking in this directory
-                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
-                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
+                                                   selectInput("imageDirectory", label = div(style="color: white;", "Image:"), list.files(path = "data/Test_imagery_HDW", full.names = FALSE)),
+                                                   selectInput("imageHdwDirectory", label = div(style="color: white;", "Image Hdw:"), list.files(path = "data/Test_imagery_AVIRIS", full.names = FALSE)),
                                                    #filenames<-list.files(pattern="\\.csv$")
                                                    
                                                    #label to be used as the filename for the output
@@ -261,9 +261,11 @@ server <- function(input, output, session) {
     } else {
       #gather process parameters
       ##temporary paths
+      
+      # The HDW naming is now wrong, didn't change cause would break everything
       libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
-      imageDirecotry <- paste("data/Test_imagery_AVIRIS/", input$imageDirectory, sep = "")
-      imageHdwDirectory <- paste("data/Test_imagery_HDW", input$imageHdwDirectory, sep = "")
+      imageDirecotry <- paste("data/Test_imagery_HDW/", input$imageDirectory, sep = "")
+      imageHdwDirectory <- paste("data/Test_imagery_AVIRIS/", input$imageHdwDirectory, sep = "")
       
       classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
       images <- c(imageDirecotry, imageHdwDirectory)
