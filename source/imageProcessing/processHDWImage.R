@@ -7,16 +7,19 @@ processHDWImage <- function (imageDirectory) {
     fileName <- basename(imageDirectory)
     #remove file extension
     fileName <- substr(fileName, 1, nchar(fileName) - 4)
-    
-    resampeldDirectories <- resampleBandsHDW(imageDirectory, fileName)
-    
+
+    resampledDirectories <- resampleBandsHDW(imageDirectory, fileName)
+
     dfDirectory <- resampledDirectories[1]
+
     hdwViDirectory <- createImgHDWVi(dfDirectory, fileName)
     
     return(hdwViDirectory)
   }, warning = function(warning) {
     warning(warning)
+    message <- paste ("WARNING - While process")
   }, error = function(error) {
+    message <- paste ("WARNING - While process")
     stop(error)
   })
 }

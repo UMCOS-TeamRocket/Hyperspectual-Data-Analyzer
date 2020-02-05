@@ -41,7 +41,9 @@ processQueue <- function(queue) {
         
       }, warning = function(warning) {
         warning(warning)
+        message <- paste ("WARNING - While process")
       }, error = function(error) {
+        message <- paste ("WARNING - While process")
         stop(error)
       }, finally = {
         index <- index + 1
