@@ -2,6 +2,7 @@ library(shiny)
 library(shinyWidgets)
 library(magrittr)
 library(shinythemes)
+library(shinyFiles)
 
 library(here)
 setwd(here())
@@ -66,6 +67,11 @@ ui <-
                                         
                                         #Spectral Library Tab
                                         tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;",
+                                                 fluidRow(
+                                                   column(4, shinyDirButton("fieldSpecDirInput", "Browse", "Select Directory With Field Spec Data")),
+                                                   column(8, verbatimTextOutput("fieldSpecDirOutput", placeholder = TRUE))
+                                                 ),
+                                                 
                                                  actionButton("updateSpectralBySite", "Update"),
                                                  
                                                  br(),
@@ -93,7 +99,7 @@ ui <-
 
                             ),
 
-                            #RANDOM PARAMETERS
+                            #CLASSIFIER PARAMETERS
                             mainPanel(
                               br(),
                               
@@ -155,49 +161,6 @@ ui <-
 
                       img(src="logo.png", height="10%", width="10%", align="right")
              ),
-             #UPLOAD DATA TAB
-             tabPanel("Upload Data",
-                      fluidPage(
-
-                        br(),
-                        #UPLOAD CLASSIFIER
-                        sidebarPanel(
-                          width = 12,
-                          style = "background-color: #383a40;",
-                          fileInput(
-                          inputId = "files",
-                          label = div(style="color: white;", "Drag and Drop or Browse:"),
-                          multiple = TRUE,
-                          buttonLabel = "Browse",
-                          placeholder = "No file selected"
-                          ),
-                          textInput("uploadClassifierNameInput", label = div(style="color: white;", "Classifier Name:"), value = ""),
-                          
-                          #Button to upload a classifier
-                          actionButton("uploadClassifierButton", "Upload Classifier"),
-
-                        ),
-                        #UPLOAD DATA CUBE
-                        sidebarPanel(
-                          width = 12,
-                          style = "background-color: #383a40;",
-                          fileInput(
-                            inputId = "files",
-                            label = div(style="color: white;", "Drag and Drop or Browse:"),
-                            multiple = TRUE,
-                            buttonLabel = "Browse",
-                            placeholder = "No file selected"
-                          ),
-                          textInput("uploadDataCubeInput", label = div(style="color: white;", "Data Cube Name:"), value = ""),
-                          
-                          #Button to upload a dataCube
-                          actionButton("uploadDataCube", "Upload Data Cube"),
-                          
-                        ),
-                        
-                      ),
-                      img(src="logo.png", height="10%", width="10%", align="right")
-             ),
              #VIEW DATA TAB
              tabPanel("View Data",
                       sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
@@ -239,7 +202,9 @@ server <- function(input, output, session) {
   #VARIABLES
   queueText <- c() #vector of strings to be displayed in the ui queue
   queue <- list() #vector of string vectors. each element = (data cube file directory, classifier name)
-  classifierChoices <- c("Classifier 1", "Classifier 2")
+  classifierChoices <- c()
+  fieldSpecDirectory <- ""
+  
   
   
   #INITIALIZE
@@ -338,9 +303,20 @@ server <- function(input, output, session) {
   
   #Update Spectra Objects By Site
   observeEvent(input$updateSpectralBySite, {
+    if (fieldSpecDirectory == "") {
+      showModal(modalDialog(
+        fluidRow(
+          h3("Please select a directory")
+        ),
+        title = "Missing Information",
+        easyClose = TRUE
+      ))
+      return()
+    }
+    
     print("Processing Spectra By Field...")
     
-    errors <- processFieldSpec("data/Field_spec/Alaska")
+    errors <- processFieldSpec(fieldSpecDirectory)
     
     print("Finished Processing Spectra By Field")
     
@@ -409,21 +385,28 @@ server <- function(input, output, session) {
     }
   })
   
-  #Upload classifier
-  observeEvent(input$uploadClassifierButton, {
-    if (is.null(input$uploadClassifierNameInput)) {
-      print("no classifier name entered")
-    } else {
-      
-      #add to the list of classifier names
-      classifierChoices <<- c(classifierChoices, input$uploadClassifierNameInput)
-      
-      #add the new classifier name to the drop down in the select data tab
-      updateSelectInput(session, "classifierSelect", label = div(style="color: white;", "Classifier:"), classifierChoices)
-      
-      print("classifier uploaded")
-    }
+  #SELECT FIELD SPEC DIRECTORY
+  roots = c(home = paste(here(), "data", sep = "/"))
+  
+  observe({
+    shinyDirChoose(
+      input,
+      'fieldSpecDirInput',
+      roots = roots
+    )
+    
+    output$fieldSpecDirOutput <- renderPrint({
+      if (is.integer(input$fieldSpecDirInput)) {
+        fieldSpecDirectory <<- ""
+        cat("No directory has been selected (shinyDirChoose)")
+      } else {
+        fieldSpecDirectory <<- parseDirPath(roots, input$fieldSpecDirInput)
+        parseDirPath(roots, input$fieldSpecDirInput)
+      }
+    })
   })
+  
+  
 }
 
 shinyApp(ui = ui, server = server)

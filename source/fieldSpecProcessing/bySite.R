@@ -30,7 +30,7 @@ processFieldSpec <- function(fieldSpecDirectory) {
         metadata <- metadata %>% mutate(PFT=substr(metadata$ScanID,start = 1,stop = 6))
         
         separatedString <- strsplit(directory, "/")
-        area <- separatedString[[1]][4]
+        area <- separatedString[[1]][length(separatedString[[1]])]
         metadata$area <- area
         
         ##Set metadata
