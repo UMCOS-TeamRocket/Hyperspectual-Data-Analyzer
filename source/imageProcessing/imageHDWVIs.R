@@ -14,7 +14,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     test%>%lapply(range) ### All values fall between 0 and 1.2 and there are no NA values
     
     ##Reads in bandpasses for imagery to be used later
-    HDW_ng_wv<-scan("output/hdwImagery/Headwall_wv", numeric())
+    HDW_ng_wv<-scan("output/Headwall_wv", numeric())
     
     #IMG_HDW[is.na(IMG_HDW$`397.593`),]%>% nrow()
     
@@ -268,9 +268,9 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Vogelmann4)==F) ##dim()  1973  102
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(IMG_VIs_A, paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
+    write.csv(IMG_VIs_A, paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
     
-    return(paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
+    return(paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
   }, warning = function(warning) {
     message <- paste ("WARNING - While creating image VI", imgHdwDfDirectory)
     message <- paste(message, warning, sep = " : ")

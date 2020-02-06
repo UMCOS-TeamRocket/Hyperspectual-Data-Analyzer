@@ -10,7 +10,7 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
     IMG_HDW<-brick(imageDirectory)%>%rasterToPoints()%>%as.data.frame()
   
     ##Reads in bandpasses for imagery to be used later
-    HDW_ng_wv<-scan("output/hdwImagery/Headwall_wv", numeric())
+    HDW_ng_wv<-scan("output/Headwall_wv", numeric())
   
     ##lets remove all those bads that had noise
     IMG_HDW[275:328]<-NULL
@@ -86,15 +86,15 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
     IMG_HDW_100nm<-IMG_HDW_100nm%>%subset(`399.444`>0)
   
     ###Lets save our new dfs
-    write.csv(IMG_HDW       , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_df.csv", sep = ""), row.names = FALSE)
-    write.csv(IMG_HDW_010nm , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""), row.names = FALSE)
-    write.csv(IMG_HDW_050nm , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""), row.names = FALSE)
-    write.csv(IMG_HDW_100nm , paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""),row.names = FALSE)
+    write.csv(IMG_HDW       , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_df.csv", sep = ""), row.names = FALSE)
+    write.csv(IMG_HDW_010nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""), row.names = FALSE)
+    write.csv(IMG_HDW_050nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""), row.names = FALSE)
+    write.csv(IMG_HDW_100nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""),row.names = FALSE)
 
-    directories <- c(paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_df.csv", sep = ""),
-                     paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""),
-                     paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""),
-                     paste(paste("output/hdwImagery/images/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""))
+    directories <- c(paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_df.csv", sep = ""),
+                     paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""),
+                     paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""),
+                     paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""))
     return(directories)
   }, warning = function(warning) {
     message <- paste ("WARNING - While resampling bands", imageDirectory)

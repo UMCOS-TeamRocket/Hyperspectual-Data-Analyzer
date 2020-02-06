@@ -8,4 +8,5 @@ createOutputDirectories <- function() {
   dir.create(file.path(here(), "output/hdwSpectralLibraries"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(here(), "output/plots"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(here(), "output/spectralLibraries"), recursive = TRUE, showWarnings = FALSE)
+  dir.create(file.path(here(), "output/hdwImagery"), recursive = TRUE, showWarnings = FALSE)
 }
