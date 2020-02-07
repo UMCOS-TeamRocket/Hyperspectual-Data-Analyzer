@@ -3,6 +3,8 @@ library(tidyverse)
 
 predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, outputName) {
   tryCatch({
+    
+    print(hdwDirectory)
     #Reads in Imagery
     image<-brick(imageDirectory)
     
@@ -11,32 +13,37 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
 
     ##Converts to a dataframe
     image<-rasterToPoints(image)%>% as.data.frame()
-
-    image_file <-read.csv(image)
-
+  
+    print("1")
+    image_file <-read.csv(hdwDirectory)
+    print("2")
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-
+    print("3")
     ##uses model from spectral library to predict images
-    Results    <-predict(classifier, image_file[-1:-2])
-    
+    Results <-predict(classifier, image_file[-1:-2])
+    print("4")
     ##converts prediction from rf model to dataframe and changes column name to predicted
-    Results<-as.data.frame(Results)%>%'names<-'("predicted")
-    
+    tmp <- as.matrix(Results)
+    class(Results)
+    Results<-as.data.frame(tmp)%>%'names<-'("predicted")
+    print("5")
     ## Grabs x, y values from original image and combines with unique values from prediction 
-    Results<-cbind(Results,image_D[1:2]) %>% dplyr::select(predicted,x,y)
-    
+    Results<-cbind(Results,image[1:2]) %>% dplyr::select(predicted,x,y)
+    print("6")
     ###Creates Unique PFT_IDs
-    Unique<-unique(as.data.frame(Results$predicted)) 
+    Unique<-unique(as.data.frame(Results$predicted))
+    print("7")
     Unique$PFT_ID<-seq(1:nrow(Unique))
+    print("8")
     names(Unique)[1]<-"predicted"
-    
+    print("9")
     ###Create dataframe with unique PFT_ID values and location info
     Results<-merge(Results,Unique, by="predicted")%>% dplyr::select(x,y,PFT_ID)
-    
+    print("10")
     ##Converts dataframe to a raster for predicted layer....and use as.factor to arrange my original raster layer
-    raster<-rasterFromXYZ(Results, crs = crs(image_D))
-    
+    raster<-rasterFromXYZ(Results, crs = crs(image))
+    print("11")
     ###########################################Plot 1############################################################
     ###save plot as a jpeg
     chm_colors <- c("darkgreen","chartreuse3","gold","deepskyblue","saddlebrown")
