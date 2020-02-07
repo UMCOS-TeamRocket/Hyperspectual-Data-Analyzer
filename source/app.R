@@ -46,18 +46,13 @@ ui <-
                                           tabPanel("Select Data", style = "background-color: #383a40;",
                                                    #Drop down for Spectral Library selection
                                                    selectInput("librarySelect", label = div(style="color: white;", "Spectral Library:"), 
-                                                               c(list.files(path = "output/hdwSpectralLibraries", full.names = FALSE), 
-                                                                 list.files(path = "output/spectralLibraries", full.names = FALSE))),
+                                                               c(list.files(path = "output/hdwSpectralLibraries", full.names = FALSE))),
                                                    
                                                    #label to be used as the filename for the classifier
                                                    textInput("classifierName",label = div(style="color: white;", "Classifier File Name:")),
                                                    
                                                    #TODO: limit file types
-                                                   fluidRow(
-                                                     column(4, shinyFilesButton("imageHdwInput", "Browse", title = "Select HDW Image", multiple = FALSE)),
-                                                     column(8, verbatimTextOutput("imageHdwOutput", placeholder = TRUE))
-                                                   ),
-                                                   
+                                              
                                                    fluidRow(
                                                      column(4, shinyFilesButton("imageInput", "Browse", title = "Select Image", multiple = FALSE)),
                                                      column(8, verbatimTextOutput("imageOutput", placeholder = TRUE))
@@ -213,7 +208,6 @@ server <- function(input, output, session) {
   queue <- list() #vector of string vectors. each element = (data cube file directory, classifier name)
   classifierChoices <- c()
   fieldSpecDirectory <- ""
-  imageHDWDirectory <- ""
   imageDirectory <- ""
   
   
@@ -231,11 +225,8 @@ server <- function(input, output, session) {
     if (input$classifierName == "") {
       message <- "Please enter a Classifier Name"
       displayMessage <- TRUE
-    } else if (imageHDWDirectory == "") {
-      message <- "Please select an HDW image"
-      displayMessage <- TRUE
     } else if (imageDirectory == "") {
-      message <- "Please select an image"
+      message <- "Please select a Data Cube"
       displayMessage <- TRUE
     } else if (input$outputFileName == "") {
       message <- "Please enter an Output File Name"
@@ -261,7 +252,7 @@ server <- function(input, output, session) {
     libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")   
     
     classifier <- c(libraryDirectory, input$mtry, input$ntree, input$importance, input$classifierName)
-    images <- c(imageHDWDirectory, imageDirectory)
+    images <- c(imageDirectory)
     newProcess <- list(classifier, images, input$outputFileName)
     
     #add process to queue
@@ -424,9 +415,8 @@ server <- function(input, output, session) {
       ))
     })
     
-    hdwSpectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
-    spectralLibraryFiles <- list.files(path = "output/spectralLibraries", full.names = FALSE)
-    allLibraryFiles <- c(hdwSpectralLibraryFiles, spectralLibraryFiles)
+    spectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
+    allLibraryFiles <- c(spectralLibraryFiles)
     updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
   })
   
@@ -450,25 +440,6 @@ server <- function(input, output, session) {
     })
   })
   
-  #SELECT HDW IMAGE FILE
-  observe({
-    shinyFileChoose(
-      input,
-      'imageHdwInput',
-      roots = dataRoot,
-      session = session
-    )
-    
-    output$imageHdwOutput <- renderPrint({
-      if (is.integer(input$imageHdwInput)) {
-        imageHDWDirectory <<- ""
-        cat("No HDW image has been selected")
-      } else {
-        imageHDWDirectory <<- parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
-        parseFilePaths(dataRoot, input$imageHdwInput)[[1,4]][1]
-      }
-    })
-  })
   
   #SELECT IMAGE FILE
   observe({

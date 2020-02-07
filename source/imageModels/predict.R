@@ -1,45 +1,42 @@
 library(raster)
 library(tidyverse)
 
-predictFunction <- function(classifierDirectory, imageAvDirectory, imageHdwDirectory, imageAvViDirectory, outputName) {
+predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, outputName) {
   tryCatch({
     #Reads in Imagery
-    image_AV<-brick(imageAvDirectory)
-    image_HDW<-brick(imageHdwDirectory)
+    image<-brick(imageDirectory)
     
-    ##MAKES SURE PROJECTIONS ARE THE SAME
-    crs(image_HDW)<-crs(image_AV)
     
     ##Marks raster as unrotated
-    image_AV@rotated<-FALSE
+    image@rotated<-FALSE
     
     ##Converts to a dataframe
-    image_AV<-rasterToPoints(image_AV)%>% as.data.frame()
+    image<-rasterToPoints(image)%>% as.data.frame()
     
-    image_AV_VIs <-read.csv(imageAvViDirectory)
-    
+    image_file <-read.csv(image)
+    print("HELL YEAH")
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
     
     ##uses model from spectral library to predict images
-    Results_AV_VIs    <-predict(classifier, image_AV_VIs[-1:-2])
+    Results    <-predict(classifier, image_file[-1:-2])
     
     ##converts prediction from rf model to dataframe and changes column name to predicted
-    Results_AV_VIs<-as.data.frame(Results_AV_VIs)%>%'names<-'("predicted")
+    Results<-as.data.frame(Results)%>%'names<-'("predicted")
     
     ## Grabs x, y values from original image and combines with unique values from prediction 
-    Results_AV_VIs<-cbind(Results_AV_VIs,image_AV[1:2]) %>% dplyr::select(predicted,x,y)
+    Results<-cbind(Results,image_D[1:2]) %>% dplyr::select(predicted,x,y)
     
     ###Creates Unique PFT_IDs
-    Unique_AV_VIs<-unique(as.data.frame(Results_AV_VIs$predicted)) 
-    Unique_AV_VIs$PFT_ID<-seq(1:nrow(Unique_AV_VIs))
-    names(Unique_AV_VIs)[1]<-"predicted"
+    Unique<-unique(as.data.frame(Results$predicted)) 
+    Unique$PFT_ID<-seq(1:nrow(Unique))
+    names(Unique)[1]<-"predicted"
     
     ###Create dataframe with unique PFT_ID values and location info
-    Results_AV_VIs<-merge(Results_AV_VIs,Unique_AV_VIs, by="predicted")%>% dplyr::select(x,y,PFT_ID)
+    Results<-merge(Results,Unique, by="predicted")%>% dplyr::select(x,y,PFT_ID)
     
     ##Converts dataframe to a raster for predicted layer....and use as.factor to arrange my original raster layer
-    raster<-rasterFromXYZ(Results_AV_VIs, crs = crs(image_AV))
+    raster<-rasterFromXYZ(Results, crs = crs(image_D))
     
     ###########################################Plot 1############################################################
     ###save plot as a jpeg
