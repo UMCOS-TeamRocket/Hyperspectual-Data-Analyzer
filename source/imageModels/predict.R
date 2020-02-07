@@ -9,12 +9,12 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     
     ##Marks raster as unrotated
     image@rotated<-FALSE
-    
+
     ##Converts to a dataframe
     image<-rasterToPoints(image)%>% as.data.frame()
     
     image_file <-read.csv(image)
-    print("HELL YEAH")
+    
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
     
