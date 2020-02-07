@@ -6,18 +6,17 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #Reads in Imagery
     image<-brick(imageDirectory)
     
-    
     ##Marks raster as unrotated
     image@rotated<-FALSE
 
     ##Converts to a dataframe
     image<-rasterToPoints(image)%>% as.data.frame()
-    
+
     image_file <-read.csv(image)
-    
+
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-    
+
     ##uses model from spectral library to predict images
     Results    <-predict(classifier, image_file[-1:-2])
     
