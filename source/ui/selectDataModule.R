@@ -26,13 +26,14 @@ selectDataUI <- function(id) {
 
 
 selectDataServer <- function(input, output, session) {
+  root <- c(home = fs::path_home(), project = here())
+  
   #SELECT IMAGE FILE
-  dataRoot <- c(home = fs::path_home(), data = paste(here(), "data", sep = "/"))
   observe({
     shinyFileChoose(
       input,
       'imageInput',
-      roots = dataRoot,
+      roots = root,
       session = session
     )
     
@@ -41,8 +42,8 @@ selectDataServer <- function(input, output, session) {
         imageDirectory <<- ""
         cat("No image has been selected")
       } else {
-        imageDirectory <<- parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
-        parseFilePaths(dataRoot, input$imageInput)[[1,4]][1]
+        imageDirectory <<- parseFilePaths(root, input$imageInput)[[1,4]][1]
+        parseFilePaths(root, input$imageInput)[[1,4]][1]
       }
     })
   })
@@ -88,7 +89,7 @@ selectDataServer <- function(input, output, session) {
                        imageDirectory = imageDirectory, 
                        outputFileName = input$outputFileName)
     
-    #TODO: create a better string to add to queue
+    #add selected parameters to data variable
     data$processParameters <- newProcess
     
     #random number to indicate that the add to queue button has been pressed

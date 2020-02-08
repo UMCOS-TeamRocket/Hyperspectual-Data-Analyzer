@@ -13,14 +13,13 @@ source("source/processQueue.R")
 source("source/createOutputDirectories.R")
 source("source/ui/selectDataModule.R")
 source("source/ui/rfClassifierParametersModule.R")
+source("source/ui/queueModule.R")
 
 createOutputDirectories()
 
 ui <- 
   fluidPage( theme =shinytheme("slate"),
-  tags$head(
-   tags$style(HTML("
-          .navbar .navbar-nav {float: right}
+    HTML(".navbar .navbar-nav {float: right}
           .navbar .navbar-header {float: left;}
           .navbar-inner { background-color: #23262b }
           .navbar-static-top 
@@ -29,11 +28,11 @@ ui <-
             margin-bottom: 0px;
             background-color: #23262b
           }
-          a{color:#D2403A}
-        "))
-  ),
+          a{color:#D2403A}") %>%
+    tags$style() %>%
+    tags$head(),
  
-  navbarPage("Hyperspectral Data Analyzer",
+    navbarPage("Hyperspectral Data Analyzer",
              tabPanel("Home",
                       br(),
                       br(),
@@ -42,9 +41,7 @@ ui <-
                             sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
                               tabsetPanel(type = "tabs",
                                           #SELECT DATA TAB
-                                          tabPanel("Select Data", style = "background-color: #383a40;",
-                                                 selectDataUI("selectData")
-                                          ),
+                                          tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
                                         
                                         #Spectral Library Tab
                                         tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;",
@@ -87,23 +84,12 @@ ui <-
 
                       ),
                       br(),
+                      
                       br(),
 
                       #QUEUE
-                      fluidRow(
-                        style = "background-color: #383a40;",
-                        br(),
-                        fluidRow(
-                          column(2, p("Queue:", style = "color: white; size: 20pt; padding-left: 10px;")),
-                          column(1, actionButton("runQueue", "Run")),
-                          column(1, actionButton("clearQueue", "clear"))
-                        ),
-                        br(),
-
-                        verbatimTextOutput("queue"),
-                        tags$head(tags$style(HTML("#queue {background-color: #383a40; border-color: #383a40; color: white; font-size: 15px; padding-left: 10px;}"))),
-                        br(),
-                      ),
+                      fluidRow(style = "background-color: #383a40;", queueModuleUI("queue")),
+                      
                       br(),
                       
                       #Output
@@ -166,18 +152,11 @@ ui <-
 server <- function(input, output, session) {
   #INITIALIZE
   #VARIABLES
-  dataRoot <- c(home = fs::path_home(), data = paste(here(), "data", sep = "/"))
-  outputRoot <- c(home = fs::path_home(), output = paste(here(), "output", sep = "/"))
   root <- c(home = fs::path_home(), project = here())
   
-  queueText <- "" #string to be displayed in the queue
-  queue <- list() #list of process parameters
   classifierChoices <- c()
   fieldSpecDirectory <- ""
   imageDirectory <- ""
-  
-  #initialize queue
-  output$queue <- renderText({"queue is empty"})
   
   #CLASSIFIER PARAMETERS MODULE
   rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
@@ -185,12 +164,18 @@ server <- function(input, output, session) {
   #SELECT DATA MODULE
   selectDataModule <- callModule(selectDataServer, "selectData")
   
+  #QUEUE MODULE
+  queueData <- reactiveValues()
+  queueData$parameters <- list()
+  queueData$text <- ""
+  queueModule <- callModule(queueModuleServer, "queue", queueData)
+  
   #COLLECT PROCESS PARAMETERS WHEN 'ADD TO QUEUE' IS CLICKED
   observeEvent(selectDataModule$addToQueue, {
-    queue[[length(queue) + 1]] <<- list(selectDataModule$processParameters, rfClassifierParameters)
+    queueData$parameters[[length(queueData$parameters) + 1]] <<- list(selectDataModule$processParameters, rfClassifierParameters)
     
     #BUILD OUTPUT STRING
-    textVector <- c(paste("Process#:", length(queue)))
+    textVector <- c(paste("Process#:", length(queueData$parameters)))
     textVector <- c(textVector, paste("Spectral Library:", selectDataModule$processParameters$libraryDirectory))
     textVector <- c(textVector, paste("Classifier Name:", selectDataModule$processParameters$classifierName))
     classifierParameters <- paste(c(rfClassifierParameters$mtry(),
@@ -205,50 +190,7 @@ server <- function(input, output, session) {
       outputString <- paste(outputString, string, sep = "\n")
     }
     
-    queueText <<- paste(queueText, outputString, sep = "\n")
-    
-    output$queue <- renderText({queueText})
-  })
-  
-  #Clear all items from queue
-  observeEvent(input$clearQueue, {
-    queueText <<- ""
-    queue <<- list()
-    
-    output$queue <- renderText({"queue is empty"})
-  })
-  
-  #Run all processes in queue
-  observeEvent(input$runQueue, {
-    if (length(queue) > 0) {
-      tryCatch({
-        print("Processing Queue...")
-        
-        processQueue(queue)
-     
-        
-        print("Finished Processing Queue")
-      }, warning = function(warning) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(HTML(paste0(warning, collapse = "")))
-          ),
-          title = "Warning",
-          easyClose = TRUE
-        ))
-      }, error = function(error) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(HTML(paste0(error, collapse = "")))
-          ),
-          title = "Error",
-          easyClose = TRUE
-        ))
-      })
-      
-    } else {
-      print("queue is empty")
-    }
+    queueData$text <<- paste(queueData$text, outputString, sep = "\n")
   })
   
   #Update Spectra Objects By Site
@@ -359,7 +301,7 @@ server <- function(input, output, session) {
     shinyDirChoose(
       input,
       'fieldSpecDirInput',
-      roots = dataRoot,
+      roots = root,
       session = session
     )
     
@@ -368,8 +310,8 @@ server <- function(input, output, session) {
         fieldSpecDirectory <<- ""
         cat("No directory has been selected")
       } else {
-        fieldSpecDirectory <<- parseDirPath(dataRoot, input$fieldSpecDirInput)
-        parseDirPath(dataRoot, input$fieldSpecDirInput)
+        fieldSpecDirectory <<- parseDirPath(root, input$fieldSpecDirInput)
+        parseDirPath(root, input$fieldSpecDirInput)
       }
     })
   })
