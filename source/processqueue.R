@@ -28,17 +28,26 @@ processQueue <- function(queue) {
         #increase progress bar and change detail text
         setProgress(index, detail = outputFileName)
         
-        print("Generating RF Classifier")
-        classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
-        
-        print("Processing HDW Image")
-        hdwViDirectory <- processHDWImage(imageDirectory)
-        
-        print("Predicting")
-        outputDirectory <- predictFunction(classifierDirectory, image, hdwViDirectory, outputFileName)
-        
-        print("Process Finished")
-        
+        withProgress(message = paste("Processing:", outputFileName), min = 0, max = 1, value = 0, {
+          setProgress(0, detail = "Generating Classifier")
+          
+          print("Generating RF Classifier")
+          classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+          
+          setProgress(0.3, detail = "Processing HDW Image")
+          
+          print("Processing HDW Image")
+          hdwViDirectory <- processHDWImage(imageDirectory)
+          
+          setProgress(0.6, detail = "Predicting")
+          
+          print("Predicting")
+          outputDirectory <- predictFunction(classifierDirectory, image, hdwViDirectory, outputFileName)
+          
+          setProgress(1)
+          
+          print("Process Finished")
+        })
       }, warning = function(warning) {
         warning(warning)
         message <- paste ("WARNING - While process")

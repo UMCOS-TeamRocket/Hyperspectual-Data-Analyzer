@@ -89,10 +89,10 @@ server <- function(input, output, session) {
   rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
   
   #SPECTRAL LIBRARY MODULE
-  spectralLibraryModule <- callModule(spectralLibraryModuleServer, "spectralLibrary")
+  spectralLibraryModuleValues <- callModule(spectralLibraryModuleServer, "spectralLibrary")
   
   #SELECT DATA MODULE
-  selectDataModule <- callModule(selectDataServer, "selectData", spectralLibraryModule)
+  selectDataModule <- callModule(selectDataServer, "selectData", spectralLibraryModuleValues)
   
   #QUEUE MODULE
   queueData <- reactiveValues()
