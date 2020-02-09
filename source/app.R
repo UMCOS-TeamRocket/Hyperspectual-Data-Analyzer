@@ -12,6 +12,7 @@ source("source/ui/selectDataModule.R")
 source("source/ui/rfClassifierParametersModule.R")
 source("source/ui/queueModule.R")
 source("source/ui/spectralLibraryModule.R")
+source("source/ui/imageOutputModule.R")
 
 createOutputDirectories()
 
@@ -32,33 +33,28 @@ ui <-
  
     navbarPage("Hyperspectral Data Analyzer",
              tabPanel("Home",
-                      br(),
-                      br(),
-                          sidebarLayout(
-
-                            sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
-                              tabsetPanel(type = "tabs",
-                                        #SELECT DATA TAB
-                                        tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
-                                        
-                                        #Spectral Library Tab
-                                        tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;", spectralLibraryModuleUI("spectralLibrary"))),
-                              
-                              tags$head(tags$style(HTML('body, input, button, select {
+                      br(), br(),
+                      
+                      tagList(
+                        tabsetPanel(type = "tabs",
+                                    #SELECT DATA TAB
+                                    tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
+                                    
+                                    #SPECTRAL LIBRARY TAB
+                                    tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;", spectralLibraryModuleUI("spectralLibrary"))),
+                        
+                        tags$head(tags$style(HTML('body, input, button, select {
                                                                 font-family: "Calibri";
-                                                                background-color: #121212;}')
-                              )),
-
-                            ),
-
-                            #CLASSIFIER PARAMETERS
-                            mainPanel(style = "background-color: #383a40;", br(), rfClassifierParametersUI("rfClassifierParameters")
-                            )
+                                                                background-color: #121212;}')))
+                      ) %>%
+                      sidebarPanel(style = "background-color: #383a40; border-color: #383a40;") %>%
+                      sidebarLayout(
+                        #CLASSIFIER PARAMETERS
+                        mainPanel(style = "background-color: #383a40;", br(), rfClassifierParametersUI("rfClassifierParameters"))
 
                       ),
-                      br(),
                       
-                      br(),
+                      br(), br(),
 
                       #QUEUE
                       fluidRow(style = "background-color: #383a40;", queueModuleUI("queue")),
@@ -66,22 +62,7 @@ ui <-
                       br(),
                       
                       #Output
-                      fluidRow(
-                        style = "background-color: #383a40;",
-                        br(),
-                        fluidRow(
-                          column(2, p("Output:", style = "color: white; size: 20pt; padding-left: 10px;")),
-                          
-                        ),
-                        br(),
-                        
-                        
-                        img(src="CopyOfLight lichen2.jpg", height="100%", width="100%", align="center"),
-                        
-                        imageOutput("Output"),
-                        tags$head(tags$style(HTML("#output {background-color: #383a40; border-color: #383a40; color: white; font-size: 15px; padding-left: 10px;}"))),
-                        br(),
-                      ),
+                      fluidRow(tagList(br(), imageOutputModuleUI("imageOutput"), br()), style = "background-color: #383a40;"),
 
                       img(src="logo.png", height="10%", width="10%", align="right")
              ),
@@ -94,8 +75,8 @@ ui <-
                                             .tabbable > .nav > li > a[data-value='Classifiers'] {border-color: #2b2b2b; background-color: #2b2b2b;  color:white}
                                             .tabbable > .nav > li > a[data-value='Output'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
                                             .tabbable > .nav > li > a[data-value='Config'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
-                                            .tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}
-                              ")),
+                                            .tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}")),
+                                   
                                    tabsetPanel(type = "tabs",
                                                #CLASSIFIER DATA TAB
                                                tabPanel("Classifiers", style = "background-color: #383a40;",
@@ -168,6 +149,9 @@ server <- function(input, output, session) {
     
     queueData$text <<- paste(queueData$text, outputString, sep = "\n")
   })
+  
+  #IMAGE OUTPUT MODULE
+  imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput")
   
 }
 
