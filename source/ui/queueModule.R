@@ -1,4 +1,5 @@
 library(magrittr)
+source("source/processQueue.R")
 
 queueModuleUI <- function(id) {
   ns <- NS(id)

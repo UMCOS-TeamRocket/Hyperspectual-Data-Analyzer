@@ -7,13 +7,11 @@ library(shinyFiles)
 library(here)
 setwd(here())
 
-source("source/fieldSpecProcessing/bySite.R")
-source("source/generateSpectralLibraryFiles.R")
-source("source/processQueue.R")
 source("source/createOutputDirectories.R")
 source("source/ui/selectDataModule.R")
 source("source/ui/rfClassifierParametersModule.R")
 source("source/ui/queueModule.R")
+source("source/ui/spectralLibraryModule.R")
 
 createOutputDirectories()
 
@@ -40,36 +38,11 @@ ui <-
 
                             sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
                               tabsetPanel(type = "tabs",
-                                          #SELECT DATA TAB
-                                          tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
+                                        #SELECT DATA TAB
+                                        tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
                                         
                                         #Spectral Library Tab
-                                        tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;",
-                                                 fluidRow(
-                                                   column(4, shinyDirButton("fieldSpecDirInput", "Browse", "Select Directory With Field Spec Data")),
-                                                   column(8, verbatimTextOutput("fieldSpecDirOutput", placeholder = TRUE))
-                                                 ),
-                                                 
-                                                 #TODO: change label from update to something else?
-                                                 actionButton("updateSpectralBySite", "Update"),
-                                                 
-                                                 br(),
-                                                 br(),
-                                                 
-                                                 multiInput(
-                                                   inputId = "spectralList", label =span("List of Spectral Objects By Site", style="color:white"),
-                                                   choices = list.files(path = "output/fieldSpec", full.names = FALSE),
-                                                   options = list(
-                                                     enable_search = TRUE
-                                                   )
-                                                 ),
-                                                 
-                                                 textInput("spectralLibraryName",label = div(style="color: white;", "Spectral Library Name")),
-                                                 
-                                                 actionButton("createSpectralLibrary", "Create Spectral Library")
-                                        )
-
-                              ),
+                                        tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;", spectralLibraryModuleUI("spectralLibrary"))),
                               
                               tags$head(tags$style(HTML('body, input, button, select {
                                                                 font-family: "Calibri";
@@ -161,8 +134,11 @@ server <- function(input, output, session) {
   #CLASSIFIER PARAMETERS MODULE
   rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
   
+  #SPECTRAL LIBRARY MODULE
+  spectralLibraryModule <- callModule(spectralLibraryModuleServer, "spectralLibrary")
+  
   #SELECT DATA MODULE
-  selectDataModule <- callModule(selectDataServer, "selectData")
+  selectDataModule <- callModule(selectDataServer, "selectData", spectralLibraryModule)
   
   #QUEUE MODULE
   queueData <- reactiveValues()
@@ -191,129 +167,6 @@ server <- function(input, output, session) {
     }
     
     queueData$text <<- paste(queueData$text, outputString, sep = "\n")
-  })
-  
-  #Update Spectra Objects By Site
-  observeEvent(input$updateSpectralBySite, {
-    if (fieldSpecDirectory == "") {
-      showModal(modalDialog(
-        fluidRow(
-          h3("Please select a directory")
-        ),
-        title = "Missing Information",
-        easyClose = TRUE
-      ))
-      return()
-    }
-    
-    print("Processing Spectra By Field...")
-    
-    errors <- processFieldSpec(fieldSpecDirectory)
-    
-    print("Finished Processing Spectra By Field")
-    
-    spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)
-    updateMultiInput(
-      session = session,
-      inputId = "spectralList",
-      selected = c(),
-      choices = spectraList
-    )
-    
-    if (length(errors) > 0) {
-      showModal(modalDialog(
-        fluidRow(
-          h3(paste(length(errors), "Error(s) Occured While Processing Spectra By Field:")),
-          h4(paste(errors, collapse = " "))
-        ),
-        title = "Error",
-        easyClose = TRUE
-      ))
-    }
-  })
-  
-  #CREATE SPECTRAL LIBRARY
-  observeEvent(input$createSpectralLibrary, {
-    spectralLibraryName <- input$spectralLibraryName
-    
-    if (spectralLibraryName == "") {
-      showModal(modalDialog(
-        fluidRow(
-          h3("Please enter a name for the Spectral Library")
-        ),
-        title = "Missing Information",
-        easyClose = TRUE
-      ))
-      
-      return()
-    } else if (is.null(input$spectralList)) {
-      showModal(modalDialog(
-        fluidRow(
-          h3("Please select at least 1 spectral object")
-        ),
-        title = "Missing Information",
-        easyClose = TRUE
-      ))
-      
-      return()
-    }
-    
-    
-    listOfSpectraObjects <- c()
-    index <- 1
-    
-    for(fileName in input$spectralList) {
-      listOfSpectraObjects[index] <- paste("output/fieldSpec", fileName, sep = "/")
-      index <- index + 1
-    }
-    
-    tryCatch({
-      print("Generating Spectral Library Files...")
-      
-      generateSpectralLibraryFiles(listOfSpectraObjects, spectralLibraryName)
-      
-      print("Generated Spectral Library Files")
-    }, warning = function(warning) {
-      showModal(modalDialog(
-        fluidRow(
-          h4(paste0(warning))
-        ),
-        title = "Warning",
-        easyClose = TRUE
-      ))
-    }, error = function(error) {
-      showModal(modalDialog(
-        fluidRow(
-          h4(paste0(error))
-        ),
-        title = "Error",
-        easyClose = TRUE
-      ))
-    })
-    
-    spectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
-    allLibraryFiles <- c(spectralLibraryFiles)
-    #updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), allLibraryFiles)
-  })
-  
-  #SELECT FIELD SPEC DIRECTORY
-  observe({
-    shinyDirChoose(
-      input,
-      'fieldSpecDirInput',
-      roots = root,
-      session = session
-    )
-    
-    output$fieldSpecDirOutput <- renderPrint({
-      if (is.integer(input$fieldSpecDirInput)) {
-        fieldSpecDirectory <<- ""
-        cat("No directory has been selected")
-      } else {
-        fieldSpecDirectory <<- parseDirPath(root, input$fieldSpecDirInput)
-        parseDirPath(root, input$fieldSpecDirInput)
-      }
-    })
   })
   
 }

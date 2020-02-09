@@ -25,8 +25,12 @@ selectDataUI <- function(id) {
 
 
 
-selectDataServer <- function(input, output, session) {
+selectDataServer <- function(input, output, session, spectralLibraryModule) {
   root <- c(home = fs::path_home(), project = here())
+  
+  observe({
+    updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), spectralLibraryModule$spectralLibraryFiles)
+  })
   
   #SELECT IMAGE FILE
   observe({
