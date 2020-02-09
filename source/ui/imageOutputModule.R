@@ -11,7 +11,7 @@ imageOutputModuleUI <- function(id) {
     
     img(src="CopyOfLight lichen2.jpg", height="100%", width="100%", align="center"),
     
-    imageOutput("Output"),
+    imageOutput(ns("Output")),
     tags$head(tags$style(HTML("#output {background-color: #383a40; border-color: #383a40; color: white; font-size: 15px; padding-left: 10px;}")))
   )
 }

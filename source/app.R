@@ -13,6 +13,7 @@ source("source/ui/rfClassifierParametersModule.R")
 source("source/ui/queueModule.R")
 source("source/ui/spectralLibraryModule.R")
 source("source/ui/imageOutputModule.R")
+source("source/ui/viewDataModule.R")
 
 createOutputDirectories()
 
@@ -67,38 +68,10 @@ ui <-
                       img(src="logo.png", height="10%", width="10%", align="right")
              ),
              #VIEW DATA TAB
-             tabPanel("View Data",
-                      sidebarPanel(style = "background-color: #383a40; border-color: #383a40;",
-                                   #Change the background color of the Select Data/Generate Class tab buttons to black when selected and gray otherwise
-                                   tags$style(HTML("
-                                            .tabbable > .nav > li > a {background-color: #383a40;  color:white}
-                                            .tabbable > .nav > li > a[data-value='Classifiers'] {border-color: #2b2b2b; background-color: #2b2b2b;  color:white}
-                                            .tabbable > .nav > li > a[data-value='Output'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
-                                            .tabbable > .nav > li > a[data-value='Config'] {border-color: #2b2b2b; background-color: #2b2b2b;   color:white}
-                                            .tabbable > .nav > li[class=active] > a {border-color: #383a40; background-color: #383a40; color:white}")),
-                                   
-                                   tabsetPanel(type = "tabs",
-                                               #CLASSIFIER DATA TAB
-                                               tabPanel("Classifiers", style = "background-color: #383a40;",
-                                                  
-                                               ),
-
-                                               #OUTPUT TAB
-                                               tabPanel("Output", style = "background-color:#383a40;",
-                                               ),
-                                               #CONFIGURATION TAB  
-                                               tabPanel("Config", style = "background-color: #383a40;",
-                                                        
-                                               )
-
-
-                                   ),
-                      ),
-
-
-             )
-  )
-  
+             viewDataModuleUI("viewData") %>%
+               sidebarPanel(style = "background-color: #383a40; border-color: #383a40;") %>%
+               tabPanel(title = "View Data")
+    )
 )
 
 
@@ -153,6 +126,8 @@ server <- function(input, output, session) {
   #IMAGE OUTPUT MODULE
   imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput")
   
+  #VIEW DATA MODULE
+  viewDataModule <- callModule(viewDataModuleServer, "viewData")
 }
 
 shinyApp(ui = ui, server = server)
