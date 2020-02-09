@@ -41,13 +41,11 @@ queueModuleServer <- function(input, output, session, queueData) {
   
   #Run all processes in queue
   observeEvent(input$runQueue, {
-    if (length(queue) > 0) {
+    if (length(queueData$parameters) > 0) {
       tryCatch({
         print("Processing Queue...")
         
-        #TODO: fix process queue
-        #processQueue(queueData$parameters)
-        
+        processQueue(queueData$parameters)
         
         print("Finished Processing Queue")
       }, warning = function(warning) {
@@ -67,9 +65,14 @@ queueModuleServer <- function(input, output, session, queueData) {
           easyClose = TRUE
         ))
       })
-      
     } else {
-      print("queue is empty")
+      showModal(modalDialog(
+        fluidRow(
+          h4("Queue is empty")
+        ),
+        title = "Failed to run Queue:",
+        easyClose = TRUE
+      ))
     }
   })
 }

@@ -10,19 +10,18 @@ processQueue <- function(queue) {
     index <- 0
     for (process in queue) {
       tryCatch({
-        classifier <- process[[1]]
-        spectralLibrary <- classifier[1]
-        mtry <- classifier[2]
-        ntree <- classifier[3]
-        importance <- classifier[4]
-        classifierFileName <- classifier[5]
+        parameters <- process$parameters
+        classifierParameters <- process$classifierParameters
         
-        images <- process[[2]]
+        classifierName <- parameters$classifierName
+        spectralLibraryDirectory <- parameters$libraryDirectory
+        mtry <- classifierParameters$mtry()
+        ntree <- classifierParameters$ntree()
+        importance <- classifierParameters$importance()
         
-        #image directory
-        image <- images[1]
+        imageDirectory <- parameters$imageDirectory
         
-        outputFileName <- process[[3]]
+        outputFileName <- parameters$outputFileName
         
         print(paste("Current Process:", outputFileName))
         
@@ -30,10 +29,10 @@ processQueue <- function(queue) {
         setProgress(index, detail = outputFileName)
         
         print("Generating RF Classifier")
-        classifierDirectory <- generateRFClassifier(classifierFileName, spectralLibrary, mtry, ntree, importance)
+        classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
         
         print("Processing HDW Image")
-        hdwViDirectory <- processHDWImage(image)
+        hdwViDirectory <- processHDWImage(imageDirectory)
         
         print("Predicting")
         outputDirectory <- predictFunction(classifierDirectory, image, hdwViDirectory, outputFileName)

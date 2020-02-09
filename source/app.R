@@ -102,7 +102,8 @@ server <- function(input, output, session) {
   
   #COLLECT PROCESS PARAMETERS WHEN 'ADD TO QUEUE' IS CLICKED
   observeEvent(selectDataModule$addToQueue, {
-    queueData$parameters[[length(queueData$parameters) + 1]] <<- list(selectDataModule$processParameters, rfClassifierParameters)
+    queueData$parameters[[length(queueData$parameters) + 1]] <<- list(parameters = selectDataModule$processParameters, 
+                                                                      classifierParameters = rfClassifierParameters)
     
     #BUILD OUTPUT STRING
     textVector <- c(paste("Process#:", length(queueData$parameters)))
