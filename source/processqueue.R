@@ -10,36 +10,44 @@ processQueue <- function(queue) {
     index <- 0
     for (process in queue) {
       tryCatch({
-        classifier <- process[[1]]
-        spectralLibrary <- classifier[1]
-        mtry <- classifier[2]
-        ntree <- classifier[3]
-        importance <- classifier[4]
-        classifierFileName <- classifier[5]
+        parameters <- process$parameters
+        classifierParameters <- process$classifierParameters
         
-        images <- process[[2]]
+        classifierName <- parameters$classifierName
+        spectralLibraryDirectory <- parameters$libraryDirectory
+        mtry <- classifierParameters$mtry()
+        ntree <- classifierParameters$ntree()
+        importance <- classifierParameters$importance()
         
-        #image directory
-        image <- images[1]
+        imageDirectory <- parameters$imageDirectory
         
-        outputFileName <- process[[3]]
+        outputFileName <- parameters$outputFileName
         
         print(paste("Current Process:", outputFileName))
         
         #increase progress bar and change detail text
         setProgress(index, detail = outputFileName)
         
-        print("Generating RF Classifier")
-        classifierDirectory <- generateRFClassifier(classifierFileName, spectralLibrary, mtry, ntree, importance)
-        
-        print("Processing HDW Image")
-        hdwViDirectory <- processHDWImage(image)
-        
-        print("Predicting")
-        outputDirectory <- predictFunction(classifierDirectory, image, hdwViDirectory, outputFileName)
-        
-        print("Process Finished")
-        
+        withProgress(message = paste("Processing:", outputFileName), min = 0, max = 1, value = 0, {
+          setProgress(0, detail = "Generating Classifier")
+          
+          print("Generating RF Classifier")
+          classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+          
+          setProgress(0.3, detail = "Processing HDW Image")
+          
+          print("Processing HDW Image")
+          hdwViDirectory <- processHDWImage(imageDirectory)
+          
+          setProgress(0.6, detail = "Predicting")
+          
+          print("Predicting")
+          outputDirectory <- predictFunction(classifierDirectory, image, hdwViDirectory, outputFileName)
+          
+          setProgress(1)
+          
+          print("Process Finished")
+        })
       }, warning = function(warning) {
         warning(warning)
         message <- paste ("WARNING - While process")
