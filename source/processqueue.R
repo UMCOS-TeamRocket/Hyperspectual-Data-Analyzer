@@ -42,7 +42,7 @@ processQueue <- function(queue) {
           setProgress(0.6, detail = "Predicting")
           
           print("Predicting")
-          outputDirectory <- predictFunction(classifierDirectory, image, hdwViDirectory, outputFileName)
+          outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwViDirectory, outputFileName)
           
           setProgress(1)
           
