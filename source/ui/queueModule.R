@@ -51,7 +51,7 @@ queueModuleServer <- function(input, output, session, queueData) {
         
         #TODO: add to output queue data as it is processed
         #image output placeholder
-        queueData$outputImageDirectories[[1]] <- normalizePath(file.path("./output/plots", "testImage.jpg"))
+        queueData$outputImageDirectories[[1]] <- normalizePath(file.path("./data", "testImage.jpg"))
         queueData$outputStatistics[[1]] <- "*some revolutionary data*"
         
         print("Processing Queue...")
