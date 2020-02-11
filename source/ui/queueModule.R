@@ -24,10 +24,12 @@ queueModuleUI <- function(id) {
 }
 
 queueModuleServer <- function(input, output, session, queueData) {
-  #Clear all items from queue
+  #Clear all items from queue and output
   observeEvent(input$clearQueue, {
     queueData$text <- ""
     queueData$parameters <- list()
+    queueData$outputImageDirectories <- list()
+    queueData$outputStatistics <- list()
   })
   
   #Display what processes are in the queue
@@ -43,6 +45,15 @@ queueModuleServer <- function(input, output, session, queueData) {
   observeEvent(input$runQueue, {
     if (length(queueData$parameters) > 0) {
       tryCatch({
+        #clear output section
+        queueData$outputImageDirectories <- list()
+        queueData$outputStatistics <- list()
+        
+        #TODO: add to output queue data as it is processed
+        #image output placeholder
+        queueData$outputImageDirectories[[1]] <- normalizePath(file.path("./output/plots", "testImage.jpg"))
+        queueData$outputStatistics[[1]] <- "*some revolutionary data*"
+        
         print("Processing Queue...")
         
         processQueue(queueData$parameters)

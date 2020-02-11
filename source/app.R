@@ -98,6 +98,9 @@ server <- function(input, output, session) {
   queueData <- reactiveValues()
   queueData$parameters <- list()
   queueData$text <- ""
+  queueData$outputImageDirectories <- list()
+  queueData$outputStatistics <- list()
+  
   queueModule <- callModule(queueModuleServer, "queue", queueData)
   
   #COLLECT PROCESS PARAMETERS WHEN 'ADD TO QUEUE' IS CLICKED
@@ -125,7 +128,7 @@ server <- function(input, output, session) {
   })
   
   #IMAGE OUTPUT MODULE
-  imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput")
+  imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput", queueData)
   
   #VIEW DATA MODULE
   viewDataModule <- callModule(viewDataModuleServer, "viewData")
