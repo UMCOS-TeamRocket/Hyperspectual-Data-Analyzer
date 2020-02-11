@@ -11,7 +11,7 @@ generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOf
     
     ##We can build randomforest model
     #rf_AV_VIs <- randomForest(PFT_3~., data=spectralLibrary_VIs_equal25, mtry = strtoi(numOfSampledVariables), ntree = strtoi(treeNum), importance = importance)
-    rf_AV_VIs <- ranger(PFT_3~., data=spectralLibrary_VIs_equal25, mtry = strtoi(numOfSampledVariables), importance = 'impurity')
+    rf_AV_VIs <- ranger(PFT_3~., data=spectralLibrary_VIs_equal25, mtry = strtoi(numOfSampledVariables))
     ##Now lets save the random forest classifier that was created
   
     saveRDS(rf_AV_VIs, paste(paste("output/classifiers/", classifierName, sep = ""), ".rds", sep = ""))
