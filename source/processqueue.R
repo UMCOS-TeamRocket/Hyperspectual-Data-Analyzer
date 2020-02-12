@@ -20,7 +20,7 @@ processQueue <- function(queue) {
         importance <- classifierParameters$importance()
         
         imageDirectory <- parameters$imageDirectory
-        
+
         outputFileName <- parameters$outputFileName
         
         print(paste("Current Process:", outputFileName))
@@ -41,6 +41,9 @@ processQueue <- function(queue) {
           
           setProgress(0.6, detail = "Predicting")
           
+          #I hard coded this because some file somewhere is broken
+          #R is so confusing that I can not for the life of me find it
+          hdwViDirectory <- "output/hdwSpectralLibraries/library_data_HDW.csv"
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwViDirectory, outputFileName)
           
