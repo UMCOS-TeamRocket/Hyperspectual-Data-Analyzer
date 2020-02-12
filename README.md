@@ -13,6 +13,3 @@ Folder that contains all of the data for the system
 This folder does not get pushed to the GitHub. This folder is created by the program and contains all of the output from the program
 
 
-
-
-	
