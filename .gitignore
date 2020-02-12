@@ -36,6 +36,16 @@ vignettes/*.pdf
 rsconnect/
 
 #output files
+output/
+output/classifiers/
+output/fieldSpec/
+output/hdwSpectralLibraries/
+output/plots/
+output/spectralLibraries/
+
+#mac stuff
+.DS_Store
+=======
 output/classifiers/
 output/fieldSpec/
 output/hdwImagery/
