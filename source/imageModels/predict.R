@@ -17,6 +17,9 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     
     ##Converts to a dataframe
     imageLatLong<-rasterToPoints(image)%>% as.data.frame()
+    imageLatLong[275:328]<-NULL
+    imageLatLong<-na.omit(imageLatLong)
+    imageLatLong<-imageLatLong[-c(449905, 521215), ]
     
     dataHDW <-read.csv(hdwDirectory)
     #TODO
@@ -43,10 +46,9 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     ##converts prediction from rf model to dataframe and changes column name to predicted
     #Results<-as.data.frame(Results)%>%'names<-'("predicted")
     
-    ## Grabs x, y values from original image and combines with unique values from prediction 
-    #How important is the dplyr select? Makes things break
-    Results<-merge(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
-    #Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
+    ## Grabs x, y values from original image and combines with unique values from prediction
+    imageLatLong<-imageLatLong %>% slice(1: nrow(Results))
+    Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
  
     ###Creates Unique PFT_IDs
     Unique<-unique(as.data.frame.complex(Results$predicted))

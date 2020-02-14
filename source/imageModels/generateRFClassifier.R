@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+#library(randomForest)
+>>>>>>> development
 library(ranger)
 
 generateRFClassifier <- function(classifierName, spectralLibraryDirectory, numOfSampledVariables = 3, treeNum = 500, importance = TRUE) {
