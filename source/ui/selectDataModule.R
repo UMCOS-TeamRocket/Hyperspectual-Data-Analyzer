@@ -7,7 +7,7 @@ selectDataUI <- function(id) {
                 c(list.files(path = "output/hdwSpectralLibraries", full.names = FALSE))),
     
     #label to be used as the filename for the classifier
-    textInput(ns("classifierName"),label = div(style="color: white;", "Classifier File Name:")),
+    textInput(ns("classifierName"), label = div(style="color: white;", "Classifier File Name:")),
     
     #TODO: limit file types
     fluidRow(
@@ -29,7 +29,9 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
   root <- c(home = fs::path_home(), project = here())
   
   observe({
-    updateSelectInput(session, inputId = "librarySelect", label = div(style="color: white;", "Spectral Library:"), spectralLibraryModuleValues$spectralLibraryFiles)
+    updateSelectInput(session = session,
+                      inputId = "librarySelect",
+                      choices = spectralLibraryModuleValues$spectralLibraryFiles)
   })
   
   #SELECT IMAGE FILE
