@@ -10,8 +10,8 @@ selectDataUI <- function(id) {
                  label = div(style="color: white;", "Classifier:"),
                  inline = FALSE, 
                  width = NULL, 
-                 choiceNames = list("Create New Classifier", "Use Previously Generated Classifier"),
-                 choiceValues = list(1, 2)),
+                 choiceNames = list("Use Previously Generated Classifier", "Create New Classifier"),
+                 choiceValues = list(0, 1)),
     
     uiOutput(ns("classifierSection")),
     
@@ -40,19 +40,18 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
                       choices = spectralLibraryModuleValues$spectralLibraryFiles)
   })
   
+  #RENDER CLASSIFIER UI SECTION
   output$classifierSection <- renderUI({
     if (input$classifierRadioButtons == 1) {
+      #create new classifier
       textInput(inputId = session$ns("classifierName"), 
                 label = div(style="color: white;", "Classifier File Name:"))
     } else {
+      #use previously generated classifiers
       selectInput(inputId = session$ns("classifierSelect"),
                   label = div(style="color: white;", "Select Classifier:"),
                   choices = list.files(path = "output/classifiers", full.names = FALSE))
     }
-  })
-  
-  observeEvent(input$classifierRadioButtons, {
-    
   })
   
   #SELECT IMAGE FILE
@@ -84,15 +83,22 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
     message <- ""
     
     #check if all fields contain informations
-    if (input$classifierName == "") {
-      message <- "Please enter a Classifier Name"
-      displayMessage <- TRUE
-    } else if (imageDirectory == "") {
+    if (imageDirectory == "") {
       message <- "Please select a Data Cube"
       displayMessage <- TRUE
     } else if (input$outputFileName == "") {
       message <- "Please enter an Output File Name"
       displayMessage <- TRUE
+    } else if (input$classifierRadioButtons == 1) {
+      if (input$classifierName == "") {
+        message <- "Please enter a Classifier Name"
+        displayMessage <- TRUE
+      }
+    } else if (input$classifierRadioButtons == 0) {
+      if (input$classifierSelect == "") {
+        message <- "No available classifiers. A new classifier must be created first."
+        displayMessage <- TRUE
+      }
     }
     
     if (displayMessage) {
@@ -111,7 +117,9 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
     # The HDW naming is now wrong, didn't change cause would break everything
     libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")
     
-    newProcess <- list(libraryDirectory = libraryDirectory, 
+    newProcess <- list(libraryDirectory = libraryDirectory,
+                       newClassifier = input$classifierRadioButtons,
+                       classifierFile = paste("output/classifiers/", input$classifierSelect, sep = ""),
                        classifierName = input$classifierName, 
                        imageDirectory = imageDirectory, 
                        outputFileName = input$outputFileName)

@@ -111,7 +111,13 @@ server <- function(input, output, session) {
     #BUILD OUTPUT STRING
     textVector <- c(paste("Process#:", length(queueData$parameters)))
     textVector <- c(textVector, paste("Spectral Library:", selectDataModule$processParameters$libraryDirectory))
-    textVector <- c(textVector, paste("Classifier Name:", selectDataModule$processParameters$classifierName))
+    
+    if (selectDataModule$processParameters$newClassifier == 1) {
+      textVector <- c(textVector, paste("Classifier Name:", selectDataModule$processParameters$classifierName))
+    } else {
+      textVector <- c(textVector, paste("Classifier Directory:", selectDataModule$processParameters$classifierFile))
+    }
+    
     classifierParameters <- paste(c(rfClassifierParameters$mtry(),
                                     rfClassifierParameters$ntree(),
                                     rfClassifierParameters$importance()))

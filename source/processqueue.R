@@ -10,11 +10,16 @@ processQueue <- function(queue) {
     index <- 0
     for (process in queue) {
       tryCatch({
+        #separate process parameters
         parameters <- process$parameters
         classifierParameters <- process$classifierParameters
         
-        classifierName <- parameters$classifierName
         spectralLibraryDirectory <- parameters$libraryDirectory
+        
+        createNewClassifier <- parameters$newClassifier
+        classifierDirectory <- parameters$classifierFile
+        classifierName <- parameters$classifierName
+        
         mtry <- classifierParameters$mtry()
         ntree <- classifierParameters$ntree()
         importance <- classifierParameters$importance()
@@ -31,10 +36,12 @@ processQueue <- function(queue) {
         setProgress(index, detail = outputFileName)
         
         withProgress(message = paste("Processing:", outputFileName), min = 0, max = 1, value = 0, {
-          setProgress(0, detail = "Generating Classifier")
-          
-          print("Generating RF Classifier")
-          classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+          if (createNewClassifier == 1) {
+            setProgress(0, detail = "Generating Classifier")
+            
+            print("Generating RF Classifier")
+            classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+          }
           
           setProgress(0.3, detail = "Processing HDW Image")
           
