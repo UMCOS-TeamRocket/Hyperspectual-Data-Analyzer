@@ -6,8 +6,14 @@ selectDataUI <- function(id) {
     selectInput(ns("librarySelect"), label = div(style="color: white;", "Spectral Library:"), 
                 c(list.files(path = "output/hdwSpectralLibraries", full.names = FALSE))),
     
-    #label to be used as the filename for the classifier
-    textInput(ns("classifierName"), label = div(style="color: white;", "Classifier File Name:")),
+    radioButtons(inputId = ns("classifierRadioButtons"),
+                 label = div(style="color: white;", "Classifier:"),
+                 inline = FALSE, 
+                 width = NULL, 
+                 choiceNames = list("Create New Classifier", "Use Previously Generated Classifier"),
+                 choiceValues = list(1, 2)),
+    
+    uiOutput(ns("classifierSection")),
     
     #TODO: limit file types
     fluidRow(
@@ -32,6 +38,21 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
     updateSelectInput(session = session,
                       inputId = "librarySelect",
                       choices = spectralLibraryModuleValues$spectralLibraryFiles)
+  })
+  
+  output$classifierSection <- renderUI({
+    if (input$classifierRadioButtons == 1) {
+      textInput(inputId = session$ns("classifierName"), 
+                label = div(style="color: white;", "Classifier File Name:"))
+    } else {
+      selectInput(inputId = session$ns("classifierSelect"),
+                  label = div(style="color: white;", "Select Classifier:"),
+                  choices = list.files(path = "output/classifiers", full.names = FALSE))
+    }
+  })
+  
+  observeEvent(input$classifierRadioButtons, {
+    
   })
   
   #SELECT IMAGE FILE
