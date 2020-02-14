@@ -46,18 +46,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     ##converts prediction from rf model to dataframe and changes column name to predicted
     #Results<-as.data.frame(Results)%>%'names<-'("predicted")
     
-    ## Grabs x, y values from original image and combines with unique values from prediction 
-    #How important is the dplyr select? Makes things break
-    #Results<-merge(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
-    print("Result Time")
-    print(str(imageLatLong$x))
-    print("break")
-   # print(imageLatLong)
-    
-    
-    nr <- nrow(Results)
-    print(nr)
-    imageLatLong<-imageLatLong %>% slice(1:nr)
+    ## Grabs x, y values from original image and combines with unique values from prediction
+    imageLatLong<-imageLatLong %>% slice(1: nrow(Results))
     Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
  
     ###Creates Unique PFT_IDs
