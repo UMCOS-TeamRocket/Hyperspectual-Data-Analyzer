@@ -25,7 +25,7 @@ processHDWImage <- function (imageDirectory) {
     colnames(hdw_010nm)[-1:-2]<-paste0(colnames(hdw_010nm)[-1:-2],"_010nm")
     colnames(hdw_050nm)[-1:-2]<-paste0(colnames(hdw_050nm)[-1:-2],"_050nm")
     colnames(hdw_100nm)[-1:-2]<-paste0(colnames(hdw_100nm)[-1:-2],"_100nm")
-    colnames(VI)[-1:-2]<-paste0(colnames(VI)[-1:-2],"_VI")
+    colnames(VI)[-1:-2]<-paste0(colnames(VI)[-1:-2],"_VIs")
     
     
     dataHDW<-Reduce(cbind,list(hdw_010nm,hdw_050nm[-1:-2],hdw_100nm[-1:-2]))
