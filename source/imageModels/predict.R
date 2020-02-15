@@ -24,29 +24,18 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #dataHDW <-hdwDirectory
     dataHDW<-read.csv(hdwDirectory)
     
-    #print(str(temp))
-    #TODO
-    #remove hard coding
-    quadrats <-readOGR("data/Test_imagery_HDW", "Test_IMG_quads")
-
     ##Marks raster as unrotated
     image@rotated<-FALSE
 
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-    print(classifier)
     temp<-read.csv("output/hdwSpectralLibraries/library_data_HDW.csv")
-    print(colnames(temp))
     print("break")
-   dataHDW<- select(dataHDW,-c(y_VIs,X))
-    print(colnames(dataHDW))
-    print(setdiff(colnames(temp),colnames(dataHDW)))
-    print(sum(!(colnames(temp)%in%colnames(dataHDW))))
+   dataHDW<- select(dataHDW,-c(y_VIs))
     ##Save the confusion Matrix for these models
-    print(dataHDW[-1:-2])
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
-
+    #print(dataHDW)
     ##uses model from spectral library to predict images
     Results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
     
@@ -58,9 +47,13 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #Results<-as.data.frame(Results)%>%'names<-'("predicted")
     
     ## Grabs x, y values from original image and combines with unique values from prediction
-    imageLatLong<-imageLatLong %>% slice(1: nrow(Results))
+    #imageLatLong<-imageLatLong %>% slice(1: nrow(Results))
+    print(nrow(imageLatLong))
+    print(nrow(dataHDW))
+    print(nrow(temp))
+    print(nrow(image))
     Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
- 
+    print("2")
     ###Creates Unique PFT_IDs
     Unique<-unique(as.data.frame.complex(Results$predicted))
 
@@ -88,43 +81,11 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     denom  <-raster>=1
     
     ##DF OF METEDATA
-    dataMeta<-quadrats@data%>%as.data.frame()
+  
     
-    #Creates object with the total Pixels for each quadrat
-    quadTotals  <-raster::extract(x=denom  ,y=quadrats  ,fun=sum)%>%as.data.frame()%>%'names<-'("Quad Sum")
+
     
-    #Creates object with the total Pixels for each Functional group
-    Graminoid_sum <-raster::extract(x=Graminoid ,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("Graminoid_P" )
-    dwarfShrub_sum<-raster::extract(x=dwarfShrub,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("DwarfShrub_P")
-    moss_sum      <-raster::extract(x=moss      ,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("Moss_P"      )
-    forb_sum      <-raster::extract(x=forb      ,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("Forb_P"      )
-    lichen_sum    <-raster::extract(x=lichen    ,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("Lichen_P"    )
-    shrub_sum     <-raster::extract(x=shrub     ,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("Shrub_P"     )
-    tree_sum      <-raster::extract(x=tree      ,y=quadrats,fun=sum)%>%as.data.frame()%>%'names<-'("Tree_P"      )
-    
-    ##Lets combine the datframes created above
-    pixelTotals<-Reduce(cbind,list(quadTotals
-                                                 ,Graminoid_sum 
-                                                 ,dwarfShrub_sum
-                                                 ,moss_sum      
-                                                 ,forb_sum      
-                                                 ,lichen_sum    
-                                                 ,shrub_sum     
-                                                 ,tree_sum      ))
-    
-    ##Now we want to calculate the % cover for each Functional group in each quadrat
-    percentCover<-pixelTotals[,2:8]/(pixelTotals[,1])*100
-    percentCover<-percentCover%>%
-      mutate(CLASS_ID=rownames(percentCover))%>%
-      dplyr::select(CLASS_ID,everything())
-    
-    ##Lets merge the metadata with these new dataframes
-    percentCover <-merge(dataMeta,  percentCover  ,by="CLASS_ID")
-    percentCover<-percentCover%>%
-      arrange(CLASS_NAME)%>%
-      dplyr::select(-CLASS_CLRS,-CLASS_ID)%>%
-      mutate(CLASS_ID=rownames(percentCover))%>%dplyr::select(CLASS_ID,everything())
-    
+   
     
     ###########################################Plot 1############################################################
     ###save plot as a jpeg
@@ -138,7 +99,6 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
       col = chm_colors[-8],
       box= FALSE
     )
-    plot(quadrats,border="white",lwd=2,add=TRUE)
     legend(
       "right",
       legend = c("Graminoid","Tree", "Dwarf Shrub","Shrub","Forb","Moss","Lichen"),
