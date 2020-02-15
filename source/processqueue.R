@@ -39,7 +39,7 @@ processQueue <- function(queue) {
           setProgress(0.3, detail = "Processing HDW Image")
           
           print("Processing HDW Image")
-          hdwViDirectory <- processHDWImage(imageDirectory)
+          hdwDirectory <- processHDWImage(imageDirectory)
           
           setProgress(0.6, detail = "Predicting")
           

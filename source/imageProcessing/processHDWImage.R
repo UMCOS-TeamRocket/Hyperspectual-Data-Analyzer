@@ -4,6 +4,8 @@ source("source/imageProcessing/imageHDWVIs.R")
 processHDWImage <- function (imageDirectory) {
   tryCatch({
     #get file name from directory
+    print("yello")
+    print(imageDirectory)
     fileName <- basename(imageDirectory)
     #remove file extension
     fileName <- substr(fileName, 1, nchar(fileName) - 4)
@@ -14,7 +16,25 @@ processHDWImage <- function (imageDirectory) {
 
     hdwViDirectory <- createImgHDWVi(dfDirectory, fileName)
     
-    return(hdwViDirectory)
+    print(fileName)
+    hdw_010nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_010nm.csv", sep = ""))
+    hdw_050nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_050nm.csv", sep = ""))
+    hdw_100nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_100nm.csv", sep = ""))
+    VI<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_VIs.csv", sep = ""))
+    
+    colnames(hdw_010nm)[-1:-2]<-paste0(colnames(hdw_010nm)[-1:-2],"_10nm")
+    colnames(hdw_050nm)[-1:-2]<-paste0(colnames(hdw_050nm)[-1:-2],"_50nm")
+    colnames(hdw_100nm)[-1:-2]<-paste0(colnames(hdw_100nm)[-1:-2],"_100nm")
+    colnames(VI)[-1:-2]<-paste0(colnames(VI)[-1:-2],"_VI")
+    
+    
+    dataHDW<-Reduce(cbind,list(hdw_010nm,hdw_050nm[-1:-2],hdw_100nm[-1:-2]))
+    
+    dataHDW<-inner_join(dataHDW,VI)
+    
+    write.csv(dataHDW,"output/test.csv", row.names = FALSE)
+  
+    return("output/test.csv")
   }, warning = function(warning) {
     warning(warning)
     message <- paste ("WARNING - While process")

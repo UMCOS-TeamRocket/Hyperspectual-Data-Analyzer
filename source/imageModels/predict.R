@@ -9,7 +9,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
   tryCatch({
     c1 <- detectCores()-2
     print(c1)
-    print(hdwDirectory)
+    #print(hdwDirectory)
     print(imageDirectory)
     
     #Reads in Imagery
@@ -21,7 +21,10 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     imageLatLong<-na.omit(imageLatLong)
     imageLatLong<-imageLatLong[-c(449905, 521215), ]
     
-    dataHDW <-read.csv(hdwDirectory)
+    #dataHDW <-hdwDirectory
+    dataHDW<-read.csv(hdwDirectory)
+    
+    #print(str(temp))
     #TODO
     #remove hard coding
     quadrats <-readOGR("data/Test_imagery_HDW", "Test_IMG_quads")
@@ -31,13 +34,15 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
 
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-    
+    print(classifier$independent.variable.names)
+    print("break")
+    print(colnames(dataHDW))
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
 
     ##uses model from spectral library to predict images
-    Results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
+    Results <-predict(classifier, dataHDW[-1:-2], predict.all = TRUE, num.threads = c1)
 
     tmp <- Results$predictions
     Results<-as.data.frame(tmp)%>%'names<-'("predicted")
