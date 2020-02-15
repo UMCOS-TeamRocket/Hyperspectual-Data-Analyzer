@@ -34,9 +34,13 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
 
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-    print(classifier$independent.variable.names)
+    print(classifier)
+    temp<-read.csv("output/hdwSpectralLibraries/library_data_HDW.csv")
+    print(colnames(temp))
     print("break")
     print(colnames(dataHDW))
+    
+    
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
