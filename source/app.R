@@ -96,7 +96,7 @@ server <- function(input, output, session) {
   
   #QUEUE MODULE
   queueData <- reactiveValues()
-  queueData$parameters <- list()
+  queueData$processes <- list()
   queueData$text <- ""
   queueData$outputImageDirectories <- list()
   queueData$outputStatistics <- list()
@@ -105,11 +105,11 @@ server <- function(input, output, session) {
   
   #COLLECT PROCESS PARAMETERS WHEN 'ADD TO QUEUE' IS CLICKED
   observeEvent(selectDataModule$addToQueue, {
-    queueData$parameters[[length(queueData$parameters) + 1]] <<- list(parameters = selectDataModule$processParameters, 
+    queueData$processes[[length(queueData$processes) + 1]] <<- list(parameters = selectDataModule$processParameters, 
                                                                       classifierParameters = rfClassifierParameters)
     
     #BUILD OUTPUT STRING
-    textVector <- c(paste("Process#:", length(queueData$parameters)))
+    textVector <- c(paste("Process#:", length(queueData$processes)))
     textVector <- c(textVector, paste("Spectral Library:", selectDataModule$processParameters$libraryDirectory))
     
     if (selectDataModule$processParameters$newClassifier == 1) {

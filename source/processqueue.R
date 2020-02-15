@@ -5,10 +5,10 @@ source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
 source("source/imageProcessing/processHDWImage.R")
 
-processQueue <- function(queue) {
-  withProgress(message = 'Processing Queue', min = 0, max = length(queue), value = 0, {
+processQueue <- function(queueData) {
+  withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
     index <- 0
-    for (process in queue) {
+    for (process in queueData$processes) {
       tryCatch({
         #separate process parameters
         parameters <- process$parameters
@@ -56,6 +56,12 @@ processQueue <- function(queue) {
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
           
+          #save output image directory
+          queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
+          
+          #TODO
+          queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- paste(outputFileName, "statistical data")
+          
           setProgress(1)
           
           print("Process Finished")
@@ -71,7 +77,7 @@ processQueue <- function(queue) {
       })
     }
     
-    setProgress(length(queue))
+    setProgress(length(queueData$processes))
   })
   
 }
