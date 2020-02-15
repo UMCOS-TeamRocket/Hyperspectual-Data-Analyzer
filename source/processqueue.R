@@ -10,6 +10,9 @@ processQueue <- function(queueData) {
     index <- 0
     for (process in queueData$processes) {
       tryCatch({
+        #timer
+        startTime <- proc.time()
+        
         #separate process parameters
         parameters <- process$parameters
         classifierParameters <- process$classifierParameters
@@ -56,11 +59,19 @@ processQueue <- function(queueData) {
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
           
+          endTime <- proc.time() - startTime
+          
           #save output image directory
           queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
           
-          #TODO
-          queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- paste(outputFileName, "statistical data")
+          #create output text
+          #TODO: separate with new line (somehow... why isnt it easy)
+          textString <- c(paste("Process#:", index + 1), 
+                          paste("Output File Name:", outputFileName),
+                          endtime)
+          
+          #add output text to list of outputStatistics
+          queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- textString
           
           setProgress(1)
           

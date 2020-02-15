@@ -63,13 +63,6 @@ imageOutputModuleServer <- function(input, output, session, data) {
           output[[textName]] <- renderText({text})
         })
       }
-      
-      i <- 1
-      while(i <= length(data$outputImageDirectories)) {
-        
-        
-        i = i + 1
-      }
     }
   })
 }
