@@ -22,8 +22,8 @@ processHDWImage <- function (imageDirectory) {
     hdw_100nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_100nm.csv", sep = ""))
     VI<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_VIs.csv", sep = ""))
     
-    colnames(hdw_010nm)[-1:-2]<-paste0(colnames(hdw_010nm)[-1:-2],"_10nm")
-    colnames(hdw_050nm)[-1:-2]<-paste0(colnames(hdw_050nm)[-1:-2],"_50nm")
+    colnames(hdw_010nm)[-1:-2]<-paste0(colnames(hdw_010nm)[-1:-2],"_010nm")
+    colnames(hdw_050nm)[-1:-2]<-paste0(colnames(hdw_050nm)[-1:-2],"_050nm")
     colnames(hdw_100nm)[-1:-2]<-paste0(colnames(hdw_100nm)[-1:-2],"_100nm")
     colnames(VI)[-1:-2]<-paste0(colnames(VI)[-1:-2],"_VI")
     

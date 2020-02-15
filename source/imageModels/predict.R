@@ -38,8 +38,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     temp<-read.csv("output/hdwSpectralLibraries/library_data_HDW.csv")
     print(colnames(temp))
     print("break")
+   dataHDW<- select(dataHDW,-c(x,y,y_VI,X))
     print(colnames(dataHDW))
-    
     
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()

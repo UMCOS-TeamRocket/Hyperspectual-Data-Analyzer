@@ -34,18 +34,19 @@ processQueue <- function(queue) {
           setProgress(0, detail = "Generating Classifier")
           
           print("Generating RF Classifier")
-          classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+        classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
           
           setProgress(0.3, detail = "Processing HDW Image")
           
           print("Processing HDW Image")
-          hdwDirectory <- processHDWImage(imageDirectory)
+         hdwDirectory <- processHDWImage(imageDirectory)
           
           setProgress(0.6, detail = "Predicting")
           
           #I hard coded this because some file somewhere is broken
           #R is so confusing that I can not for the life of me find it
-          #hdwDirectory <- "output/hdwSpectralLibraries/library_data_HDW.csv"
+          classifierDirectory<-"output/classifiers/test.rds"
+          hdwDirectory <- "output/test.csv"
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
           
