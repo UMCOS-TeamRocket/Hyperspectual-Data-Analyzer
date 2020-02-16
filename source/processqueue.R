@@ -66,9 +66,9 @@ processQueue <- function(queueData) {
           
           #create output text
           #TODO: separate with new line (somehow... why isnt it easy)
-          textString <- c(paste("Process#:", index + 1), 
-                          paste("Output File Name:", outputFileName),
-                          endtime)
+          textString <- c(paste("Process#:", index + 1, "\n"), 
+                          paste("Output File Name:", outputFileName, "\n"),
+                          paste("Run Time:", endTime[[1]], "\n"))
           
           #add output text to list of outputStatistics
           queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- textString

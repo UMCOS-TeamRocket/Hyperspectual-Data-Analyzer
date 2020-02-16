@@ -22,8 +22,8 @@ imageOutputModuleServer <- function(input, output, session, data) {
       tagList()
     } else {
       image_output_list <- lapply(1:length(data$outputImageDirectories), function(i) {
-        imageName <- paste0("image", i, sep="")
-        textName <- paste0(imageName, "Stats", sep = "")
+        imageName <- paste("image", i, sep="")
+        textName <- paste(imageName, "Stats", sep = "")
         
         list(
           fluidRow(
@@ -46,15 +46,15 @@ imageOutputModuleServer <- function(input, output, session, data) {
         # of i in the renderImage()/renderText() will be the same across all instances, because
         # of when the expression is evaluated.
         local({
-          imageName <- paste0("image", i, sep="")
-          textName <- paste0(imageName, "Stats", sep = "")
+          imageName <- paste("image", i, sep="")
+          textName <- paste(imageName, "Stats", sep = "")
           
           directoryString <- data$outputImageDirectories[[i]]
           
           output[[imageName]] <- renderImage({
             list(src = directoryString,
-                 width = "75%",
-                 height = "75%",
+                 width = "600",
+                 height = "350",
                  alt = "Could not find image")
           }, deleteFile = FALSE)
           
