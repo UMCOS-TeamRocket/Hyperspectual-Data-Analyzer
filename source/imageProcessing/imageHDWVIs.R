@@ -7,7 +7,8 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe
     IMG_HDW<-read.csv(imgHdwDfDirectory, check.names = FALSE)
-    
+    print("VI df")
+    print(imgHdwDfDirectory)
     ##Now lets check the range of the values in the image
     test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
     #test%>%View()
@@ -16,14 +17,10 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     ##Reads in bandpasses for imagery to be used later
     HDW_ng_wv<-scan("output/Headwall_wv", numeric())
     
-    #IMG_HDW[is.na(IMG_HDW$`397.593`),]%>% nrow()
-    
+
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
     IMG_HDW_matrix   <-as.matrix(IMG_HDW   [-1:-2])
-    
-    ##lets check the column attributes to see if any weird values were introduced
-    ##IMG_HDW_matrix   %>%max()##values are fine you may proceed, i.e no negative values or values grater than 2,you'll ned to check min values using the function min()
     
     ##Now that we have our matrix we can create our spectralib object that will be used to create a df with all the veg indices
     IMG_HDW_speclib   <-speclib  (IMG_HDW_matrix   ,HDW_ng_wv[1:272])
@@ -43,12 +40,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##lets do a logical test on IMG_HDW_VIs to see if strange values exist
     test3<-lapply(IMG_VIs,range)%>%as.data.frame%>%t()%>%as.data.frame
-    #test3%>%View()##There are columns where NaNs and Inf exist because the spectral range of the sensor is 400nm-100nm
-    ##This means some Veg indices won't generate values because those bands are not present
-    ##Lets remove all those columns with values that have NaNs and Infs
-    #IMG_VIs<-IMG_VIs%>%dplyr::select(-CAI,-Datt7,-Datt8,-DWSI1,-DWSI2,-DWSI3,-DWSI5,-LWVI1,-LWVI2,-MSI
-    #,-NDLI,-NDNI,-NDWI,-PWI,-SRWI,-'SWIR FI',-'SWIR LI',-'SWIR SI',-'SWIR VI')
-    
+   
     IMG_VIs_A  <-cbind(IMG_HDW   [1:2],IMG_VIs   )
     
     ##Now we have to ensure that all column names have no spaces nor arithmetic operators
@@ -74,199 +66,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     test6<-lapply(IMG_VIs_A[-1:-2], range)%>%as.data.frame%>%t()%>%as.data.frame()
     test6%>%view()###There are NaNs and infs, lets remove them, dim() 1974  333
     
-    ##need to come up with a function
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Boochs)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Boochs2)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CARI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Carter)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Carter2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Carter3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Carter4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Carter5)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Carter6)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(ClAInt)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CRI1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CRI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CRI3)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(CRI4)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(D1)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(D2)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Datt)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Datt2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Datt3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Datt4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Datt5)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Datt6)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(DD)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(DDn)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(DPI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(DWSI4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(EGFN)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(EGFR)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(EVI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GDVI_2)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GDVI_3)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GDVI_4)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Gitelson)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Gitelson2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GMI1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GMI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(GreenNDVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Maccioni)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MCARI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MCARIOSAVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MCARI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MCARI2OSAVI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(mND705)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(mNDVI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MPRI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MSAVI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(mSR)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(mSR2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(mSR705)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MTCI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(MTVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(NDVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(NDVI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(NDVI3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(NPCI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(OSAVI)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(OSAVI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PARS)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PRI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PRICI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PRI_norm)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PSND)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PSRI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(PSSR)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(RDVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(REP_LE)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(REP_Li)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SAVI)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SIPI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SPVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR5)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR6)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR7)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SR8)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(SRPI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Sum_Dr1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Sum_Dr2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(TCARI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(TCARIOSAVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(TCARI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(TCARI2OSAVI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(TGI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(TVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Vogelmann)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Vogelmann2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Vogelmann3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.infinite(Vogelmann4)==F) ##dim()  1973  102
-    #
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Boochs)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Boochs2)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CARI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Carter)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Carter2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Carter3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Carter4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Carter5)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Carter6)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(ClAInt)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CRI1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CRI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CRI3)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(CRI4)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(D1)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(D2)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Datt)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Datt2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Datt3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Datt4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Datt5)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Datt6)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(DD)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(DDn)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(DPI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(DWSI4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(EGFN)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(EGFR)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(EVI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GDVI_2)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GDVI_3)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GDVI_4)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Gitelson)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Gitelson2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GMI1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GMI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(GreenNDVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Maccioni)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MCARI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MCARIOSAVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MCARI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MCARI2OSAVI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(mND705)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(mNDVI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MPRI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MSAVI)==F) ##dim()  1973  102 
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(mSR)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(mSR2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(mSR705)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MTCI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(MTVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(NDVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(NDVI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(NDVI3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(NPCI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(OSAVI)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(OSAVI2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PARS)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PRI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PRICI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PRI_norm)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PSND)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PSRI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(PSSR)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(RDVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(REP_LE)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(REP_Li)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SAVI)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SIPI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SPVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR4)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR5)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR6)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR7)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SR8)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(SRPI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Sum_Dr1)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Sum_Dr2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(TCARI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(TCARIOSAVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(TCARI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(TCARI2OSAVI2)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(TGI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(TVI)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Vogelmann)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Vogelmann2)==F) ##dim()  569688     97
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Vogelmann3)==F) ##dim()  1973  102
-    #IMG_VIs_A<-subset(IMG_VIs_A, is.na(Vogelmann4)==F) ##dim()  1973  102
-    
+   
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
     write.csv(IMG_VIs_A, paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
     
