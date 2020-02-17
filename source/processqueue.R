@@ -5,16 +5,24 @@ source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
 source("source/imageProcessing/processHDWImage.R")
 
-processQueue <- function(queue) {
-  withProgress(message = 'Processing Queue', min = 0, max = length(queue), value = 0, {
+processQueue <- function(queueData) {
+  withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
     index <- 0
-    for (process in queue) {
+    for (process in queueData$processes) {
       tryCatch({
+        #timer
+        startTime <- proc.time()
+        
+        #separate process parameters
         parameters <- process$parameters
         classifierParameters <- process$classifierParameters
         
-        classifierName <- parameters$classifierName
         spectralLibraryDirectory <- parameters$libraryDirectory
+        
+        createNewClassifier <- parameters$newClassifier
+        classifierDirectory <- parameters$classifierFile
+        classifierName <- parameters$classifierName
+        
         mtry <- classifierParameters$mtry()
         ntree <- classifierParameters$ntree()
         importance <- classifierParameters$importance()
@@ -31,23 +39,39 @@ processQueue <- function(queue) {
         setProgress(index, detail = outputFileName)
         
         withProgress(message = paste("Processing:", outputFileName), min = 0, max = 1, value = 0, {
-          setProgress(0, detail = "Generating Classifier")
-          
-          print("Generating RF Classifier")
-          classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+          if (createNewClassifier == 1) {
+            setProgress(0, detail = "Generating Classifier")
+            
+            print("Generating RF Classifier")
+            classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+          }
           
           setProgress(0.3, detail = "Processing HDW Image")
           
           print("Processing HDW Image")
-          hdwViDirectory <- processHDWImage(imageDirectory)
-          
+          hdwDirectory <- processHDWImage(imageDirectory)
           setProgress(0.6, detail = "Predicting")
           
-          #I hard coded this because some file somewhere is broken
-          #R is so confusing that I can not for the life of me find it
-          #hdwDirectory <- "output/hdwSpectralLibraries/library_data_HDW.csv"
+          #Testing code
+          #classifierDirectory<-"output/classifiers/test.rds"
+          #hdwDirectory <- "output/test.csv"
+          
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
+          
+          endTime <- proc.time() - startTime
+          
+          #save output image directory
+          queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
+          
+          #create output text
+          #TODO: separate with new line (somehow... why isnt it easy)
+          textString <- c(paste("Process#:", index + 1, "\n"), 
+                          paste("Output File Name:", outputFileName, "\n"),
+                          paste("Run Time:", endTime[[1]], "\n"))
+          
+          #add output text to list of outputStatistics
+          queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- textString
           
           setProgress(1)
           
@@ -64,7 +88,7 @@ processQueue <- function(queue) {
       })
     }
     
-    setProgress(length(queue))
+    setProgress(length(queueData$processes))
   })
   
 }

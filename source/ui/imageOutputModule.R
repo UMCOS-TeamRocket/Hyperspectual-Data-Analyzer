@@ -24,6 +24,7 @@ imageOutputModuleServer <- function(input, output, session, data) {
       image_output_list <- lapply(1:length(data$outputImageDirectories), function(i) {
         imageName <- paste("image", i, sep="")
         textName <- paste(imageName, "Stats", sep = "")
+        
         list(
           fluidRow(
             column(5, imageOutput(session$ns(imageName))),
@@ -40,18 +41,27 @@ imageOutputModuleServer <- function(input, output, session, data) {
   #display images and statistics
   observe({
     if (length(data$outputImageDirectories) > 0) {
-      for (i in 1:length(data$outputImageDirectories)) {
-        imageName <- paste("image", i, sep="")
-        textName <- paste(imageName, "Stats", sep = "")
-        
-        output[[imageName]] <- renderImage({
-          list(src = data$outputImageDirectories[[i]],
-               width = "75%",
-               height = "75%",
-               alt = "Could not find image")
-        }, deleteFile = FALSE)
-        
-        output[[textName]] <- renderText({data$outputStatistics[[i]]})
+      for(i in 1:length(data$outputImageDirectories)) {
+        # Need local so that each item gets its own number. Without it, the value
+        # of i in the renderImage()/renderText() will be the same across all instances, because
+        # of when the expression is evaluated.
+        local({
+          imageName <- paste("image", i, sep="")
+          textName <- paste(imageName, "Stats", sep = "")
+          
+          directoryString <- data$outputImageDirectories[[i]]
+          
+          output[[imageName]] <- renderImage({
+            list(src = directoryString,
+                 width = "600",
+                 height = "350",
+                 alt = "Could not find image")
+          }, deleteFile = FALSE)
+          
+          text = data$outputStatistics[[i]]
+          
+          output[[textName]] <- renderText({text})
+        })
       }
     }
   })

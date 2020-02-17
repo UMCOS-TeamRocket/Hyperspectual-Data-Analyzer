@@ -23,6 +23,11 @@ spectralLibraryModuleUI <- function(id) {
       )
     ),
     
+    actionButton(ns("selectAllSpectra"), "Select All Spectra"),
+    
+    br(),
+    br(),
+    
     textInput(ns("spectralLibraryName"),label = div(style="color: white;", "Spectral Library Name")),
     
     actionButton(ns("createSpectralLibrary"), "Create Spectral Library")
@@ -30,7 +35,9 @@ spectralLibraryModuleUI <- function(id) {
 }
 
 spectralLibraryModuleServer <- function(input, output, session) {
+  #INITIALIZE VARIABLES
   root <- c(home = fs::path_home(), project = here())
+  spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)
   returnValues <- reactiveValues()
   returnValues$spectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
   
@@ -74,7 +81,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
     
     print("Finished Processing Spectra By Field")
     
-    spectraList <- list.files(path = "output/fieldSpec", full.names = FALSE)
+    spectraList <<- list.files(path = "output/fieldSpec", full.names = FALSE)
     updateMultiInput(
       session = session,
       inputId = "spectralList",
@@ -92,6 +99,16 @@ spectralLibraryModuleServer <- function(input, output, session) {
         easyClose = TRUE
       ))
     }
+  })
+  
+  #SELECT ALL SPECTRA
+  observeEvent(input$selectAllSpectra, {
+    updateMultiInput(
+      session = session,
+      inputId = "spectralList",
+      choices = spectraList,
+      selected = spectraList
+    )
   })
   
   #CREATE SPECTRAL LIBRARY
