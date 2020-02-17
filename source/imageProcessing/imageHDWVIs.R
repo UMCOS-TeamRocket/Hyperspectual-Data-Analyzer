@@ -7,8 +7,6 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe
     IMG_HDW<-read.csv(imgHdwDfDirectory, check.names = FALSE)
-    print("VI df")
-    print(imgHdwDfDirectory)
     ##Now lets check the range of the values in the image
     test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
     #test%>%View()
@@ -17,7 +15,6 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     ##Reads in bandpasses for imagery to be used later
     HDW_ng_wv<-scan("output/Headwall_wv", numeric())
     
-
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
     IMG_HDW_matrix   <-as.matrix(IMG_HDW   [-1:-2])

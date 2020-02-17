@@ -52,10 +52,10 @@ processQueue <- function(queueData) {
           hdwDirectory <- processHDWImage(imageDirectory)
           setProgress(0.6, detail = "Predicting")
           
-          #I hard coded this because some file somewhere is broken
-          #R is so confusing that I can not for the life of me find it
+          #Testing code
           #classifierDirectory<-"output/classifiers/test.rds"
           #hdwDirectory <- "output/test.csv"
+          
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
           

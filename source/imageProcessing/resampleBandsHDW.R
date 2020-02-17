@@ -20,7 +20,7 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
     ##Remove all pixels with NA values
     IMG_HDW<-na.omit(IMG_HDW)
   
-    ##Now lets check the range of the values in the image
+    ##Check the range of the values in the image
     test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
     #test%>%View()
     test%>%lapply(range) ### All values fall between 0 and 1.2 and there are no NA values
@@ -75,7 +75,7 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
       dplyr::select(`399.444`)%>% 
       subset(`399.444`<0)%>% nrow() ##2 rows have negative values
   
-    ##Lets remove these rows
+    ##Remove these rows
     IMG_HDW_100nm<-IMG_HDW_100nm%>%subset(`399.444`>0)
   
     ###Lets save our new dfs

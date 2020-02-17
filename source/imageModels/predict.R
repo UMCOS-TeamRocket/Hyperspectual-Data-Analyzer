@@ -7,7 +7,11 @@ library(parallel)
 
 predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, outputName) {
   tryCatch({
-    c1 <- detectCores()-2
+    c1 <- detectCores()
+    if(c1>2){
+      c1<-c1-2
+      print("YES")
+    }
     print(c1)
     #print(hdwDirectory)
     print(imageDirectory)
@@ -15,7 +19,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #Reads in Imagery
     image<-brick(imageDirectory)
     
-    ##Converts to a dataframe
+    #Grabs x and y coordinates, to be combined later
     imageLatLong<-rasterToPoints(image)%>% as.data.frame()
     imageLatLong[275:328]<-NULL
     imageLatLong<-na.omit(imageLatLong)
@@ -29,31 +33,26 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
 
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-    #temp<-read.csv("output/hdwSpectralLibraries/library_data_HDW.csv")
-    print("break")
-   dataHDW<- select(dataHDW,-c(y_VIs))
+    
+    #Remove random column from data
+    dataHDW<- select(dataHDW,-c(y_VIs))
+    
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
-    #print(dataHDW)
+
     ##uses model from spectral library to predict images
     Results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
     
+    #Convert predictions into a dataframe
     tmp <- Results$predictions
     Results<-as.data.frame(tmp)%>%'names<-'("predicted")
     
     colnames(Results) <- c("predicted")
-    ##converts prediction from rf model to dataframe and changes column name to predicted
-    #Results<-as.data.frame(Results)%>%'names<-'("predicted")
     
     ## Grabs x, y values from original image and combines with unique values from prediction
-    #imageLatLong<-imageLatLong %>% slice(1: nrow(Results))
-    print(nrow(imageLatLong))
-    print(nrow(dataHDW))
-    #print(nrow(temp))
-    print(nrow(image))
     Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
-    print("2")
+    
     ###Creates Unique PFT_IDs
     Unique<-unique(as.data.frame.complex(Results$predicted))
 
@@ -62,7 +61,6 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     names(Unique)[1]<-"predicted"
     
     ###Create dataframe with unique PFT_ID values and location info
-    
     Results<-merge(Results,Unique, by="predicted")%>% dplyr::select(x,y,PFT_ID)
 
     ##Converts dataframe to a raster for predicted layer....and use as.factor to arrange my original raster layer
@@ -76,18 +74,6 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     shrub     <-raster==6
     tree      <-raster==7
     
-    ##We need to change all those values within the raster to 1, 
-    ##so the sum of all the pixels in each quadrat can be calculated later
-    denom  <-raster>=1
-    
-    ##DF OF METEDATA
-  
-    
-
-    
-   
-    
-    ###########################################Plot 1############################################################
     ###save plot as a jpeg
     chm_colors <- c("darkgreen","chartreuse3","gold","deepskyblue","saddlebrown","orange2","wheat1","black")
     
