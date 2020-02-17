@@ -29,7 +29,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
 
     #Read in classifier
     classifier <- readRDS(classifierDirectory)
-    temp<-read.csv("output/hdwSpectralLibraries/library_data_HDW.csv")
+    #temp<-read.csv("output/hdwSpectralLibraries/library_data_HDW.csv")
     print("break")
    dataHDW<- select(dataHDW,-c(y_VIs))
     ##Save the confusion Matrix for these models
@@ -50,7 +50,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #imageLatLong<-imageLatLong %>% slice(1: nrow(Results))
     print(nrow(imageLatLong))
     print(nrow(dataHDW))
-    print(nrow(temp))
+    #print(nrow(temp))
     print(nrow(image))
     Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
     print("2")
