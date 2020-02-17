@@ -4,6 +4,7 @@
 **Team Rocket**: University of Maine, COS 397/497 Capstone Project
 
 In partnership with the University of Maine, Forestry Department
+
 https://github.com/nelsopet/Alaska_Spectral_Library
 
 Directories:
