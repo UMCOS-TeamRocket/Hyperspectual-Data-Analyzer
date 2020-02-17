@@ -1,5 +1,10 @@
-# Hyperspectual-Data-Analyzer
-COS 397/497 Capstone Project
+# Hyperspectual Data Analyzer
+**Beta V0.0.0**
+
+**Team Rocket**: University of Maine, COS 397/497 Capstone Project
+
+In partnership with the University of Maine, Forestry Department
+https://github.com/nelsopet/Alaska_Spectral_Library
 
 Directories:
 
