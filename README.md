@@ -7,7 +7,8 @@ In partnership with the University of Maine, Forestry Department
 
 https://github.com/nelsopet/Alaska_Spectral_Library
 
-Directories:
+
+**Directories:**
 
 -source:
 Source for all R scripts for system
