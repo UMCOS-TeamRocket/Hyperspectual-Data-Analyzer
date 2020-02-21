@@ -3,8 +3,6 @@ library(ipc)
 library(future)
 library(promises)
 plan(multiprocess)
-#strategy <- "future::multisession"
-#plan(strategy)
 source("source/processqueue.R")
 
 queueModuleUI <- function(id) {
@@ -73,27 +71,6 @@ queueModuleServer <- function(input, output, session, queueData) {
         
         message("HI")
         for (process in queueData$processes){
-        #process <- queueData$processes[[1]]
-        # parameters <- process$parameters
-        #       classifierParameters <- process$classifierParameters
-        # 
-        #       spectralLibraryDirectory <- parameters$libraryDirectory
-        # 
-        #       createNewClassifier <- parameters$newClassifier
-        #       classifierDirectory <- parameters$classifierFile
-        #       classifierName <- parameters$classifierName
-        # 
-        #        mtry <- classifierParameters$mtry()
-        #        ntree <- classifierParameters$ntree()
-        #        importance <- classifierParameters$importance()
-        # 
-        #       imageDirectory <- parameters$imageDirectory
-        # 
-        #       outputFileName <- parameters$outputFileName
-        # 
-        #       hdwDirectory <- parameters$libraryDirectory
-        
-        
         parameters <- process$parameters
         classifierParameters <- process$classifierParameters
         
