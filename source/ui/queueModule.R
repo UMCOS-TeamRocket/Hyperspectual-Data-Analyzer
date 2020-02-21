@@ -3,6 +3,8 @@ library(ipc)
 library(future)
 library(promises)
 plan(multiprocess)
+#strategy <- "future::multisession"
+#plan(strategy)
 source("source/processqueue.R")
 
 queueModuleUI <- function(id) {
@@ -70,31 +72,56 @@ queueModuleServer <- function(input, output, session, queueData) {
         progress <- AsyncProgress$new(message="Processing Queue")
         
         message("HI")
+        for (process in queueData$processes){
+        #process <- queueData$processes[[1]]
+        # parameters <- process$parameters
+        #       classifierParameters <- process$classifierParameters
+        # 
+        #       spectralLibraryDirectory <- parameters$libraryDirectory
+        # 
+        #       createNewClassifier <- parameters$newClassifier
+        #       classifierDirectory <- parameters$classifierFile
+        #       classifierName <- parameters$classifierName
+        # 
+        #        mtry <- classifierParameters$mtry()
+        #        ntree <- classifierParameters$ntree()
+        #        importance <- classifierParameters$importance()
+        # 
+        #       imageDirectory <- parameters$imageDirectory
+        # 
+        #       outputFileName <- parameters$outputFileName
+        # 
+        #       hdwDirectory <- parameters$libraryDirectory
         
-        process <- queueData$processes[[1]]
+        
         parameters <- process$parameters
-              classifierParameters <- process$classifierParameters
-
-              spectralLibraryDirectory <- parameters$libraryDirectory
-
-              createNewClassifier <- parameters$newClassifier
-              classifierDirectory <- parameters$classifierFile
-              classifierName <- parameters$classifierName
-
-               mtry <- classifierParameters$mtry()
-               ntree <- classifierParameters$ntree()
-               importance <- classifierParameters$importance()
-
-              imageDirectory <- parameters$imageDirectory
-
-              outputFileName <- parameters$outputFileName
-
-              hdwDirectory <- parameters$libraryDirectory
-
+        classifierParameters <- process$classifierParameters
+        
+        spectralLibraryDirectory <- parameters$libraryDirectory
+        
+        createNewClassifier <- parameters$newClassifier
+        classifierDirectory <- parameters$classifierFile
+        classifierName <- parameters$classifierName
+        
+        mtry <- classifierParameters$mtry()
+        ntree <- classifierParameters$ntree()
+        importance <- classifierParameters$importance()
+        
+        imageDirectory <- parameters$imageDirectory
+        
+        outputFileName <- parameters$outputFileName
+        
+        hdwDirectory <- parameters$libraryDirectory
+        
+        outputImageDirectory <- queueData$outputImageDirectories
+    
+        outputStats <- queueData$outputStatistics
+        
         fut <- future({
           queue$producer$fireAssignReactive("message","HOLA")
-          processQueue(classifierName, spectralLibraryDirectory, mtry, ntree, importance, imageDirectory, outputFileName)
+          processQueue(queue, progress, interruptor, classifierName, spectralLibraryDirectory, mtry, ntree, importance, imageDirectory, outputFileName, createNewClassifier, classifierDirectory, outputImageDirectory, outputStats)
         })#%...>% rbind(queueData)
+        }
         
         fut <- catch(fut, 
                      function(error) {

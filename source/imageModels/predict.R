@@ -37,7 +37,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
     #print(dataHDW)
     ##uses model from spectral library to predict images
-    Results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
+    Results <- predict(classifier, dataHDW[-1:-2], num.threads = c1)
     
     tmp <- Results$predictions
     Results<-as.data.frame(tmp)%>%'names<-'("predicted")
