@@ -32,7 +32,12 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     VIs<-VIs[-c(3,26,27,31,32,33,35,48,49,58,60,66,67,71,82,99,102,103,104,105)]
     print(VIs[[1]])
     
-    c1<- makeCluster(6)
+    cores <- detectCores()
+    if(cores>2){
+      cores<-cores-2
+      print("YES")
+    }
+    c1<- makeCluster(cores)
     registerDoParallel(c1)
     print("VEG INDEX")
     
