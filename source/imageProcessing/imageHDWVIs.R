@@ -34,28 +34,24 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     c1<- makeCluster(6)
     registerDoParallel(c1)
-    print("Big BOI Starting")
+    print("VEG INDEX")
     
     tme<- Sys.time()
 
     ##Creates dataframe with Vegitation indices
-    IMG_VIs<-foreach(i=1:83, .combine=cbind, .packages = 'hsdar') %dopar%{
+    IMG_VIs<-foreach(i=1:length(VIs), .combine=cbind, .packages = 'hsdar') %dopar%{
       a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
     }
    
-    print("DON")
+    print("DONE")
     print(Sys.time()-tme)
     stopCluster(c1)
-    print(IMG_VIs)
     IMG_VIs <- as.data.frame(IMG_VIs)
-    print(str(IMG_VIs))
-    
-    print(class(IMG_VIs))
     
     
     ##rename columns
     colnames(IMG_VIs  )<-VIs
-    
+    print("HY")
     ##lets do a logical test on IMG_HDW_VIs to see if strange values exist
     test3<-lapply(IMG_VIs,range)%>%as.data.frame%>%t()%>%as.data.frame
    
