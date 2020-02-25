@@ -2,6 +2,8 @@
 library(spectrolab)
 library(tidyverse)
 library(hsdar)
+library(foreach)
+library(doParallel)
 
 createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
   tryCatch({
@@ -28,9 +30,23 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##Vegitation indices mREIP won't work so remove it from list
     VIs<-VIs[-c(3,26,27,31,32,33,35,48,49,58,60,66,67,71,82,99,102,103,104,105)]
+    print(VIs[[1]])
     
+    c1<- makeCluster(6)
+    registerDoParallel(c1)
+    print("Big BOI Starting")
+    
+    tme<- Sys.time()
+
     ##Creates dataframe with Vegitation indices
-    IMG_VIs       <-vegindex(IMG_HDW_speclib       ,index=VIs)
+    IMG_VIs<-foreach(i=1:83, .combine='c', .packages = 'hsdar') %dopar%{
+      a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
+    }
+   
+    print("DON")
+    print(Sys.time()-tme)
+    stopCluster(c1)
+    
     
     ##rename columns
     colnames(IMG_VIs  )<-VIs
