@@ -39,13 +39,18 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     tme<- Sys.time()
 
     ##Creates dataframe with Vegitation indices
-    IMG_VIs<-foreach(i=1:83, .combine='c', .packages = 'hsdar') %dopar%{
+    IMG_VIs<-foreach(i=1:83, .combine=cbind, .packages = 'hsdar') %dopar%{
       a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
     }
    
     print("DON")
     print(Sys.time()-tme)
     stopCluster(c1)
+    print(IMG_VIs)
+    IMG_VIs <- as.data.frame(IMG_VIs)
+    print(str(IMG_VIs))
+    
+    print(class(IMG_VIs))
     
     
     ##rename columns
