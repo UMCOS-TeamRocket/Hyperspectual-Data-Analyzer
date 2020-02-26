@@ -53,23 +53,12 @@ processQueue <- function(queueData) {
           #add "_dataHDW" to end of file name and reconstruct directory
           hdwDirectory <- paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = "")
           
-          print(paste("directory:", hdwDirectory))
-          
           if(!file.exists(hdwDirectory)) {
-            print("file did not exist")
             print("Processing HDW Image")
             hdwDirectory <- processHDWImage(imageDirectory)
-          } else {
-            print("file existed")
           }
           
-          print(paste("directory:", hdwDirectory))
-          
           setProgress(0.6, detail = "Predicting")
-          
-          #Testing code
-          #classifierDirectory<-"output/classifiers/test.rds"
-          #hdwDirectory <- "output/test.csv"
           
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)

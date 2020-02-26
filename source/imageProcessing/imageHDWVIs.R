@@ -16,7 +16,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##Reads in bandpasses for imagery to be used later
     HDW_ng_wv<-scan("output/Headwall_wv", numeric())
-    print(nrow(IMG_HDW))
+    
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
     IMG_HDW_matrix   <-as.matrix(IMG_HDW   [-1:-2])
@@ -35,11 +35,9 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     cores <- detectCores()
     if(cores>2){
       cores<-cores-2
-      print("YES")
     }
     c1<- makeCluster(cores)
     registerDoParallel(c1)
-    print("VEG INDEX")
     
     tme<- Sys.time()
 
@@ -47,10 +45,10 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     IMG_VIs<-foreach(i=1:length(VIs), .combine=cbind, .packages = 'hsdar') %dopar%{
       a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
     }
-   
-    print("DONE")
-    print(Sys.time()-tme)
+    
+    runTime <- Sys.time()-tme
     stopCluster(c1)
+    
     IMG_VIs <- as.data.frame(IMG_VIs)
     
     
