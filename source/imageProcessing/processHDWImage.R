@@ -14,12 +14,12 @@ processHDWImage <- function (imageDirectory) {
     dfDirectory <- resampledDirectories[1]
 
     print("Generating VIs")
-    hdwViDirectory <- createImgHDWVi(dfDirectory, fileName)
+    hdwViDirectory <- createImgHDWVi(resampledDirectories[["df"]], fileName)
     
-    hdw_010nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_010nm.csv", sep = ""))
-    hdw_050nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_050nm.csv", sep = ""))
-    hdw_100nm<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_100nm.csv", sep = ""))
-    VI<-read.csv(paste("output/hdwImagery/", fileName, "_HDW_VIs.csv", sep = ""))
+    hdw_010nm<-read.csv(resampledDirectories[["nm10"]])
+    hdw_050nm<-read.csv(resampledDirectories[["nm50"]])
+    hdw_100nm<-read.csv(resampledDirectories[["nm100"]])
+    VI<-read.csv(hdwViDirectory)
     
     colnames(hdw_010nm)[-1:-2]<-paste0(colnames(hdw_010nm)[-1:-2],"_010nm")
     colnames(hdw_050nm)[-1:-2]<-paste0(colnames(hdw_050nm)[-1:-2],"_050nm")
@@ -27,9 +27,9 @@ processHDWImage <- function (imageDirectory) {
     colnames(VI)[-1:-2]<-paste0(colnames(VI)[-1:-2],"_VIs")
 
     dataHDW<-Reduce(cbind,list(hdw_010nm,hdw_050nm[-1:-2],hdw_100nm[-1:-2],VI[-1:-2]))
-    write.csv(dataHDW,"output/dataHDW.csv", row.names = FALSE)
+    write.csv(dataHDW, paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = ""), row.names = FALSE)
   
-    return("output/dataHDW.csv")
+    return(paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = ""))
   }, warning = function(warning) {
     warning(warning)
     message <- paste ("WARNING - While process")

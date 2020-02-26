@@ -31,8 +31,6 @@ processQueue <- function(queueData) {
 
         outputFileName <- parameters$outputFileName
         
-        hdwDirectory <- parameters$libraryDirectory
-        
         print(paste("Current Process:", outputFileName))
         
         #increase progress bar and change detail text
@@ -48,8 +46,25 @@ processQueue <- function(queueData) {
           
           setProgress(0.3, detail = "Processing HDW Image")
           
-          print("Processing HDW Image")
-          hdwDirectory <- processHDWImage(imageDirectory)
+          #get file name from directory
+          fileName <- basename(imageDirectory)
+          #remove file extension
+          fileName <- substr(fileName, 1, nchar(fileName) - 4)
+          #add "_dataHDW" to end of file name and reconstruct directory
+          hdwDirectory <- paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = "")
+          
+          print(paste("directory:", hdwDirectory))
+          
+          if(!file.exists(hdwDirectory)) {
+            print("file did not exist")
+            print("Processing HDW Image")
+            hdwDirectory <- processHDWImage(imageDirectory)
+          } else {
+            print("file existed")
+          }
+          
+          print(paste("directory:", hdwDirectory))
+          
           setProgress(0.6, detail = "Predicting")
           
           #Testing code
@@ -65,7 +80,7 @@ processQueue <- function(queueData) {
           queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
           
           #create output text
-          #TODO: separate with new line (somehow... why isnt it easy)
+          #TODO: separate with new line
           textString <- c(paste("Process#:", index + 1, "\n"), 
                           paste("Output File Name:", outputFileName, "\n"),
                           paste("Run Time:", endTime[[1]], "\n"))

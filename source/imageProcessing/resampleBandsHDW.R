@@ -85,10 +85,10 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
     write.csv(IMG_HDW_050nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""), row.names = FALSE)
     write.csv(IMG_HDW_100nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""),row.names = FALSE)
 
-    directories <- c(paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_df.csv", sep = ""),
-                     paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""),
-                     paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""),
-                     paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""))
+    directories <- list(df = paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_df.csv", sep = ""),
+                     nm10 = paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""),
+                     nm50 = paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""),
+                     nm100 = paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_100nm.csv", sep = ""))
     return(directories)
   }, warning = function(warning) {
     message <- paste ("WARNING - While resampling bands", imageDirectory)
