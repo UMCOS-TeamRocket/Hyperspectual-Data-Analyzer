@@ -77,8 +77,9 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
   
     ##Remove these rows
     IMG_HDW_100nm<-IMG_HDW_100nm%>%subset(`399.444`>0)
-  
-    ###Lets save our new dfs
+    IMG_HDW <-IMG_HDW %>% slice(1:nrow(IMG_HDW_010nm))
+    
+    ###Lets save our new df
     write.csv(IMG_HDW       , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_df.csv", sep = ""), row.names = FALSE)
     write.csv(IMG_HDW_010nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_010nm.csv", sep = ""), row.names = FALSE)
     write.csv(IMG_HDW_050nm , paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_050nm.csv", sep = ""), row.names = FALSE)

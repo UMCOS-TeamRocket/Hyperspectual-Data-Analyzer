@@ -10,11 +10,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     c1 <- detectCores()
     if(c1>2){
       c1<-c1-2
-      print("YES")
     }
     print(c1)
-    #print(hdwDirectory)
-    print(imageDirectory)
     
     #Reads in Imagery
     image<-brick(imageDirectory)
@@ -36,35 +33,37 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     
     #Remove random column from data
     dataHDW<- select(dataHDW,-c(y_VIs))
+    imageLatLong <-imageLatLong %>% slice(1:nrow(dataHDW))
+    
     
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
 
     ##uses model from spectral library to predict images
-    Results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
+    results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
     
     #Convert predictions into a dataframe
-    tmp <- Results$predictions
-    Results<-as.data.frame(tmp)%>%'names<-'("predicted")
+    tmp <- results$predictions
+    results<-as.data.frame(tmp)%>%'names<-'("predicted")
     
-    colnames(Results) <- c("predicted")
+    colnames(results) <- c("predicted")
     
     ## Grabs x, y values from original image and combines with unique values from prediction
-    Results<-cbind(Results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
+    results<-cbind(results,imageLatLong[1:2]) %>% dplyr::select(predicted,x,y)
     
-    ###Creates Unique PFT_IDs
-    Unique<-unique(as.data.frame.complex(Results$predicted))
+    ###Creates unique PFT_IDs
+    unique<-unique(as.data.frame.complex(results$predicted))
 
-    Unique$PFT_ID<-seq(1:nrow(Unique))
+    unique$PFT_ID<-seq(1:nrow(unique))
 
-    names(Unique)[1]<-"predicted"
+    names(unique)[1]<-"predicted"
     
     ###Create dataframe with unique PFT_ID values and location info
-    Results<-merge(Results,Unique, by="predicted")%>% dplyr::select(x,y,PFT_ID)
+    results<-merge(results,unique, by="predicted")%>% dplyr::select(x,y,PFT_ID)
 
     ##Converts dataframe to a raster for predicted layer....and use as.factor to arrange my original raster layer
-    suppressWarnings(raster<-rasterFromXYZ(Results, crs = crs(image)))
+    suppressWarnings(raster<-rasterFromXYZ(results, crs = crs(image)))
     
     Graminoid <-raster==1
     dwarfShrub<-raster==2

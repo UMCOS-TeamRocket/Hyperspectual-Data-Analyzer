@@ -10,13 +10,13 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     ##Reads in image as dataframe
     IMG_HDW<-read.csv(imgHdwDfDirectory, check.names = FALSE)
     ##Now lets check the range of the values in the image
-    test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
+    #test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
     #test%>%View()
-    test%>%lapply(range) ### All values fall between 0 and 1.2 and there are no NA values
+    #test%>%lapply(range) ### All values fall between 0 and 1.2 and there are no NA values
     
     ##Reads in bandpasses for imagery to be used later
     HDW_ng_wv<-scan("output/Headwall_wv", numeric())
-    
+    print(nrow(IMG_HDW))
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
     IMG_HDW_matrix   <-as.matrix(IMG_HDW   [-1:-2])
@@ -56,7 +56,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##rename columns
     colnames(IMG_VIs  )<-VIs
-    print("HY")
+    
     ##lets do a logical test on IMG_HDW_VIs to see if strange values exist
     test3<-lapply(IMG_VIs,range)%>%as.data.frame%>%t()%>%as.data.frame
    
