@@ -58,9 +58,15 @@ imageOutputModuleServer <- function(input, output, session, data) {
                  alt = "Could not find image")
           }, deleteFile = FALSE)
           
-          text = data$outputStatistics[[i]]
+          textVector = data$outputStatistics[[i]]
           
-          output[[textName]] <- renderText({text})
+          #text is a character vector of size 3
+          outputText <- textVector[1]
+          for (i in 2:length(textVector)) {
+            outputText <- paste(outputText, textVector[i], sep = " :: ")
+          }
+          
+          output[[textName]] <- renderText({outputText})
         })
       }
     }

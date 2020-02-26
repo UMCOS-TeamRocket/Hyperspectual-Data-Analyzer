@@ -7,6 +7,7 @@ source("source/imageProcessing/processHDWImage.R")
 
 processQueue <- function(queueData) {
   withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
+    errors <- list()
     index <- 0
     for (process in queueData$processes) {
       tryCatch({
@@ -69,10 +70,9 @@ processQueue <- function(queueData) {
           queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
           
           #create output text
-          #TODO: separate with new line
-          textString <- c(paste("Process#:", index + 1, "\n"), 
-                          paste("Output File Name:", outputFileName, "\n"),
-                          paste("Run Time:", endTime[[1]], "\n"))
+          textString <- c(paste("Process#:", index + 1), 
+                          paste("Output File Name:", outputFileName),
+                          paste("Run Time:", endTime[[1]], "seconds"))
           
           #add output text to list of outputStatistics
           queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- textString
@@ -82,17 +82,25 @@ processQueue <- function(queueData) {
           print("Process Finished")
         })
       }, warning = function(warning) {
-        warning(warning)
-        message <- paste ("WARNING - While process")
+        errorMessage <- paste("Process#:", index + 1, "<br>",
+                              "Output File Name:", outputFileName, "<br>",
+                              "Error Message:", warning)
+        
+        errors[[length(errors) + 1]] <<- HTML(errorMessage)
       }, error = function(error) {
-        message <- paste ("WARNING - While process")
-        stop(error)
+        errorMessage <- paste("Process#:", index + 1, "<br>",
+                              "Output File Name:", outputFileName, "<br>",
+                              "Error Message:", error)
+        
+        errors[[length(errors) + 1]] <<- HTML(errorMessage)
       }, finally = {
         index <- index + 1
       })
     }
     
     setProgress(length(queueData$processes))
+    
+    return(errors)
   })
   
 }
