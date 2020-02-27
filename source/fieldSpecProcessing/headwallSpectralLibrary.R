@@ -282,60 +282,6 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
                    ,895.72
                    ,897.572
                    ,899.424)
-    #,901.276
-    #,903.127
-    #,904.979
-    #,906.831
-    #,908.683
-    #,910.535
-    #,912.386
-    #,914.238
-    #,916.09
-    #,917.942
-    #,919.793
-    #,921.645
-    #,923.497
-    #,925.349
-    #,927.201
-    #,929.052
-    #,930.904
-    #,932.756
-    #,934.608
-    #,936.459
-    #,938.311
-    #,940.163
-    #,942.015
-    #,943.867
-    #,945.718
-    #,947.57
-    #,949.422
-    #,951.274
-    #,953.125
-    #,954.977
-    #,956.829
-    #,958.681
-    #,960.533
-    #,962.384
-    #,964.236
-    #,966.088
-    #,967.94
-    #,969.791
-    #,971.643
-    #,973.495
-    #,975.347
-    #,977.199
-    #,979.05
-    #,980.902
-    #,982.754
-    #,984.606
-    #,986.457
-    #,988.309
-    #,990.161
-    #,992.013
-    #,993.865
-    #,995.716
-    #,997.568
-    #,999.42)
     
     ##Now we want to resample alsakSpeclib based on the band passes
     spectralLibrary_HDW<-spectrolab::resample(spectralLibrary,Headwall_wv)
@@ -344,11 +290,6 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
     ##Run logical test to see if this conversion affect reflectance values
     ##Are there values outside of the rane 0-2???
     spectralLibrary_test<-spectralLibrary_HDW%>%as.data.frame()%>%dplyr::select(-sample_name)
-    
-    ####Lets run that test again
-    tst2<-lapply(spectralLibrary_test[-1:-7],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst2$V1%>%range()##There are negative values being created here, this is where the problem lies, how can we solve this???
-    tst2$V2%>%range()##There are no weird values, those are values outside of 0 and 2
     
     #tst2 %>% subset(V1 <0) %>% View() ##There a bunch of negative values across 128 columns, this might be one row, lets test this
     
@@ -366,16 +307,9 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
     spectralLibrary_HDW<-spectralLibrary_HDW1[-1:-7]%>%as.spectra()
     meta(spectralLibrary_HDW)<-data.frame(spectralLibrary_HDW1[1:7], stringsAsFactors = FALSE)
     
-    ####Lets run that test again
-    tst3<-lapply(spectralLibrary_HDW1[-1:-7],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst3$V1%>%range()##There are no weird values, those are values outside of 0 and 2
-    tst3$V2%>%range()##There are no weird values, those are values outside of 0 and 2
-    ##Converting a spectral object should not change reflectance values
-    
     #Now lets create a dataframe with all scans that are equal to 25 scans per functional group
     spectralLibrary_HDW_df<-spectralLibrary_HDW%>%as.data.frame()%>%dplyr::select(-sample_name)##convert to a dataframe first
     spectralLibrary_HDW_df_equal25<-spectralLibrary_HDW_df%>% group_by(PFT_3) %>% sample_n(25,replace = TRUE)
-    
     
     ##Lets save our bandpasses and other outputs
     write(Headwall_wv,"output/Headwall_wv")

@@ -44,33 +44,30 @@ queueModuleServer <- function(input, output, session, queueData) {
   #Run all processes in queue
   observeEvent(input$runQueue, {
     if (length(queueData$processes) > 0) {
-      tryCatch({
-        #clear output section
-        queueData$outputImageDirectories <- list()
-        queueData$outputStatistics <- list()
+      #clear output section
+      queueData$outputImageDirectories <- list()
+      queueData$outputStatistics <- list()
+      
+      print("Processing Queue...")
+      
+      errors <- processQueue(queueData)
+      
+      print("Finished Processing Queue")
+      
+      if (length(errors) != 0) {
+        outputString <- errors[[1]]
+        for(i in 2:length(errors)) {
+          outputString <- paste(outputString, errors[[i]], sep = "<br><br>")
+        }
         
-        print("Processing Queue...")
-        
-        processQueue(queueData)
-        
-        print("Finished Processing Queue")
-      }, warning = function(warning) {
         showModal(modalDialog(
           fluidRow(
-            h4(HTML(paste0(warning, collapse = "")))
+            h4(HTML(outputString))
           ),
-          title = "Warning",
+          title = "Some Processes Ran Into An Error",
           easyClose = TRUE
         ))
-      }, error = function(error) {
-        showModal(modalDialog(
-          fluidRow(
-            h4(HTML(paste0(error, collapse = "")))
-          ),
-          title = "Error",
-          easyClose = TRUE
-        ))
-      })
+      }
     } else {
       showModal(modalDialog(
         fluidRow(

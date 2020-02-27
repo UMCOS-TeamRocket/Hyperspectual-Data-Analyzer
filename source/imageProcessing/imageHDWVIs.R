@@ -2,15 +2,13 @@
 library(spectrolab)
 library(tidyverse)
 library(hsdar)
+library(foreach)
+library(doParallel)
 
 createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe
     IMG_HDW<-read.csv(imgHdwDfDirectory, check.names = FALSE)
-    ##Now lets check the range of the values in the image
-    test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
-    #test%>%View()
-    test%>%lapply(range) ### All values fall between 0 and 1.2 and there are no NA values
     
     ##Reads in bandpasses for imagery to be used later
     HDW_ng_wv<-scan("output/Headwall_wv", numeric())
@@ -24,20 +22,32 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##creates a vectror of names of all the vegitation indices...there are 115 of these
     VIs<-vegindex()
-    #VIs<-VIs[-58] ##Vegitation indices mREIP won't work so remove it from list
-    
     ##Vegitation indices mREIP won't work so remove it from list
     VIs<-VIs[-c(3,26,27,31,32,33,35,48,49,58,60,66,67,71,82,99,102,103,104,105)]
     
+    #Get amount of cores to use
+    cores <- detectCores()
+    if(cores>2){
+      cores<-cores-2
+    }
+    c1<- makeCluster(cores)
+    registerDoParallel(c1)
+    
+    tme<- Sys.time()
+
     ##Creates dataframe with Vegitation indices
-    IMG_VIs       <-vegindex(IMG_HDW_speclib       ,index=VIs)
+    IMG_VIs<-foreach(i=1:length(VIs), .combine=cbind, .packages = 'hsdar') %dopar%{
+      a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
+    }
+    
+    runTime <- Sys.time()-tme
+    stopCluster(c1)
+    
+    #Convert matrix to data frame
+    IMG_VIs <- as.data.frame(IMG_VIs)
     
     ##rename columns
     colnames(IMG_VIs  )<-VIs
-    
-    ##lets do a logical test on IMG_HDW_VIs to see if strange values exist
-    test3<-lapply(IMG_VIs,range)%>%as.data.frame%>%t()%>%as.data.frame
-   
     IMG_VIs_A  <-cbind(IMG_HDW   [1:2],IMG_VIs   )
     
     ##Now we have to ensure that all column names have no spaces nor arithmetic operators
@@ -57,13 +67,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
                    ,"TGI"           ,"TVI"           ,"Vogelmann"     ,"Vogelmann2"    ,"Vogelmann3"    ,"Vogelmann4") 
     
     colnames(IMG_VIs_A )[-1:-2]<-newcolnames
-    ##DIM725940 274
     
-    ##lets do a logical test again to the image 
-    test6<-lapply(IMG_VIs_A[-1:-2], range)%>%as.data.frame%>%t()%>%as.data.frame()
-    test6%>%view()###There are NaNs and infs, lets remove them, dim() 1974  333
-    
-   
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
     write.csv(IMG_VIs_A, paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
     

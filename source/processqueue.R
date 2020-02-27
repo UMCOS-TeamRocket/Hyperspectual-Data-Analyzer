@@ -7,6 +7,7 @@ source("source/imageProcessing/processHDWImage.R")
 
 processQueue <- function(queueData) {
   withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
+    errors <- list()
     index <- 0
     for (process in queueData$processes) {
       tryCatch({
@@ -31,8 +32,6 @@ processQueue <- function(queueData) {
 
         outputFileName <- parameters$outputFileName
         
-        hdwDirectory <- parameters$libraryDirectory
-        
         print(paste("Current Process:", outputFileName))
         
         #increase progress bar and change detail text
@@ -48,13 +47,19 @@ processQueue <- function(queueData) {
           
           setProgress(0.3, detail = "Processing HDW Image")
           
-          print("Processing HDW Image")
-          hdwDirectory <- processHDWImage(imageDirectory)
-          setProgress(0.6, detail = "Predicting")
+          #get file name from directory
+          fileName <- basename(imageDirectory)
+          #remove file extension
+          fileName <- substr(fileName, 1, nchar(fileName) - 4)
+          #add "_dataHDW" to end of file name and reconstruct directory
+          hdwDirectory <- paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = "")
           
-          #Testing code
-          #classifierDirectory<-"output/classifiers/test.rds"
-          #hdwDirectory <- "output/test.csv"
+          if(!file.exists(hdwDirectory)) {
+            print("Processing HDW Image")
+            hdwDirectory <- processHDWImage(imageDirectory)
+          }
+          
+          setProgress(0.6, detail = "Predicting")
           
           print("Predicting")
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
@@ -65,10 +70,9 @@ processQueue <- function(queueData) {
           queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
           
           #create output text
-          #TODO: separate with new line (somehow... why isnt it easy)
-          textString <- c(paste("Process#:", index + 1, "\n"), 
-                          paste("Output File Name:", outputFileName, "\n"),
-                          paste("Run Time:", endTime[[1]], "\n"))
+          textString <- c(paste("Process#:", index + 1), 
+                          paste("Output File Name:", outputFileName),
+                          paste("Run Time:", endTime[[1]], "seconds"))
           
           #add output text to list of outputStatistics
           queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- textString
@@ -78,17 +82,25 @@ processQueue <- function(queueData) {
           print("Process Finished")
         })
       }, warning = function(warning) {
-        warning(warning)
-        message <- paste ("WARNING - While process")
+        errorMessage <- paste("Process#:", index + 1, "<br>",
+                              "Output File Name:", outputFileName, "<br>",
+                              "Error Message:", warning)
+        
+        errors[[length(errors) + 1]] <<- HTML(errorMessage)
       }, error = function(error) {
-        message <- paste ("WARNING - While process")
-        stop(error)
+        errorMessage <- paste("Process#:", index + 1, "<br>",
+                              "Output File Name:", outputFileName, "<br>",
+                              "Error Message:", error)
+        
+        errors[[length(errors) + 1]] <<- HTML(errorMessage)
       }, finally = {
         index <- index + 1
       })
     }
     
     setProgress(length(queueData$processes))
+    
+    return(errors)
   })
   
 }
