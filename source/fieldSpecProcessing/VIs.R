@@ -32,9 +32,6 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
     ##Creates dataframe with Vegitation indices
     spectralLibrary_HDW_VIs<-vegindex(spectralLibrary_HDW_speclib,index=VIs)
     
-    ##lets do a logical test on spectralLibrary_HDW_VIs to see if strange values exist
-    test4<-lapply(spectralLibrary_HDW_VIs,range)%>%as.data.frame%>%t()%>%as.data.frame
-    #test4%>%View()##There are columns where NaNs exist because the spectral range of the sensor is 400nm-100nm
     ##Remember the field spectral library was resampled on the headwall sensor's bandpasses
     ##This means some Veg indices won't generate values because those bands are not present
     ##Lets remove all those columns with values that have NaNs and Infs
@@ -60,10 +57,6 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
                    ,"TGI"           ,"TVI"           ,"Vogelmann"     ,"Vogelmann2"    ,"Vogelmann3"    ,"Vogelmann4")
     
     colnames(spectralLibrary_HDW_VIs)[-1:-7]<-Newcolnames
-    
-    ##lets do a logical test again
-    test5<-lapply(spectralLibrary_HDW_VIs[-1:-7], range)%>%as.data.frame%>%t()%>%as.data.frame()
-    test5%>%View()###There are no NaNs or Infs
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
     write.csv(spectralLibrary_HDW_VIs, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_VIs_equal25.csv", sep = ""), row.names = FALSE)

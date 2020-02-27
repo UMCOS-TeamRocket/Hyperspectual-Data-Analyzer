@@ -20,41 +20,23 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
     ##Remove all pixels with NA values
     IMG_HDW<-na.omit(IMG_HDW)
   
-    ##Check the range of the values in the image
-    test<-lapply(IMG_HDW[,-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
-    #test%>%View()
-    test%>%lapply(range) ### All values fall between 0 and 1.2 and there are no NA values
-  
     ##create a datframe with the coordinates for imagery to be used later
     cords<-IMG_HDW%>%dplyr::select(1,2)
   
-    
+    #TODO
+    #Make these lines more efficient
     ##Do the same steps above for imagery
     IMG_HDW_010nm<-IMG_HDW%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,10 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
     IMG_HDW_050nm<-IMG_HDW%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,50 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
     IMG_HDW_100nm<-IMG_HDW%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,100))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
   
-    ###Lets run logical test for all dataframes
-    tst2<-lapply(IMG_HDW_010nm[-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst2$V1%>%range()##There are no weird values, those are values outside of 0 and 2
-    tst2$V2%>%range()##There are no weird values, those are values outside of 0 and 2
-    #tst2%>%subset(V1<0)%>%view()
-  
     #Don't need to run 3 lines below unless there are weird values in dataset above
     IMG_HDW_010nm[-1:-2]%>%
       dplyr::select(`399.444`)%>% 
       subset(`399.444`<0)%>% nrow() ##2 rows have negative values
-    
-    
-    
+
     ##Lets remove these rows
     IMG_HDW_010nm<-IMG_HDW_010nm%>%subset(`399.444`>0)
-
-    ###Lets run that test on "IMG_HDW_50nm"
-    tst3<-lapply(IMG_HDW_050nm[-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst3$V1%>%range()##There are no weird values, those are values outside of 0 and 2
-    tst3$V2%>%range()##There are no weird values, those are values outside of 0 and 2
-    #tst3%>%subset(V1<0)%>%view()
 
     #Don't need to run 3 lines below unless there are weird values in dataset above
     IMG_HDW_050nm[-1:-2]%>%
@@ -63,12 +45,6 @@ resampleBandsHDW <- function(imageDirectory, fileName = "image") {
 
     ##Lets remove these rows
     IMG_HDW_050nm<-IMG_HDW_050nm%>%subset(`399.444`>0)
-
-    ###Lets run that test on "IMG_HDW_100nm"
-    tst4<-lapply(IMG_HDW_100nm[-1:-2],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst4$V1%>%range()##There are no weird values, those are values outside of 0 and 2
-    tst4$V2%>%range()##There are no weird values, those are values outside of 0 and 2
-    #tst4%>%subset(V1<0)%>%view()
 
     #Don't need to run 3 lines below unless there are weird values in dataset above
     IMG_HDW_100nm[-1:-2]%>%

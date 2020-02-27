@@ -333,16 +333,8 @@ createSpectralLibrary <- function(vectorOfSampleDirectories, outputName) {
     
     ###lets create a df from our spectral library to be saved
     spectralLibrary_df<-spectralLibrary
-    
-    #spectralLibrary_df_species<-spectralLibrary_df%>%dplyr::select(PFT,PFT_2,PFT_3)
-    #write.csv(spectralLibrary_df_species                 ,"Test_Outputs/1_Field_spec/1_Processing/spectralLibrary_df_species.csv"                  ,row.names = F)
-    
-    ####Lets run that test again just to make sure our function worked
-    tst<-lapply(spectralLibrary[-1:-7],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst$V1%>%range()##There are no weird values, those are values outside of 0 and 2
-    tst$V2%>%range()##There are no weird values, those are values outside of 0 and 2
-    
-    #We want to create dataframes that have all the scans of each functional groups
+
+     #We want to create dataframes that have all the scans of each functional groups
     ##This can be used to make graphs of all the species within each functional group
     spectralLibrary_Lichen    <-subset(spectralLibrary,PFT_3=="Lichen")
     spectralLibrary_Tree      <-subset(spectralLibrary,PFT_3=="Tree")

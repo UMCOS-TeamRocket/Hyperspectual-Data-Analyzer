@@ -7,11 +7,11 @@ library(parallel)
 
 predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, outputName) {
   tryCatch({
+    #Get Core Numbers
     c1 <- detectCores()
     if(c1>2){
       c1<-c1-2
     }
-    print(c1)
     
     #Reads in Imagery
     image<-brick(imageDirectory)
@@ -35,7 +35,6 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     dataHDW<- select(dataHDW,-c(y_VIs))
     imageLatLong <-imageLatLong %>% slice(1:nrow(dataHDW))
     
-    
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
@@ -44,8 +43,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
     
     #Convert predictions into a dataframe
-    tmp <- results$predictions
-    results<-as.data.frame(tmp)%>%'names<-'("predicted")
+    pred <- results$predictions
+    results<-as.data.frame(pred)%>%'names<-'("predicted")
     
     colnames(results) <- c("predicted")
     
@@ -63,6 +62,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     results<-merge(results,unique, by="predicted")%>% dplyr::select(x,y,PFT_ID)
 
     ##Converts dataframe to a raster for predicted layer....and use as.factor to arrange my original raster layer
+    #A warning pops up with no solution, so it gets suppressed
     suppressWarnings(raster<-rasterFromXYZ(results, crs = crs(image)))
     
     Graminoid <-raster==1
@@ -76,7 +76,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     ###save plot as a jpeg
     chm_colors <- c("darkgreen","chartreuse3","gold","deepskyblue","saddlebrown","orange2","wheat1","black")
     
-    jpeg(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""), width=1200, height=700)
+    
+    jpeg(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""), width=7200, height=4200)
     plot(
       raster,
       legend = FALSE,
@@ -90,7 +91,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
       fill =chm_colors,
       border = FALSE,
       bty = "n",
-      cex=1.3,
+      cex=10,
       xjust =1,
       horiz = FALSE,
       inset = -0.007,
