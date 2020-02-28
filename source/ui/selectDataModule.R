@@ -1,4 +1,5 @@
 selectDataUI <- function(id) {
+  #namespace for the module
   ns <- NS(id)
   
   tagList(
@@ -32,8 +33,10 @@ selectDataUI <- function(id) {
 
 
 selectDataServer <- function(input, output, session, spectralLibraryModuleValues) {
+  #root directory to be used by the file dialog when selecting a data cube
   root <- c(home = fs::path_home(), project = here())
   
+  #update the spectral library dropdown with the currently available spectral library files
   observe({
     updateSelectInput(session = session,
                       inputId = "librarySelect",
@@ -56,6 +59,7 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
   
   #SELECT IMAGE FILE
   observe({
+    #display the file select dialog
     shinyFileChoose(
       input,
       'imageInput',
@@ -63,13 +67,12 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
       session = session
     )
     
+    #display the chosen directory
     output$imageOutput <- renderPrint({
       if (is.integer(input$imageInput)) {
         imageDirectory <<- ""
-        cat("No image has been selected")
       } else {
         imageDirectory <<- parseFilePaths(root, input$imageInput)[[1,4]][1]
-        parseFilePaths(root, input$imageInput)[[1,4]][1]
       }
     })
   })
@@ -101,6 +104,7 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
       }
     }
     
+    #if a piece of information is missing, display an error dialog
     if (displayMessage) {
       showModal(modalDialog(
         fluidRow(
@@ -114,7 +118,6 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
     }
     
     #gather process parameters
-    # The HDW naming is now wrong, didn't change cause would break everything
     libraryDirectory <- paste("output/hdwSpectralLibraries/", input$librarySelect, sep = "")
     
     newProcess <- list(libraryDirectory = libraryDirectory,

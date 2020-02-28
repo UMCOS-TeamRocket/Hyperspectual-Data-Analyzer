@@ -30,16 +30,19 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     if(cores>2){
       cores<-cores-2
     }
+    #prepare for parallel process
     c1<- makeCluster(cores)
     registerDoParallel(c1)
     
     tme<- Sys.time()
 
+    #run vegindex using one formula at a time, in parallel
     ##Creates dataframe with Vegitation indices
     IMG_VIs<-foreach(i=1:length(VIs), .combine=cbind, .packages = 'hsdar') %dopar%{
       a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
     }
     
+    #calculate how long vegindex() took to finish
     runTime <- Sys.time()-tme
     stopCluster(c1)
     

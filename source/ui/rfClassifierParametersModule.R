@@ -1,4 +1,5 @@
 rfClassifierParametersUI <- function(id) {
+  #namespace for the module
   ns <- NS(id)
   
   tagList (
@@ -18,7 +19,7 @@ rfClassifierParametersUI <- function(id) {
   )
 }
 
-
+#return reactive variables for the three parameters in a list
 rfClassifierParametersServer <- function(input, output, session) {
   return(
     list(

@@ -2,6 +2,7 @@ library(magrittr)
 source("source/processqueue.R")
 
 queueModuleUI <- function(id) {
+  #namespace for the module
   ns <- NS(id)
   
   tagList(
@@ -44,7 +45,7 @@ queueModuleServer <- function(input, output, session, queueData) {
   #Run all processes in queue
   observeEvent(input$runQueue, {
     if (length(queueData$processes) > 0) {
-      #clear output section
+      #clear output variables
       queueData$outputImageDirectories <- list()
       queueData$outputStatistics <- list()
       
@@ -54,12 +55,15 @@ queueModuleServer <- function(input, output, session, queueData) {
       
       print("Finished Processing Queue")
       
+      #check if any errors occured
       if (length(errors) != 0) {
+        #separate each error with a couple newlines
         outputString <- errors[[1]]
         for(i in 2:length(errors)) {
           outputString <- paste(outputString, errors[[i]], sep = "<br><br>")
         }
         
+        #display an error dialog with all error messages
         showModal(modalDialog(
           fluidRow(
             h4(HTML(outputString))
@@ -69,6 +73,7 @@ queueModuleServer <- function(input, output, session, queueData) {
         ))
       }
     } else {
+      #display an error dialog if the queue is empty
       showModal(modalDialog(
         fluidRow(
           h4("Queue is empty")

@@ -65,6 +65,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #A warning pops up with no solution, so it gets suppressed
     suppressWarnings(raster<-rasterFromXYZ(results, crs = crs(image)))
     
+    #TODO: remove hard coding and pull this information from classifier
     Graminoid <-raster==1
     dwarfShrub<-raster==2
     moss      <-raster==3

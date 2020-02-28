@@ -5,11 +5,14 @@ library(tidyverse)
 #the function will look at each directory under fieldSpecDirectory recursively and create a spectra.rds file
 
 processFieldSpec <- function(fieldSpecDirectory) {
+  #get a list of all the directories that are under fieldSpecDirectory
   directories <- list.dirs(path = fieldSpecDirectory, full.names = TRUE, recursive = TRUE)
   index <- 0
   errors <- c()
   
+  #withProgress displays the progress dialog in the bottom right of the screen
   withProgress(message = 'Processing Field Spectra', min = 0, max = length(directories), value = 0, {
+    #create a spectra.rds file for each directory in the list of directories
     for (directory in directories) {
       tryCatch({
         #increase progress bar and change detail text
@@ -28,13 +31,17 @@ processFieldSpec <- function(fieldSpecDirectory) {
         ###Create column PFT and column area
         metadata <- metadata %>% mutate(PFT=substr(metadata$ScanID,start = 1,stop = 6))
         
+        #separate the directory into pieces
         separatedString <- strsplit(directory, "/")
+        
+        #get the name of the current folder (ex. if directory is "data/field_spec/alaska", "alaska" is stored in the variable 'area')
         area <- separatedString[[1]][length(separatedString[[1]])]
         metadata$area <- area
         
         ##Set metadata
         meta(spectra) = data.frame(metadata, stringsAsFactors = FALSE)
         
+        #create the directory and filename of the .rds file for this set of field spec data
         fileName <- paste("output/fieldSpec", area, sep = "/")
         fileName <- paste(fileName, "spectra.rds", sep = "_")
         
@@ -42,6 +49,7 @@ processFieldSpec <- function(fieldSpecDirectory) {
         saveRDS(spectra, fileName)
         
       }, warning = function(warning) {
+        #Catch any warnings or errors and save them in the errors variable
         message <- paste("WARNING - While processing by site", directory)
         message <- paste(message, warning, sep = " : ")
         errors <<- c(errors, message)
@@ -50,6 +58,7 @@ processFieldSpec <- function(fieldSpecDirectory) {
         message <- paste(message, error, sep = " : ")
         errors <<- c(errors, message)
       }, finally = {
+        #regardless of an error occurs or not, increase the index so the progress bar still increments
         index <- index + 1
       })
     }
@@ -57,5 +66,6 @@ processFieldSpec <- function(fieldSpecDirectory) {
     setProgress(length(directories))
   })
   
+  #return any errors that occured
   return(errors)
 }

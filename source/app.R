@@ -94,10 +94,6 @@ server <- function(input, output, session) {
   #VARIABLES
   root <- c(home = fs::path_home(), project = here())
   
-  classifierChoices <- c()
-  fieldSpecDirectory <- ""
-  imageDirectory <- ""
-  
   #CLASSIFIER PARAMETERS MODULE
   rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
   
@@ -107,21 +103,22 @@ server <- function(input, output, session) {
   #SELECT DATA MODULE
   selectDataModule <- callModule(selectDataServer, "selectData", spectralLibraryModuleValues)
   
-  #QUEUE MODULE
+  #variable to 
   queueData <- reactiveValues()
   queueData$processes <- list()
   queueData$text <- ""
   queueData$outputImageDirectories <- list()
   queueData$outputStatistics <- list()
   
+  #QUEUE MODULE
   queueModule <- callModule(queueModuleServer, "queue", queueData)
   
-  #COLLECT PROCESS PARAMETERS WHEN 'ADD TO QUEUE' IS CLICKED
+  #execute when 'add to queue' is clicked in the select data module
   observeEvent(selectDataModule$addToQueue, {
+    #add all relevant parameters as a list to the list of processes
     queueData$processes[[length(queueData$processes) + 1]] <<- list(parameters = selectDataModule$processParameters, 
                                                                       classifierParameters = rfClassifierParameters)
-    
-    #BUILD OUTPUT STRING
+    #build the string that represents each process to be displayed on the ui
     textVector <- c(paste("Process#:", length(queueData$processes)))
     textVector <- c(textVector, paste("Spectral Library:", selectDataModule$processParameters$libraryDirectory))
     
@@ -138,11 +135,13 @@ server <- function(input, output, session) {
     textVector <- c(textVector, paste("Image:", selectDataModule$processParameters$imageDirectory))
     textVector <- c(textVector, paste("Output File Name:", selectDataModule$processParameters$outputFileName))
     
+    #seperate each parameter with a newline
     outputString <- ""
     for (string in textVector) {
       outputString <- paste(outputString, string, sep = "\n")
     }
     
+    #append this string to the existing string of all processes
     queueData$text <<- paste(queueData$text, outputString, sep = "\n")
   })
   
