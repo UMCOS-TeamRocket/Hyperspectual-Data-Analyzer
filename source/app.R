@@ -16,6 +16,7 @@ library(shinyWidgets)
 library(magrittr)
 library(shinythemes)
 library(shinyFiles)
+library(futile.logger)
 
 library(here)
 setwd(here())
@@ -29,6 +30,19 @@ source("source/ui/imageOutputModule.R")
 source("source/ui/viewDataModule.R")
 
 createOutputDirectories()
+
+#get current date time and replace ":" with "-" so it can be used as a file name
+currentDateTime <- str_replace_all(Sys.time(), ":", "-")
+#replace the space between the date and tiem with "T"
+currentDateTime <- str_replace(currentDateTime, " ", "T")
+#add file extension and directory
+currentDateTime <- paste("output/logs/", currentDateTime, ".log", sep = "")
+
+#Set up logger
+flog.logger("logFile")
+flog.appender(appender.file(currentDateTime), "logFile")
+
+#use flog.info, flog.warn, flog.error, flog.debug to write to log file
 
 ui <- 
   fluidPage( theme =shinytheme("slate"),
@@ -143,6 +157,8 @@ server <- function(input, output, session) {
     
     #append this string to the existing string of all processes
     queueData$text <<- paste(queueData$text, outputString, sep = "\n")
+    
+    flog.info(paste("Process Added to Queue:", outputString), name = "logFile")
   })
   
   #IMAGE OUTPUT MODULE
@@ -151,5 +167,7 @@ server <- function(input, output, session) {
   #VIEW DATA MODULE
   viewDataModule <- callModule(viewDataModuleServer, "viewData")
 }
+
+flog.info("Application Start", name = "logFile")
 
 shinyApp(ui = ui, server = server)

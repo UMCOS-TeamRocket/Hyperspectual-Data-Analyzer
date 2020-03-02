@@ -72,7 +72,12 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
       if (is.integer(input$imageInput)) {
         imageDirectory <<- ""
       } else {
+        #get directory from imageInput
         imageDirectory <<- parseFilePaths(root, input$imageInput)[[1,4]][1]
+        flog.info(paste("Selected Image Direcotry", imageDirectory), name = "logFile")
+        
+        #this needs to be the last line in order for it to be returned to renderPrint()
+        parseFilePaths(root, input$imageInput)[[1,4]][1]
       }
     })
   })
@@ -82,6 +87,8 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
   
   #add to queue button is pressed
   observeEvent(input$addToQueueButton, {
+    flog.info("Add to Queue", name = "logFile")
+    
     displayMessage <- FALSE
     message <- ""
     
@@ -113,6 +120,8 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
         title = "Missing Information",
         easyClose = TRUE
       ))
+      
+      flog.warn(paste("Missing Information:", message), name = "logFile")
       
       return()
     }

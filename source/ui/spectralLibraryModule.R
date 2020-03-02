@@ -63,12 +63,18 @@ spectralLibraryModuleServer <- function(input, output, session) {
         fieldSpecDirectory <<- ""
       } else {
         fieldSpecDirectory <<- parseDirPath(root, input$fieldSpecDirInput)
+        flog.info(paste("Field Spec Directory Chosen:", fieldSpecDirectory), name = "logFile")
+        
+        #this needs to be the last line in order to return it to renderPrint()
+        parseDirPath(root, input$fieldSpecDirInput)
       }
     })
   })
   
   #execute when 'update spectra by site' button is clicked
   observeEvent(input$updateSpectralBySite, {
+    flog.info("Update Spectra By Site", name = "logFile")
+    
     #check if a directory has been selected
     if (fieldSpecDirectory == "") {
       #display error dialog
@@ -79,19 +85,25 @@ spectralLibraryModuleServer <- function(input, output, session) {
         title = "Missing Information",
         easyClose = TRUE
       ))
+      
+      flog.warn("Directory containing field spec data was not chosen", name = "logFile")
+      
       return()
     }
     
-    print("Processing Spectra By Field...")
+    print("Processing Spectra By Site...")
     
     #create a specra object for each directory under fieldSpecDirectory recursively
     #return any errors that occur during this process and store in 'errors' variable
     errors <- processFieldSpec(fieldSpecDirectory)
     
-    print("Finished Processing Spectra By Field")
+    print("Finished Processing Spectra By Site")
+    flog.info("FInished Processing Spectra By Site", name = "logFile")
     
     #update the spectraList with any new spectra that were created
     spectraList <<- list.files(path = "output/fieldSpec", full.names = FALSE)
+    
+    flog.info("Update List of Spectra Objects", name = "logFile")
     
     #reflect the updated list in the UI
     updateMultiInput(
@@ -123,10 +135,14 @@ spectralLibraryModuleServer <- function(input, output, session) {
       choices = spectraList,
       selected = spectraList
     )
+    
+    flog.info("Select all Spectra Objects", name = "logFile")
   })
   
   #execute when 'create spectral library' is clicked
   observeEvent(input$createSpectralLibrary, {
+    flog.info("Create Spectral Library Button Clicked", name = "logFile")
+    
     #get the name that was typed in by the user for the spectral library
     spectralLibraryName <- input$spectralLibraryName
     
@@ -140,6 +156,8 @@ spectralLibraryModuleServer <- function(input, output, session) {
         easyClose = TRUE
       ))
       
+      flog.warn("No Spectral Library Name was entered", name = "logFile")
+      
       return()
     } else if (is.null(input$spectralList)) {
       #if no spectra were selected to be used, display an error dialog
@@ -150,6 +168,8 @@ spectralLibraryModuleServer <- function(input, output, session) {
         title = "Missing Information",
         easyClose = TRUE
       ))
+      
+      flog.warn("No Spectral Objects were selected", name = "logFile")
       
       return()
     }
@@ -166,12 +186,16 @@ spectralLibraryModuleServer <- function(input, output, session) {
     
     tryCatch({
       print("Generating Spectral Library Files...")
+      flog.info("Generating Spectral Library Files", name = "logFile")
       
       #create a spectral library
       generateSpectralLibraryFiles(listOfSpectraDirectories, spectralLibraryName)
       
       print("Generated Spectral Library Files")
+      flog.info("Generated Spectral Library Files", name = "logFile")
+  
     }, warning = function(warning) {
+      flog.warn(warning, name = "logFile")
       #display an error dialog if a warning or error occured during the generateSpectralLibraryFiles() function
       showModal(modalDialog(
         fluidRow(
@@ -181,6 +205,8 @@ spectralLibraryModuleServer <- function(input, output, session) {
         easyClose = TRUE
       ))
     }, error = function(error) {
+      flog.error(error, name = "logFile")
+      
       showModal(modalDialog(
         fluidRow(
           h4(paste0(error))

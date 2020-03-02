@@ -42,6 +42,7 @@ output/fieldSpec/
 output/hdwSpectralLibraries/
 output/plots/
 output/spectralLibraries/
+output/logs
 
 #mac stuff
 .DS_Store

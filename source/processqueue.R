@@ -34,6 +34,7 @@ processQueue <- function(queueData) {
         outputFileName <- parameters$outputFileName
         
         print(paste("Current Process:", outputFileName))
+        flog.info(paste("Current Process:", outputFileName), name = "logFile")
         
         #increase progress bar and change detail text
         setProgress(index, detail = outputFileName)
@@ -45,6 +46,8 @@ processQueue <- function(queueData) {
             setProgress(0, detail = "Generating Classifier")
             
             print("Generating RF Classifier")
+            flog.info(paste("Generating New Classifier:", classifierName), name = "logFile")
+            
             classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
           }
           
@@ -65,16 +68,22 @@ processQueue <- function(queueData) {
           #check if the file exists
           if(!file.exists(hdwDirectory)) {
             #if it does not, pass the image into the processHDWImage() function
-            print("Processing HDW Image")
+            print("Processing Image")
+            flog.info(paste("Processing Image:", imageDirectory), name = "logFile")
+            
             hdwDirectory <- processHDWImage(imageDirectory)
+          } else {
+            flog.info(paste("Re-using previously generated image:", hdwDirectory), name = "logFile")
           }
           
           setProgress(0.6, detail = "Predicting")
           
           print("Predicting")
+          flog.info("Predicting", name = "logFile")
           #pass the directory of the classifier, the original image, the processed image, and the desired name of the output file
           outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
           
+          flog.info(paste("Prediction output saved in", outputDirectory), name = "logFile")
           #endTime is the amount of time the process took to complete
           endTime <- proc.time() - startTime
           
@@ -92,6 +101,7 @@ processQueue <- function(queueData) {
           setProgress(1)
           
           print("Process Finished")
+          flog.info(paste("Process #", index + 1, " Finished", sep = ""), name = "logFile")
         })
       }, warning = function(warning) {
         errorMessage <- paste("Process#:", index + 1, "<br>",
@@ -99,12 +109,16 @@ processQueue <- function(queueData) {
                               "Error Message:", warning)
         
         errors[[length(errors) + 1]] <<- HTML(errorMessage)
+        
+        flog.warn(HTML(errorMessage), name = "logFile")
       }, error = function(error) {
         errorMessage <- paste("Process#:", index + 1, "<br>",
                               "Output File Name:", outputFileName, "<br>",
                               "Error Message:", error)
         
         errors[[length(errors) + 1]] <<- HTML(errorMessage)
+        
+        flog.error(HTML(errorMessage), name = "logFile")
       }, finally = {
         index <- index + 1
       })
