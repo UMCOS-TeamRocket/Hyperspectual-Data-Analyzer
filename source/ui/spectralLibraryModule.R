@@ -16,6 +16,10 @@ spectralLibraryModuleUI <- function(id) {
     br(),
     br(),
     
+    HTML(paste0("#", ns("spectralList"), "+div div a {color: red;}")) %>% 
+      tags$style() %>%
+      tags$head(),
+    
     multiInput(
       inputId = ns("spectralList"), label =span("List of Spectral Objects By Site", style="color:white"),
       choices = list.files(path = "output/fieldSpec", full.names = FALSE),

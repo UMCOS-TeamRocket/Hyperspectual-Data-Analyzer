@@ -27,7 +27,6 @@ source("source/ui/rfClassifierParametersModule.R")
 source("source/ui/queueModule.R")
 source("source/ui/spectralLibraryModule.R")
 source("source/ui/imageOutputModule.R")
-source("source/ui/viewDataModule.R")
 
 createOutputDirectories()
 
@@ -41,67 +40,45 @@ currentDateTime <- paste("output/logs/", currentDateTime, ".log", sep = "")
 #Set up logger
 flog.logger("logFile")
 flog.appender(appender.file(currentDateTime), "logFile")
-
 #use flog.info, flog.warn, flog.error, flog.debug to write to log file
 
-ui <- 
-  fluidPage( theme =shinytheme("slate"),
-    HTML(".navbar .navbar-nav {float: right}
-          .navbar .navbar-header {float: left;}
-          .navbar-inner { background-color: #23262b }
-          .navbar-static-top 
-          {
-            position: static;
-            margin-bottom: 0px;
-            background-color: #23262b
-          }
-          a{color:#D2403A}") %>%
-    tags$style() %>%
-    tags$head(),
- 
-    navbarPage("Hyperspectral Data Analyzer",
-             tabPanel("Home",
-                      br(), br(),
-                      
-                      tagList(
-                        tabsetPanel(type = "tabs",
-                                    #SELECT DATA TAB
-                                    tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
-                                    
-                                    #SPECTRAL LIBRARY TAB
-                                    tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;", spectralLibraryModuleUI("spectralLibrary"))),
-                        
-                        tags$head(tags$style(HTML('body, input, button, select {
+ui <- fluidPage( theme =shinytheme("slate"), 
+                 titlePanel("Hyperspectral Data Analyzer"),
+                 
+                 br(), 
+                 br(),
+                 
+                 tagList(
+                   tabsetPanel(type = "tabs",
+                               #SELECT DATA TAB
+                               tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
+                               
+                               #SPECTRAL LIBRARY TAB
+                               tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;", spectralLibraryModuleUI("spectralLibrary"))),
+                   
+                   tags$head(tags$style(HTML('body, input, button, select {
                                                                 font-family: "Calibri";
                                                                 background-color: #121212;}')))
-                      ) %>%
-                      sidebarPanel(style = "background-color: #383a40; border-color: #383a40;") %>%
-                      sidebarLayout(
-                        #CLASSIFIER PARAMETERS
-                        mainPanel(style = "background-color: #383a40;", br(), rfClassifierParametersUI("rfClassifierParameters"))
-
-                      ),
-                      
-                      br(), br(),
-
-                      #QUEUE
-                      fluidRow(style = "background-color: #383a40;", queueModuleUI("queue")),
-                      
-                      br(),
-                      
-                      #Output
-                      fluidRow(tagList(br(), imageOutputModuleUI("imageOutput"), br()), style = "background-color: #383a40;"),
-
-                      img(src="logo.png", height="10%", width="10%", align="right")
-             ),
-             #VIEW DATA TAB
-             viewDataModuleUI("viewData") %>%
-               sidebarPanel(style = "background-color: #383a40; border-color: #383a40;") %>%
-               tabPanel(title = "View Data")
-    )
-)
-
-
+                 ) %>%
+                   sidebarPanel(style = "background-color: #383a40; border-color: #383a40;") %>%
+                   sidebarLayout(
+                     #CLASSIFIER PARAMETERS
+                     mainPanel(style = "background-color: #383a40;", br(), rfClassifierParametersUI("rfClassifierParameters"))
+                   ),
+                 
+                 br(), 
+                 br(),
+                 
+                 #QUEUE
+                 fluidRow(style = "background-color: #383a40;", queueModuleUI("queue")),
+                 
+                 br(),
+                 
+                 #Output
+                 fluidRow(tagList(br(), imageOutputModuleUI("imageOutput"), br()), style = "background-color: #383a40;"),
+                 
+                 img(src="logo.png", height="10%", width="10%", align="right")
+             )
 
 server <- function(input, output, session) {
   #INITIALIZE
@@ -163,9 +140,6 @@ server <- function(input, output, session) {
   
   #IMAGE OUTPUT MODULE
   imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput", queueData)
-  
-  #VIEW DATA MODULE
-  viewDataModule <- callModule(viewDataModuleServer, "viewData")
 }
 
 flog.info("Application Start", name = "logFile")
