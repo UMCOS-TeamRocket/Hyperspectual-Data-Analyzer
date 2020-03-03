@@ -8,6 +8,13 @@ multiSpectrolab<- function(IMG, band){
   return(IMG)
 }
 
+toDataFrame<-function(IMG, cords){
+  IMG<-as.data.frame(IMG)
+  IMG<-IMG%>%cbind(cords)
+  IMG<-IMG%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+  return(IMG)
+}
+
 
 resampleBands <- function(imageDirectory, fileName = "image") {
   tryCatch({
@@ -38,19 +45,17 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     
     #SLOW ONE
     tme<- Sys.time()
-    #IMG_010nm<-spectrolab::resample(IMG_resamp, seq(399.444,899.424,10))
     IMG_010nm<-multiSpectrolab(IMG_resamp,10)
+    IMG_050nm<-multiSpectrolab(IMG_resamp,50)
+    IMG_100nm<-multiSpectrolab(IMG_resamp,100)
     print(Sys.time()-tme)
 
-    IMG_010nm<-as.data.frame(IMG_010nm)
-    IMG_010nm<-IMG_010nm%>%cbind(cords)
-    IMG_010nm<-IMG_010nm%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+    IMG_010nm<-toDataFrame(IMG_010nm, cords)
+    IMG_050nm<-toDataFrame(IMG_050nm, cords)
+    IMG_100nm<-toDataFrame(IMG_100nm, cords)
 
     
-   # IMG_010nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,10 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
-    IMG_050nm<-IMG_resamp%>%spectrolab::resample(seq(399.444,899.424,50 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
-    IMG_100nm<-IMG_resamp%>%spectrolab::resample(seq(399.444,899.424,100))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
-  
+    
     #Don't need to run 3 lines below unless there are weird values in dataset above
     IMG_010nm[-1:-2]%>%
       dplyr::select(`399.444`)%>% 
