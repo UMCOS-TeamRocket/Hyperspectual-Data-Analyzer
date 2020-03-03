@@ -26,7 +26,32 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     #TODO
     #Make these lines more efficient
     ##Do the same steps above for imagery
-    IMG_010nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,10 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+    
+    tme<- Sys.time()
+    IMG_010nm<-IMG%>%dplyr::select(-x,-y)
+    print(Sys.time()-tme)
+    
+    tme<- Sys.time()
+    IMG_010nm<-spectrolab::as.spectra(IMG_010nm)
+    print(Sys.time()-tme)
+    
+    tme<- Sys.time()
+    IMG_010nm<-spectrolab::resample(IMG_010nm, seq(399.444,899.424,10))
+    print(Sys.time()-tme)
+    
+    tme<- Sys.time()
+    IMG_010nm<-as.data.frame(IMG_010nm)
+    print(Sys.time()-tme)
+    
+    tme<- Sys.time()
+    IMG_010nm<-IMG_010nm%>%cbind(cords)
+    print(Sys.time()-tme)
+    
+    tme<- Sys.time()
+    IMG_010nm<-IMG_010nm%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+    print(Sys.time()-tme)
+    
+   # IMG_010nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,10 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
     IMG_050nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,50 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
     IMG_100nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,100))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
   
