@@ -45,7 +45,6 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     
     plants <- as.list(levels(results$predictions))
     
-    print(plants)
     
     #Convert predictions into a dataframe
     pred <- results$predictions

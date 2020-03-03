@@ -3,6 +3,12 @@ library(spectrolab)
 library(tidyverse)
 library(hsdar)
 
+multiSpectrolab<- function(IMG, band){
+  IMG<-spectrolab::resample(IMG, seq(399.444,899.424,band))
+  return(IMG)
+}
+
+
 resampleBands <- function(imageDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe 
@@ -27,33 +33,23 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     #Make these lines more efficient
     ##Do the same steps above for imagery
     
-    tme<- Sys.time()
-    IMG_010nm<-IMG%>%dplyr::select(-x,-y)
-    print(Sys.time()-tme)
+    IMG_resamp<-IMG%>%dplyr::select(-x,-y)
+    IMG_resamp<-spectrolab::as.spectra(IMG_resamp)
     
+    #SLOW ONE
     tme<- Sys.time()
-    IMG_010nm<-spectrolab::as.spectra(IMG_010nm)
+    #IMG_010nm<-spectrolab::resample(IMG_resamp, seq(399.444,899.424,10))
+    IMG_010nm<-multiSpectrolab(IMG_resamp,10)
     print(Sys.time()-tme)
-    
-    tme<- Sys.time()
-    IMG_010nm<-spectrolab::resample(IMG_010nm, seq(399.444,899.424,10))
-    print(Sys.time()-tme)
-    
-    tme<- Sys.time()
+
     IMG_010nm<-as.data.frame(IMG_010nm)
-    print(Sys.time()-tme)
-    
-    tme<- Sys.time()
     IMG_010nm<-IMG_010nm%>%cbind(cords)
-    print(Sys.time()-tme)
-    
-    tme<- Sys.time()
     IMG_010nm<-IMG_010nm%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
-    print(Sys.time()-tme)
+
     
    # IMG_010nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,10 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
-    IMG_050nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,50 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
-    IMG_100nm<-IMG%>%dplyr::select(-x,-y)%>%spectrolab::as.spectra()%>%spectrolab::resample(seq(399.444,899.424,100))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+    IMG_050nm<-IMG_resamp%>%spectrolab::resample(seq(399.444,899.424,50 ))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+    IMG_100nm<-IMG_resamp%>%spectrolab::resample(seq(399.444,899.424,100))%>%as.data.frame()%>%cbind(cords)%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
   
     #Don't need to run 3 lines below unless there are weird values in dataset above
     IMG_010nm[-1:-2]%>%

@@ -63,11 +63,15 @@ processQueue <- function(queueData) {
           directory <- paste("output/imagery/", fileName, "_data.csv", sep = "")
           
           #check if the file exists
-          if(!file.exists(directory)) {
+          
+          #TODO
+          #REMOVE COMMENTS
+          #STRICTLY FOR TESTING
+          #if(!file.exists(directory)) {
             #if it does not, pass the image into the processImage() function
             print("Processing Image")
             directory <- processImage(imageDirectory)
-          }
+          #}
           
           setProgress(0.6, detail = "Predicting")
           
