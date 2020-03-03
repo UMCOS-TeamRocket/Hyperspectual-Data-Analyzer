@@ -4,6 +4,7 @@ library(raster)
 library(tidyverse)
 library(hsdar)
 library(parallel)
+library(randomcoloR)
 
 predictFunction <- function(classifierDirectory, imageDirectory, directory, outputName) {
   tryCatch({
@@ -42,10 +43,14 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     ##uses model from spectral library to predict images
     results <-predict(classifier, data[-1:-2], num.threads = c1)
     
+    plants <- as.list(levels(results$predictions))
+    
+    print(plants)
+    
     #Convert predictions into a dataframe
     pred <- results$predictions
     results<-as.data.frame(pred)%>%'names<-'("predicted")
-    
+
     colnames(results) <- c("predicted")
     
     ## Grabs x, y values from original image and combines with unique values from prediction
@@ -65,30 +70,29 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     #A warning pops up with no solution, so it gets suppressed
     suppressWarnings(raster<-rasterFromXYZ(results, crs = crs(image)))
     
-    #TODO: remove hard coding and pull this information from classifier
-    Graminoid <-raster==1
-    dwarfShrub<-raster==2
-    moss      <-raster==3
-    forb      <-raster==4
-    lichen    <-raster==5
-    shrub     <-raster==6
-    tree      <-raster==7
     
-    ###save plot as a jpeg
-    chm_colors <- c("darkgreen","chartreuse3","gold","deepskyblue","saddlebrown","orange2","wheat1","black")
+    foreach(ii=1:length(plants), .combine=cbind) %do%{
+      vector <- (unlist(plants))
+    }
+    
+    foreach(i=1:length(plants)) %do%{
+      plants[[i]] <-raster==i
+    }
     
     
+    chm_colors <- randomColor(count = length(vector))
+
     jpeg(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""), width=7200, height=4200)
     plot(
       raster,
       legend = FALSE,
       axes=FALSE,
-      col = chm_colors[-8],
+      col = chm_colors,
       box= FALSE
     )
     legend(
       "right",
-      legend = c("Graminoid","Tree", "Dwarf Shrub","Shrub","Forb","Moss","Lichen"),
+      legend = vector,
       fill =chm_colors,
       border = FALSE,
       bty = "n",
