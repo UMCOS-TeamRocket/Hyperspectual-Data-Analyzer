@@ -52,7 +52,7 @@ output/hdwImagery/
 output/plots/
 output/spectralLibraries/
 data/large_data
-data
+data/
 
 #weird test data
 tests/
