@@ -5,7 +5,7 @@ library(tidyverse)
 library(hsdar)
 library(parallel)
 
-predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, outputName) {
+predictFunction <- function(classifierDirectory, imageDirectory, directory, outputName) {
   tryCatch({
     #Get Core Numbers
     c1 <- detectCores()
@@ -22,8 +22,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     imageLatLong<-na.omit(imageLatLong)
     imageLatLong<-imageLatLong[-c(449905, 521215), ]
     
-    #dataHDW <-hdwDirectory
-    dataHDW<-read.csv(hdwDirectory)
+    #data <-directory
+    data<-read.csv(directory)
     
     ##Marks raster as unrotated
     image@rotated<-FALSE
@@ -32,15 +32,15 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     classifier <- readRDS(classifierDirectory)
     
     #Remove random column from data
-    dataHDW<- select(dataHDW,-c(y_VIs))
-    imageLatLong <-imageLatLong %>% slice(1:nrow(dataHDW))
+    data<- select(data,-c(y_VIs))
+    imageLatLong <-imageLatLong %>% slice(1:nrow(data))
     
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
 
     ##uses model from spectral library to predict images
-    results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
+    results <-predict(classifier, data[-1:-2], num.threads = c1)
     
     #Convert predictions into a dataframe
     pred <- results$predictions

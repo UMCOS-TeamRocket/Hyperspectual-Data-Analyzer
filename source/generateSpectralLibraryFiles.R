@@ -1,5 +1,5 @@
 source("source/fieldSpecProcessing/createSpectralLibrary.R")
-source("source/fieldSpecProcessing/headwallSpectralLibrary.R")
+source("source/fieldSpecProcessing/spectralLibrary.R")
 source("source/fieldSpecProcessing/resampled.R")
 source("source/fieldSpecProcessing/VIs.R")
 source("source/fieldSpecProcessing/allPreds.R")
@@ -11,29 +11,29 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
       
       createSpectralLibrary(spectraDirectories, name)
       
-      setProgress(0.2, detail = "Creating Headwall Spectral Library")
+      setProgress(0.2, detail = "Creating Spectral Library Pt. 2")
       
       spectralLibraryRDSDirectory <- paste(paste("output/spectralLibraries/", name, sep = ""), ".rds", sep = "")
-      headwallSpectralLibrary(spectralLibraryRDSDirectory, name)
+      generateSpectralLibrary(spectralLibraryRDSDirectory, name)
       
       setProgress(0.4, detail = "Resampling")
       
-      hdwDfEqual25Directory <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_df_equal25.csv", sep = "")
-      fieldSpecResampled(hdwDfEqual25Directory, name)
+      dfEqual25Directory <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_df_equal25.csv", sep = "")
+      fieldSpecResampled(dfEqual25Directory, name)
       
       setProgress(0.6, detail = "VI")
       
-      fieldSpecVI(hdwDfEqual25Directory, name)
+      fieldSpecVI(dfEqual25Directory, name)
       
-      hdw10nm <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_010nm_equal25.csv", sep = "")
-      hdw50nm <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_050nm_equal25.csv", sep = "")
-      hdw100nm <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_100nm_equal25.csv", sep = "")
-      hdwVi <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_VIs_equal25.csv", sep = "")
-      hdwDirectories <- c(hdw10nm, hdw50nm, hdw100nm, hdwVi)
+      band_10nm <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_010nm_equal25.csv", sep = "")
+      band_50nm <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_050nm_equal25.csv", sep = "")
+      band_100nm <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_100nm_equal25.csv", sep = "")
+      Vi <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_VIs_equal25.csv", sep = "")
+      directories <- c(band_10nm, band_50nm, band_100nm, Vi)
       
       setProgress(0.8, detail = "All Preds")
       
-      fieldSpecAllPreds(hdwDirectories, name)
+      fieldSpecAllPreds(directories, name)
       
       setProgress(1)
     }, warning = function(warning) {

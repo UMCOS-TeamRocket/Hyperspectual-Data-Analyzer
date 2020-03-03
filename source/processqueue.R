@@ -3,7 +3,7 @@ library(shinyWidgets)
 
 source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
-source("source/imageProcessing/processHDWImage.R")
+source("source/imageProcessing/processImage.R")
 
 processQueue <- function(queueData) {
   #progress bar that displays what processes the queue is currently on
@@ -48,7 +48,7 @@ processQueue <- function(queueData) {
             classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
           }
           
-          setProgress(0.3, detail = "Processing HDW Image")
+          setProgress(0.3, detail = "Processing Image")
           
           #do a check to see if this data cube has already gone through resampling and VI
           #get file name of the data cube from it's directory
@@ -56,24 +56,24 @@ processQueue <- function(queueData) {
           #remove file extension
           fileName <- substr(fileName, 1, nchar(fileName) - 4)
           
-          #add "_dataHDW" to end of file name and reconstruct directory
-          #this is what the output file of the function processHDWImage() would look like
+          #add "_data" to end of file name and reconstruct directory
+          #this is what the output file of the function processImage() would look like
           #we can check if this file exists. 
-          #If it does, then there is no need to call processHDWImage() and we can just use this file that's already been created
-          hdwDirectory <- paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = "")
+          #If it does, then there is no need to call processImage() and we can just use this file that's already been created
+          directory <- paste("output/imagery/", fileName, "_data.csv", sep = "")
           
           #check if the file exists
-          if(!file.exists(hdwDirectory)) {
-            #if it does not, pass the image into the processHDWImage() function
-            print("Processing HDW Image")
-            hdwDirectory <- processHDWImage(imageDirectory)
+          if(!file.exists(directory)) {
+            #if it does not, pass the image into the processImage() function
+            print("Processing Image")
+            directory <- processImage(imageDirectory)
           }
           
           setProgress(0.6, detail = "Predicting")
           
           print("Predicting")
           #pass the directory of the classifier, the original image, the processed image, and the desired name of the output file
-          outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
+          outputDirectory <- predictFunction(classifierDirectory, imageDirectory, directory, outputFileName)
           
           #endTime is the amount of time the process took to complete
           endTime <- proc.time() - startTime
