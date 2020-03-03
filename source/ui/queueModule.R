@@ -59,7 +59,7 @@ queueModuleServer <- function(input, output, session, queueData) {
       if (length(errors) != 0) {
         #separate each error with a couple newlines
         outputString <- errors[[1]]
-        for(i in 2:length(errors)) {
+        for(i in 1:length(errors)) {
           outputString <- paste(outputString, errors[[i]], sep = "<br><br>")
         }
         
