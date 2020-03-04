@@ -5,7 +5,7 @@ library(tidyverse)
 library(hsdar)
 library(parallel)
 
-predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, outputName) {
+predictFunction <- function(classifierDirectory, imageDirectory, directory, outputName) {
   tryCatch({
     #Get Core Numbers
     c1 <- detectCores()
@@ -22,8 +22,8 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     imageLatLong<-na.omit(imageLatLong)
     imageLatLong<-imageLatLong[-c(449905, 521215), ]
     
-    #dataHDW <-hdwDirectory
-    dataHDW<-read.csv(hdwDirectory)
+    #data <-directory
+    data<-read.csv(directory)
     
     ##Marks raster as unrotated
     image@rotated<-FALSE
@@ -32,20 +32,23 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     classifier <- readRDS(classifierDirectory)
     
     #Remove random column from data
-    dataHDW<- select(dataHDW,-c(y_VIs))
-    imageLatLong <-imageLatLong %>% slice(1:nrow(dataHDW))
+    data<- select(data,-c(y_VIs))
+    imageLatLong <-imageLatLong %>% slice(1:nrow(data))
     
     ##Save the confusion Matrix for these models
     confusionMatrix<-classifier$confusion%>%as.data.frame()
     write.csv(confusionMatrix,"output/ConfusionMatrix",row.names = F)
 
     ##uses model from spectral library to predict images
-    results <-predict(classifier, dataHDW[-1:-2], num.threads = c1)
+    results <-predict(classifier, data[-1:-2], num.threads = c1)
+    
+    plants <- as.list(levels(results$predictions))
+    
     
     #Convert predictions into a dataframe
     pred <- results$predictions
     results<-as.data.frame(pred)%>%'names<-'("predicted")
-    
+
     colnames(results) <- c("predicted")
     
     ## Grabs x, y values from original image and combines with unique values from prediction
@@ -65,31 +68,34 @@ predictFunction <- function(classifierDirectory, imageDirectory, hdwDirectory, o
     #A warning pops up with no solution, so it gets suppressed
     suppressWarnings(raster<-rasterFromXYZ(results, crs = crs(image)))
     
-    #TODO: remove hard coding and pull this information from classifier
-    Graminoid <-raster==1
-    dwarfShrub<-raster==2
-    moss      <-raster==3
-    forb      <-raster==4
-    lichen    <-raster==5
-    shrub     <-raster==6
-    tree      <-raster==7
     
-    ###save plot as a jpeg
-    chm_colors <- c("darkgreen","chartreuse3","gold","deepskyblue","saddlebrown","orange2","wheat1","black")
+    foreach(i=1:length(plants), .combine=cbind) %do%{
+      vector <- (unlist(plants))
+    }
     
+    foreach(i=1:length(plants)) %do%{
+      plants[[i]] <-raster==i
+    }
     
+    colorChart<-read.csv("source/www/colorChart.csv")
+    plotColors<-as.vector(colorChart[1:length(plants),])
+
+    #create color chart
+    #plotColors <- randomColor(count = 100)
+    #write.csv(plotColors, "source/www/colorChart.csv", row.names = FALSE)
+
     jpeg(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""), width=7200, height=4200)
     plot(
       raster,
       legend = FALSE,
       axes=FALSE,
-      col = chm_colors[-8],
+      col = plotColors,
       box= FALSE
     )
     legend(
       "right",
-      legend = c("Graminoid","Tree", "Dwarf Shrub","Shrub","Forb","Moss","Lichen"),
-      fill =chm_colors,
+      legend = vector,
+      fill =plotColors,
       border = FALSE,
       bty = "n",
       cex=10,

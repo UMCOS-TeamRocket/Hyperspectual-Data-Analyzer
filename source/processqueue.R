@@ -3,7 +3,7 @@ library(shinyWidgets)
 
 source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
-source("source/imageProcessing/processHDWImage.R")
+source("source/imageProcessing/processImage.R")
 
 processQueue <- function(queueData) {
   #progress bar that displays what processes the queue is currently on
@@ -15,64 +15,66 @@ processQueue <- function(queueData) {
         #time the process
         startTime <- proc.time()
         
-        print(paste("Current Process:", process$outputFileName))
-        flog.info(paste("Current Process:", process$outputFileName), name = "logFile")
+        #separate process parameters into separate variables
+        parameters <- process$parameters
+        classifierParameters <- process$classifierParameters
+        
+        spectralLibraryDirectory <- parameters$libraryDirectory
+        
+        createNewClassifier <- parameters$newClassifier
+        classifierDirectory <- parameters$classifierFile
+        classifierName <- parameters$classifierName
+        
+        mtry <- classifierParameters$mtry()
+        ntree <- classifierParameters$ntree()
+        importance <- classifierParameters$importance()
+        
+        imageDirectory <- parameters$imageDirectory
+
+        outputFileName <- parameters$outputFileName
+        
+        print(paste("Current Process:", outputFileName))
         
         #increase progress bar and change detail text
-        setProgress(index, detail = process$outputFileName)
+        setProgress(index, detail = outputFileName)
         
         #sup-progress bar that displays what stage the individual process is in
-        withProgress(message = paste("Processing:", process$outputFileName), min = 0, max = 1, value = 0, {
-          
-          classifierParameters <- process$classifierParameters
-          
-          #if a new classifier needs to be created, this will be null. Otherwise, this will be a string
-          classifierDirectory <- classifierParameters$classifierFile
-          
+        withProgress(message = paste("Processing:", outputFileName), min = 0, max = 1, value = 0, {
           #check if a new classifier needs to be created
-          if (classifierParameters$newClassifier == 1) {
-            #a new classifier needs to be generated
+          if (createNewClassifier == 1) {
             setProgress(0, detail = "Generating Classifier")
             
             print("Generating RF Classifier")
-            flog.info(paste("Generating New Classifier:", classifierParameters$classifierName), name = "logFile")
-            
-            classifierDirectory <- generateRFClassifier(process$libraryDirectory, classifierParameters)
+            classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
           }
           
-          setProgress(0.3, detail = "Processing HDW Image")
+          setProgress(0.3, detail = "Processing Image")
           
           #do a check to see if this data cube has already gone through resampling and VI
           #get file name of the data cube from it's directory
-          fileName <- basename(process$imageDirectory)
+          fileName <- basename(imageDirectory)
           #remove file extension
           fileName <- substr(fileName, 1, nchar(fileName) - 4)
           
-          #add "_dataHDW" to end of file name and reconstruct directory
-          #this is what the output file of the function processHDWImage() would look like
+          #add "_data" to end of file name and reconstruct directory
+          #this is what the output file of the function processImage() would look like
           #we can check if this file exists. 
-          #If it does, then there is no need to call processHDWImage() and we can just use this file that's already been created
-          hdwDirectory <- paste("output/hdwImagery/", fileName, "_dataHDW.csv", sep = "")
+          #If it does, then there is no need to call processImage() and we can just use this file that's already been created
+          directory <- paste("output/imagery/", fileName, "_data.csv", sep = "")
           
           #check if the file exists
-          if(!file.exists(hdwDirectory)) {
-            #if it does not, pass the image into the processHDWImage() function
+          if(!file.exists(directory)) {
+            #if it does not, pass the image into the processImage() function
             print("Processing Image")
-            flog.info(paste("Processing Image:", process$imageDirectory), name = "logFile")
-            
-            hdwDirectory <- processHDWImage(process$imageDirectory)
-          } else {
-            flog.info(paste("Re-using previously generated image:", hdwDirectory), name = "logFile")
+            directory <- processImage(imageDirectory)
           }
           
           setProgress(0.6, detail = "Predicting")
           
           print("Predicting")
-          flog.info("Predicting", name = "logFile")
           #pass the directory of the classifier, the original image, the processed image, and the desired name of the output file
-          outputDirectory <- predictFunction(classifierDirectory, process$imageDirectory, hdwDirectory, process$outputFileName)
+          outputDirectory <- predictFunction(classifierDirectory, imageDirectory, directory, outputFileName)
           
-          flog.info(paste("Prediction output saved in", outputDirectory), name = "logFile")
           #endTime is the amount of time the process took to complete
           endTime <- proc.time() - startTime
           
@@ -81,7 +83,7 @@ processQueue <- function(queueData) {
           
           #create output text
           textString <- c(paste("Process#:", index + 1), 
-                          paste("Output File Name:", process$outputFileName),
+                          paste("Output File Name:", outputFileName),
                           paste("Run Time:", endTime[[1]], "seconds"))
           
           #add output text to list of outputStatistics
@@ -90,24 +92,19 @@ processQueue <- function(queueData) {
           setProgress(1)
           
           print("Process Finished")
-          flog.info(paste("Process #", index + 1, " Finished", sep = ""), name = "logFile")
         })
       }, warning = function(warning) {
         errorMessage <- paste("Process#:", index + 1, "<br>",
-                              "Output File Name:", process$outputFileName, "<br>",
+                              "Output File Name:", outputFileName, "<br>",
                               "Error Message:", warning)
         
         errors[[length(errors) + 1]] <<- HTML(errorMessage)
-        
-        flog.warn(HTML(errorMessage), name = "logFile")
       }, error = function(error) {
         errorMessage <- paste("Process#:", index + 1, "<br>",
-                              "Output File Name:", process$outputFileName, "<br>",
+                              "Output File Name:", outputFileName, "<br>",
                               "Error Message:", error)
         
         errors[[length(errors) + 1]] <<- HTML(errorMessage)
-        
-        flog.error(HTML(errorMessage), name = "logFile")
       }, finally = {
         index <- index + 1
       })

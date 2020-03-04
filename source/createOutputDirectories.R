@@ -5,9 +5,8 @@ library(here)
 createOutputDirectories <- function() {
   dir.create(file.path(here(), "output/classifiers"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(here(), "output/fieldSpec"), recursive = TRUE, showWarnings = FALSE)
-  dir.create(file.path(here(), "output/hdwSpectralLibraries"), recursive = TRUE, showWarnings = FALSE)
+  dir.create(file.path(here(), "output/outputSpectralLibraries"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(here(), "output/plots"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(here(), "output/spectralLibraries"), recursive = TRUE, showWarnings = FALSE)
-  dir.create(file.path(here(), "output/hdwImagery"), recursive = TRUE, showWarnings = FALSE)
-  dir.create(file.path(here(), "output/logs"), recursive = TRUE, showWarnings = FALSE)
+  dir.create(file.path(here(), "output/imagery"), recursive = TRUE, showWarnings = FALSE)
 }

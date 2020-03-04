@@ -5,41 +5,36 @@ library(hsdar)
 fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
   tryCatch({
     ##Reads in spectral library....dim 1974  333
-    spectralLibrary_HDW<-read.csv(directory)
-    
-    ####Lets run that test again
-    tst<-lapply(spectralLibrary_HDW[-1:-7],range)%>%as.data.frame%>%t()%>%as.data.frame
-    tst$V1%>%range()##There are no weird values, those are values outside of 0 and 2
-    tst$V2%>%range()##There are no weird values, those are values outside of 0 and 2
+    spectralLibrary<-read.csv(directory)
     
     ##Reads in bandpasses for imagery to be used later
-    HDW_ng_wv<-scan("output/Headwall_wv", numeric())
+    ng_wv<-scan("output/WV", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
-    spectralLibrary_HDW_matrix<-as.matrix(spectralLibrary_HDW[-1:-7])
+    spectralLibrary_matrix<-as.matrix(spectralLibrary[-1:-7])
     
     ##lets check the column attributes to see if any weird values were introduced
-    spectralLibrary_HDW_matrix%>%max()##values are fine you may proceed, i.e no negative values or values grater than 2,you'll ned to check min values using the function min()
+    spectralLibrary_matrix%>%max()##values are fine you may proceed, i.e no negative values or values grater than 2,you'll ned to check min values using the function min()
     
     ##Now that we have our matrix we can create our spectralib object that will be used to create a df with all the veg indices
-    spectralLibrary_HDW_speclib<-speclib(spectralLibrary_HDW_matrix,HDW_ng_wv)
+    spectralLibrary_speclib<-speclib(spectralLibrary_matrix ,ng_wv)
     
     ##creates a vectror of names of all the vegitation indices...there are 115 of these
     VIs<-vegindex()
     VIs<-VIs[-58] ##Vegitation indices mREIP won't work so remove it from list
     
     ##Creates dataframe with Vegitation indices
-    spectralLibrary_HDW_VIs<-vegindex(spectralLibrary_HDW_speclib,index=VIs)
+    spectralLibrary_VIs<-vegindex(spectralLibrary_speclib,index=VIs)
     
-    ##Remember the field spectral library was resampled on the headwall sensor's bandpasses
+    ##Remember the field spectral library was resampled on the sensor's bandpasses
     ##This means some Veg indices won't generate values because those bands are not present
     ##Lets remove all those columns with values that have NaNs and Infs
-    spectralLibrary_HDW_VIs<-spectralLibrary_HDW_VIs%>%dplyr::select(-CAI,-Datt7,-Datt8,-DWSI1,-DWSI2,-DWSI3,-DWSI5,-LWVI1,-LWVI2,-MSI
+    spectralLibrary_VIs<-spectralLibrary_VIs%>%dplyr::select(-CAI,-Datt7,-Datt8,-DWSI1,-DWSI2,-DWSI3,-DWSI5,-LWVI1,-LWVI2,-MSI
                                                                  ,-NDLI,-NDNI,-NDWI,-PWI,-SRWI,-'SWIR FI',-'SWIR LI',-'SWIR SI',-'SWIR VI')
     
     ##we need to combine the other columns with our new VI variables
-    spectralLibrary_HDW_VIs<-cbind(spectralLibrary_HDW[1:7],spectralLibrary_HDW_VIs)
+    spectralLibrary_VIs<-cbind(spectralLibrary[1:7],spectralLibrary_VIs)
     
     Newcolnames<-c("Boochs"        ,"Boochs2"       ,"CARI"          ,"Carter"        ,"Carter2"      
                    ,"Carter3"       ,"Carter4"       ,"Carter5"       ,"Carter6"       ,"CI"            ,"CI2"           ,"ClAInt"       
@@ -56,10 +51,10 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
                    ,"SRPI"          ,"Sum_Dr1"       ,"Sum_Dr2"       ,"TCARI"         ,"TCARIOSAVI"    ,"TCARI2"        ,"TCARI2OSAVI2"
                    ,"TGI"           ,"TVI"           ,"Vogelmann"     ,"Vogelmann2"    ,"Vogelmann3"    ,"Vogelmann4")
     
-    colnames(spectralLibrary_HDW_VIs)[-1:-7]<-Newcolnames
+    colnames(spectralLibrary_VIs)[-1:-7]<-Newcolnames
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(spectralLibrary_HDW_VIs, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_VIs_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_VIs, paste(paste("output/outputSpectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""), row.names = FALSE)
     
   }, warning = function(warning) {
     message <- paste("WARNING - While processing VIs", directory)

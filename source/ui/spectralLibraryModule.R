@@ -47,7 +47,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
   #reactive values that are to be returned from this function
   returnValues <- reactiveValues()
   #list of spectral library files that have already been generated
-  returnValues$spectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
+  returnValues$spectralLibraryFiles <- list.files(path = "output/outputSpectralLibraries", full.names = FALSE)
   
   #open a directory select dialog when 'browse' button is clicked for the user to select a directory with field spec data
   observe({
@@ -219,7 +219,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
     })
     
     #update the list of available spectral library files
-    returnValues$spectralLibraryFiles <- list.files(path = "output/hdwSpectralLibraries", full.names = FALSE)
+    returnValues$spectralLibraryFiles <- list.files(path = "output/outputSpectralLibraries", full.names = FALSE)
   })
   
   return(returnValues)
