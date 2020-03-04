@@ -44,6 +44,7 @@ createImgVi <- function(imgDfDirectory, fileName = "image") {
     
     #calculate how long vegindex() took to finish
     runTime <- Sys.time()-tme
+    print(runTime)
     stopCluster(c1)
     
     #Convert matrix to data frame
