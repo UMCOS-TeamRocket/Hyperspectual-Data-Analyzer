@@ -4,7 +4,6 @@ library(raster)
 library(tidyverse)
 library(hsdar)
 library(parallel)
-library(randomcoloR)
 
 predictFunction <- function(classifierDirectory, imageDirectory, directory, outputName) {
   tryCatch({
@@ -70,7 +69,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     suppressWarnings(raster<-rasterFromXYZ(results, crs = crs(image)))
     
     
-    foreach(ii=1:length(plants), .combine=cbind) %do%{
+    foreach(i=1:length(plants), .combine=cbind) %do%{
       vector <- (unlist(plants))
     }
     
@@ -78,21 +77,26 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
       plants[[i]] <-raster==i
     }
     
-    
-    chm_colors <- randomColor(count = length(vector))
+    colorChart<-read.csv("source/www/colorChart.csv")
+    plotColors<-as.vector(colorChart[1:length(plants),])
+    print(str(plotColors))
+
+    #create color chart
+    #plotColors <- randomColor(count = 100)
+    #write.csv(plotColors, "source/www/colorChart.csv", row.names = FALSE)
 
     jpeg(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""), width=7200, height=4200)
     plot(
       raster,
       legend = FALSE,
       axes=FALSE,
-      col = chm_colors,
+      col = plotColors,
       box= FALSE
     )
     legend(
       "right",
       legend = vector,
-      fill =chm_colors,
+      fill =plotColors,
       border = FALSE,
       bty = "n",
       cex=10,
