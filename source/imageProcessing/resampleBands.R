@@ -5,14 +5,19 @@ library(hsdar)
 library(foreach)
 library(doParallel)
 
+#Function to run resampling multithreaded
 multiSpectrolab<- function(IMG, band){
   IMG<-spectrolab::resample(IMG, seq(399.444,899.424,band))
   return(IMG)
 }
 
+#Function to turn spectra into a dataframe
 toDataFrame<-function(IMG_ALL, cords, i){
+  #Multithreading puts data into one matrix
+  #These two lines splits it back up
   IMG<-as.data.frame(IMG_ALL[1,i])
   colnames(IMG)<-c(unlist(IMG_ALL[2,i]))
+  
   IMG<-IMG%>%cbind(cords)
   IMG<-IMG%>%dplyr::select(x,y,everything())
   return(IMG)
@@ -44,7 +49,10 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     IMG_resamp<-spectrolab::as.spectra(IMG_resamp)
     
 
+    #Bbands for images
     bands<-c(10,50,100)
+    
+    #Set amount of cores to use
     cores <- detectCores()
     if(cores>2){
       cores<-3
@@ -52,12 +60,15 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     c1<- makeCluster(cores)
     registerDoParallel(c1)
     tme<- Sys.time()
+    
+    #Run resampling in parallel
     IMG_ALL<-foreach(i=1:3, .combine=cbind, .packages='spectrolab') %dopar%{
       a<-spectrolab::resample(IMG_resamp, seq(399.444,899.424,bands[i]))
     }
     print(Sys.time()-tme)
     stopCluster(c1)
     
+    #Convert everything to a dataframe
     IMG_010nm<-toDataFrame(IMG_ALL, cords, 1)
     IMG_050nm<-toDataFrame(IMG_ALL, cords, 2)
     IMG_100nm<-toDataFrame(IMG_ALL, cords, 3)
@@ -68,7 +79,7 @@ resampleBands <- function(imageDirectory, fileName = "image") {
       dplyr::select(`399.444`)%>% 
       subset(`399.444`<0)%>% nrow() ##2 rows have negative values
 
-    ##Lets remove these rows
+    ##Remove these rows
     IMG_010nm<-IMG_010nm%>%subset(`399.444`>0)
 
     #Don't need to run 3 lines below unless there are weird values in dataset above
@@ -76,7 +87,7 @@ resampleBands <- function(imageDirectory, fileName = "image") {
       dplyr::select(`399.444`)%>% 
       subset(`399.444`<0)%>% nrow() ##2 rows have negative values
 
-    ##Lets remove these rows
+    ##Remove these rows
     IMG_050nm<-IMG_050nm%>%subset(`399.444`>0)
 
     #Don't need to run 3 lines below unless there are weird values in dataset above
