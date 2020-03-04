@@ -79,7 +79,6 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     
     colorChart<-read.csv("source/www/colorChart.csv")
     plotColors<-as.vector(colorChart[1:length(plants),])
-    print(str(plotColors))
 
     #create color chart
     #plotColors <- randomColor(count = 100)
