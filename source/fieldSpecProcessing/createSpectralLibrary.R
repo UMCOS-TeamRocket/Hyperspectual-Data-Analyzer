@@ -379,19 +379,31 @@ createSpectralLibrary <- function(vectorOfSampleDirectories, outputName) {
     spectralLibrary_smooth_050nm_equal25<-spectralLibrary_smooth_050nm_equal25%>% group_by(PFT_3) %>% sample_n(25,replace = TRUE)
     spectralLibrary_smooth_100nm_equal25<-spectralLibrary_smooth_100nm_equal25%>% group_by(PFT_3) %>% sample_n(25,replace = TRUE)
     
-    ##Now lest save our new spectral library and all the necessary objects that were created
-    saveRDS(spectralLibrary             , paste(paste("output/spectralLibraries/", outputName, sep = ""), ".rds"             , sep = ""))
-    saveRDS(spectralLibrary_smooth      , paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth.rds"      , sep = ""))
-    saveRDS(spectralLibrary_smooth_010nm, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_010nm.rds", sep = ""))
-    saveRDS(spectralLibrary_smooth_050nm, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_050nm.rds", sep = ""))
-    saveRDS(spectralLibrary_smooth_100nm, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_100nm.rds", sep = ""))
+    directories <- list(rds = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), ".rds", sep = ""),
+                        smoothRds = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth.rds", sep = ""),
+                        smooth10Rds = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_010nm.rds", sep = ""),
+                        smooth50Rds = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_050nm.rds", sep = ""),
+                        smooth100Rds = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_100nm.rds", sep = ""),
+                        df = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""),
+                        equal25 = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_equal25.csv", sep = ""),
+                        equal25_010nm = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_010nm_equal25.csv", sep = ""),
+                        equal25_050nm = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_050nm_equal25.csv", sep = ""),
+                        equal25_100nm = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_smooth_100nm_equal25.csv", sep = ""))
     
-    write.csv(spectralLibrary_df                  , paste(paste("output/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = "")                  ,row.names = F)
-    write.csv(spectralLibrary_smooth_equal25      , paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_equal25.csv", sep = "")      ,row.names = F)
-    write.csv(spectralLibrary_smooth_010nm_equal25, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_010nm_equal25.csv", sep = ""),row.names = F)
-    write.csv(spectralLibrary_smooth_050nm_equal25, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_050nm_equal25.csv", sep = ""),row.names = F)
-    write.csv(spectralLibrary_smooth_100nm_equal25, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_smooth_100nm_equal25.csv", sep = ""),row.names = F)
-  
+    ##Now lest save our new spectral library and all the necessary objects that were created
+    saveRDS(spectralLibrary             , directories$rds)
+    saveRDS(spectralLibrary_smooth      , directories$smoothRds)
+    saveRDS(spectralLibrary_smooth_010nm, directories$smooth10Rds)
+    saveRDS(spectralLibrary_smooth_050nm, directories$smooth50Rds)
+    saveRDS(spectralLibrary_smooth_100nm, directories$smooth100Rds)
+    
+    write.csv(spectralLibrary_df                  , directories$df           , row.names = F)
+    write.csv(spectralLibrary_smooth_equal25      , directories$equal25      , row.names = F)
+    write.csv(spectralLibrary_smooth_010nm_equal25, directories$equal25_010nm, row.names = F)
+    write.csv(spectralLibrary_smooth_050nm_equal25, directories$equal25_050nm, row.names = F)
+    write.csv(spectralLibrary_smooth_100nm_equal25, directories$equal25_100nm, row.names = F)
+    
+    return(directories)
   }, warning = function(warning) {
     message <- paste("WARNING - While creating specral library", warning, sep = " : ")
     warning(message)

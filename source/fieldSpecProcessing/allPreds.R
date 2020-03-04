@@ -31,8 +31,7 @@ fieldSpecAllPreds <- function(directories, outputName = "spectralLibrary") {
                                               ,equal25_100nm[-1:-7]
                                               ,equal25_VIs[-1:-7]))
     ##Lets save this dataframe
-    write.csv(data, paste(paste("output/outputSpectralLibraries/", outputName, sep = ""), "_data.csv", sep = ""),row.names = FALSE)
-    
+    write.csv(data, paste(paste("output/spectralLibraries/", outputName, sep = ""), "_data.csv", sep = ""),row.names = FALSE)
   }, warning = function(warning) {
     message <- paste("WARNING - While processing all preds", warning, sep = " : ")
     warning(message)

@@ -54,6 +54,9 @@ imageOutputModuleServer <- function(input, output, session, data) {
           #get the directory to the image
           directoryString <- data$outputImageDirectories[[i]]
           
+          #log info
+          flog.info(paste("Displaying Image: ", directoryString), name = "logFile")
+          
           #render the image in the image output with the name stored in imageName
           output[[imageName]] <- renderImage({
             list(src = directoryString,

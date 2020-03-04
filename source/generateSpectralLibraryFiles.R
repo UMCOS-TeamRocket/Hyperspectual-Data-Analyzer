@@ -8,31 +8,23 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
   withProgress(message = 'Generating Spectral Library Files', min = 0, max = 1, value = 0, {
     tryCatch({
       setProgress(0, detail = "Creating Spectral Library")
-      
-      createSpectralLibrary(spectraDirectories, name)
+      spectralLibraryDirectories <- createSpectralLibrary(spectraDirectories, name)
       
       setProgress(0.2, detail = "Creating Spectral Library Pt. 2")
-      
-      spectralLibraryRDSDirectory <- paste(paste("output/spectralLibraries/", name, sep = ""), ".rds", sep = "")
-      generateSpectralLibrary(spectralLibraryRDSDirectory, name)
+      wvLibraryDirectories <- generateSpectralLibrary(spectralLibraryDirectories$rds, name)
       
       setProgress(0.4, detail = "Resampling")
-      
-      dfEqual25Directory <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_df_equal25.csv", sep = "")
-      fieldSpecResampled(dfEqual25Directory, name)
+      resampledDirectories <- fieldSpecResampled(wvLibraryDirectories$equal25, name)
       
       setProgress(0.6, detail = "VI")
+      viDirectory <- fieldSpecVI(wvLibraryDirectories$equal25, name)
       
-      fieldSpecVI(dfEqual25Directory, name)
-      
-      band_10nm <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_010nm_equal25.csv", sep = "")
-      band_50nm <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_050nm_equal25.csv", sep = "")
-      band_100nm <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_100nm_equal25.csv", sep = "")
-      Vi <- paste(paste("output/outputSpectralLibraries/", name, sep = ""), "_VIs_equal25.csv", sep = "")
-      directories <- c(band_10nm, band_50nm, band_100nm, Vi)
+      directories <- c(resampledDirectories$equal25_010nm, 
+                       resampledDirectories$equal25_050nm, 
+                       resampledDirectories$equal25_0100nm, 
+                       viDirectory)
       
       setProgress(0.8, detail = "All Preds")
-      
       fieldSpecAllPreds(directories, name)
       
       setProgress(1)

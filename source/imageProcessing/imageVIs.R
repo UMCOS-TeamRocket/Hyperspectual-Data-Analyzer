@@ -73,9 +73,9 @@ createImgVi <- function(imgDfDirectory, fileName = "image") {
     colnames(IMG_VIs_A )[-1:-2]<-newcolnames
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(IMG_VIs_A, paste(paste("output/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
+    write.csv(IMG_VIs_A, paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
     
-    return(paste(paste("output/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
+    return(paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
   }, warning = function(warning) {
     message <- paste ("WARNING - While creating image VI", imgDfDirectory)
     message <- paste(message, warning, sep = " : ")
