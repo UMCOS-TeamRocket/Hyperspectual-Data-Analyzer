@@ -23,7 +23,6 @@ setwd(here())
 
 source("source/createOutputDirectories.R")
 source("source/ui/selectDataModule.R")
-source("source/ui/rfClassifierParametersModule.R")
 source("source/ui/queueModule.R")
 source("source/ui/spectralLibraryModule.R")
 source("source/ui/imageOutputModule.R")
@@ -42,29 +41,20 @@ flog.logger("logFile")
 flog.appender(appender.file(currentDateTime), "logFile")
 #use flog.info, flog.warn, flog.error, flog.debug to write to log file
 
-ui <- fluidPage( theme =shinytheme("slate"), 
+ui <- fluidPage( theme =shinytheme("slate"),
+                 tags$head(tags$style(HTML('body, input, button, select {font-family: "Calibri"; background-color: #121212;}'))),
+                           
                  titlePanel("Hyperspectral Data Analyzer"),
                  
                  br(), 
                  br(),
                  
-                 tagList(
-                   tabsetPanel(type = "tabs",
-                               #SELECT DATA TAB
-                               tabPanel("Select Data", style = "background-color: #383a40;", selectDataUI("selectData")),
-                               
-                               #SPECTRAL LIBRARY TAB
-                               tabPanel("Update/Create Spectral Library", style = "background-color:#383a40;", spectralLibraryModuleUI("spectralLibrary"))),
-                   
-                   tags$head(tags$style(HTML('body, input, button, select {
-                                                                font-family: "Calibri";
-                                                                background-color: #121212;}')))
-                 ) %>%
-                   sidebarPanel(style = "background-color: #383a40; border-color: #383a40;") %>%
-                   sidebarLayout(
-                     #CLASSIFIER PARAMETERS
-                     mainPanel(style = "background-color: #383a40;", br(), rfClassifierParametersUI("rfClassifierParameters"))
-                   ),
+                 fluidRow(style = "background-color: #383a40;",
+                          br(),
+                          column(5, spectralLibraryModuleUI("spectralLibrary"), style = "background-color: #383a40;"),
+                          column(5, selectDataUI("selectData"), style = "background-color: #383a40;"),
+                          br()
+                          ),
                  
                  br(), 
                  br(),
@@ -85,8 +75,8 @@ server <- function(input, output, session) {
   #VARIABLES
   root <- c(home = fs::path_home(), project = here())
   
-  #CLASSIFIER PARAMETERS MODULE
-  rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
+  # #CLASSIFIER PARAMETERS MODULE
+  # rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
   
   #SPECTRAL LIBRARY MODULE
   spectralLibraryModuleValues <- callModule(spectralLibraryModuleServer, "spectralLibrary")
@@ -106,25 +96,33 @@ server <- function(input, output, session) {
   
   #execute when 'add to queue' is clicked in the select data module
   observeEvent(selectDataModule$addToQueue, {
+    processParameters <- selectDataModule$processParameters
+    print(processParameters)
+    
     #add all relevant parameters as a list to the list of processes
-    queueData$processes[[length(queueData$processes) + 1]] <<- list(parameters = selectDataModule$processParameters, 
-                                                                      classifierParameters = rfClassifierParameters)
+    queueData$processes[[length(queueData$processes) + 1]] <<- processParameters
+    
     #build the string that represents each process to be displayed on the ui
     textVector <- c(paste("Process#:", length(queueData$processes)))
-    textVector <- c(textVector, paste("Spectral Library:", selectDataModule$processParameters$libraryDirectory))
+    textVector <- c(textVector, paste("Spectral Library:", processParameters$libraryDirectory))
     
-    if (selectDataModule$processParameters$newClassifier == 1) {
-      textVector <- c(textVector, paste("Classifier Name:", selectDataModule$processParameters$classifierName))
+    #get classifierParameters from processParameters
+    classifierParameters <- processParameters$classifierParameters
+    
+    #display classifier parameters if a new classifier is being created, else just display the directory to the classifier
+    if (classifierParameters$newClassifier == 1) {
+      textVector <- c(textVector, paste("Classifier Name:", classifierParameters$classifierName))
+      print(classifierParameters$classifierName)
+      textVector <- c(textVector, paste("mtry:", classifierParameters$mtry))
+      textVector <- c(textVector, paste("ntree:", classifierParameters$ntree))
+      textVector <- c(textVector, paste("importance:", classifierParameters$importance))
     } else {
-      textVector <- c(textVector, paste("Classifier Directory:", selectDataModule$processParameters$classifierFile))
+      textVector <- c(textVector, paste("Classifier Directory:", classifierParameters$classifierFile))
     }
     
-    classifierParameters <- paste(c(rfClassifierParameters$mtry(),
-                                    rfClassifierParameters$ntree(),
-                                    rfClassifierParameters$importance()))
-    textVector <- c(textVector, paste("Classifier Parameters:", classifierParameters))
-    textVector <- c(textVector, paste("Image:", selectDataModule$processParameters$imageDirectory))
-    textVector <- c(textVector, paste("Output File Name:", selectDataModule$processParameters$outputFileName))
+    #add image directory and desired output file
+    textVector <- c(textVector, paste("Image:", processParameters$imageDirectory))
+    textVector <- c(textVector, paste("Output File Name:", processParameters$outputFileName))
     
     #seperate each parameter with a newline
     outputString <- ""

@@ -15,47 +15,36 @@ processQueue <- function(queueData) {
         #time the process
         startTime <- proc.time()
         
-        #separate process parameters into separate variables
-        parameters <- process$parameters
-        classifierParameters <- process$classifierParameters
-        
-        spectralLibraryDirectory <- parameters$libraryDirectory
-        
-        createNewClassifier <- parameters$newClassifier
-        classifierDirectory <- parameters$classifierFile
-        classifierName <- parameters$classifierName
-        
-        mtry <- classifierParameters$mtry()
-        ntree <- classifierParameters$ntree()
-        importance <- classifierParameters$importance()
-        
-        imageDirectory <- parameters$imageDirectory
-
-        outputFileName <- parameters$outputFileName
-        
-        print(paste("Current Process:", outputFileName))
-        flog.info(paste("Current Process:", outputFileName), name = "logFile")
+        print(paste("Current Process:", process$outputFileName))
+        flog.info(paste("Current Process:", process$outputFileName), name = "logFile")
         
         #increase progress bar and change detail text
-        setProgress(index, detail = outputFileName)
+        setProgress(index, detail = process$outputFileName)
         
         #sup-progress bar that displays what stage the individual process is in
-        withProgress(message = paste("Processing:", outputFileName), min = 0, max = 1, value = 0, {
+        withProgress(message = paste("Processing:", process$outputFileName), min = 0, max = 1, value = 0, {
+          
+          classifierParameters <- process$classifierParameters
+          
+          #if a new classifier needs to be created, this will be null. Otherwise, this will be a string
+          classifierDirectory <- classifierParameters$classifierFile
+          
           #check if a new classifier needs to be created
-          if (createNewClassifier == 1) {
+          if (classifierParameters$newClassifier == 1) {
+            #a new classifier needs to be generated
             setProgress(0, detail = "Generating Classifier")
             
             print("Generating RF Classifier")
-            flog.info(paste("Generating New Classifier:", classifierName), name = "logFile")
+            flog.info(paste("Generating New Classifier:", classifierParameters$classifierName), name = "logFile")
             
-            classifierDirectory <- generateRFClassifier(classifierName, spectralLibraryDirectory, mtry, ntree, importance)
+            classifierDirectory <- generateRFClassifier(process$libraryDirectory, classifierParameters)
           }
           
           setProgress(0.3, detail = "Processing HDW Image")
           
           #do a check to see if this data cube has already gone through resampling and VI
           #get file name of the data cube from it's directory
-          fileName <- basename(imageDirectory)
+          fileName <- basename(process$imageDirectory)
           #remove file extension
           fileName <- substr(fileName, 1, nchar(fileName) - 4)
           
@@ -69,9 +58,9 @@ processQueue <- function(queueData) {
           if(!file.exists(hdwDirectory)) {
             #if it does not, pass the image into the processHDWImage() function
             print("Processing Image")
-            flog.info(paste("Processing Image:", imageDirectory), name = "logFile")
+            flog.info(paste("Processing Image:", process$imageDirectory), name = "logFile")
             
-            hdwDirectory <- processHDWImage(imageDirectory)
+            hdwDirectory <- processHDWImage(process$imageDirectory)
           } else {
             flog.info(paste("Re-using previously generated image:", hdwDirectory), name = "logFile")
           }
@@ -81,7 +70,7 @@ processQueue <- function(queueData) {
           print("Predicting")
           flog.info("Predicting", name = "logFile")
           #pass the directory of the classifier, the original image, the processed image, and the desired name of the output file
-          outputDirectory <- predictFunction(classifierDirectory, imageDirectory, hdwDirectory, outputFileName)
+          outputDirectory <- predictFunction(classifierDirectory, process$imageDirectory, hdwDirectory, process$outputFileName)
           
           flog.info(paste("Prediction output saved in", outputDirectory), name = "logFile")
           #endTime is the amount of time the process took to complete
@@ -92,7 +81,7 @@ processQueue <- function(queueData) {
           
           #create output text
           textString <- c(paste("Process#:", index + 1), 
-                          paste("Output File Name:", outputFileName),
+                          paste("Output File Name:", process$outputFileName),
                           paste("Run Time:", endTime[[1]], "seconds"))
           
           #add output text to list of outputStatistics
@@ -105,7 +94,7 @@ processQueue <- function(queueData) {
         })
       }, warning = function(warning) {
         errorMessage <- paste("Process#:", index + 1, "<br>",
-                              "Output File Name:", outputFileName, "<br>",
+                              "Output File Name:", process$outputFileName, "<br>",
                               "Error Message:", warning)
         
         errors[[length(errors) + 1]] <<- HTML(errorMessage)
@@ -113,7 +102,7 @@ processQueue <- function(queueData) {
         flog.warn(HTML(errorMessage), name = "logFile")
       }, error = function(error) {
         errorMessage <- paste("Process#:", index + 1, "<br>",
-                              "Output File Name:", outputFileName, "<br>",
+                              "Output File Name:", process$outputFileName, "<br>",
                               "Error Message:", error)
         
         errors[[length(errors) + 1]] <<- HTML(errorMessage)

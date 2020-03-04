@@ -65,9 +65,9 @@ queueModuleServer <- function(input, output, session, queueData) {
       #check if any errors occured
       if (length(errors) != 0) {
         #separate each error with a couple newlines
-        outputString <- errors[[1]]
-        for(i in 2:length(errors)) {
-          outputString <- paste(outputString, errors[[i]], sep = "<br><br>")
+        outputString <- ""
+        for(i in 1:length(errors)) {
+          outputString <- paste(outputString, errors[[i]], "<br><br>")
         }
         
         #display an error dialog with all error messages

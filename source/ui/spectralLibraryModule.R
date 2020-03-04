@@ -7,13 +7,11 @@ spectralLibraryModuleUI <- function(id) {
   
   tagList(
     fluidRow(
-      column(4, shinyDirButton(ns("fieldSpecDirInput"), "Browse", "Select Directory With Field Spec Data")),
-      column(8, verbatimTextOutput(ns("fieldSpecDirOutput"), placeholder = TRUE))
+      column(3, actionButton(ns("updateSpectralBySite"), "Update Spectra By Site")),
+      column(4, verbatimTextOutput(ns("fieldSpecDirOutput"), placeholder = TRUE)),
+      column(1, shinyDirButton(ns("fieldSpecDirInput"), "Browse", "Select Directory With Field Spec Data"))
     ),
     
-    actionButton(ns("updateSpectralBySite"), "Update Spectra By Site"),
-    
-    br(),
     br(),
     
     HTML(paste0("#", ns("spectralList"), "+div div a {color: red;}")) %>% 
