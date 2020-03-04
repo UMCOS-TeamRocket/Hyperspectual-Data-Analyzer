@@ -2,16 +2,19 @@
 library(spectrolab)
 library(tidyverse)
 library(hsdar)
+library(foreach)
+library(doParallel)
 
 multiSpectrolab<- function(IMG, band){
   IMG<-spectrolab::resample(IMG, seq(399.444,899.424,band))
   return(IMG)
 }
 
-toDataFrame<-function(IMG, cords){
-  IMG<-as.data.frame(IMG)
+toDataFrame<-function(IMG_ALL, cords, i){
+  IMG<-as.data.frame(IMG_ALL[1,i])
+  colnames(IMG)<-c(unlist(IMG_ALL[2,i]))
   IMG<-IMG%>%cbind(cords)
-  IMG<-IMG%>%dplyr::select(x,y,everything())%>%dplyr::select(-sample_name)
+  IMG<-IMG%>%dplyr::select(x,y,everything())
   return(IMG)
 }
 
@@ -36,25 +39,29 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     ##create a datframe with the coordinates for imagery to be used later
     cords<-IMG%>%dplyr::select(1,2)
   
-    #TODO
-    #Make these lines more efficient
-    ##Do the same steps above for imagery
     
     IMG_resamp<-IMG%>%dplyr::select(-x,-y)
     IMG_resamp<-spectrolab::as.spectra(IMG_resamp)
     
-    #SLOW ONE
+
+    bands<-c(10,50,100)
+    cores <- detectCores()
+    if(cores>2){
+      cores<-3
+    } 
+    c1<- makeCluster(cores)
+    registerDoParallel(c1)
     tme<- Sys.time()
-    IMG_010nm<-multiSpectrolab(IMG_resamp,10)
-    IMG_050nm<-multiSpectrolab(IMG_resamp,50)
-    IMG_100nm<-multiSpectrolab(IMG_resamp,100)
+    IMG_ALL<-foreach(i=1:3, .combine=cbind, .packages='spectrolab') %dopar%{
+      a<-spectrolab::resample(IMG_resamp, seq(399.444,899.424,bands[i]))
+    }
     print(Sys.time()-tme)
-
-    IMG_010nm<-toDataFrame(IMG_010nm, cords)
-    IMG_050nm<-toDataFrame(IMG_050nm, cords)
-    IMG_100nm<-toDataFrame(IMG_100nm, cords)
-
+    stopCluster(c1)
     
+    IMG_010nm<-toDataFrame(IMG_ALL, cords, 1)
+    IMG_050nm<-toDataFrame(IMG_ALL, cords, 2)
+    IMG_100nm<-toDataFrame(IMG_ALL, cords, 3)
+
     
     #Don't need to run 3 lines below unless there are weird values in dataset above
     IMG_010nm[-1:-2]%>%
