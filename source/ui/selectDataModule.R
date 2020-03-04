@@ -5,7 +5,7 @@ selectDataUI <- function(id) {
   tagList(
     #Drop down for Spectral Library selection
     selectInput(ns("librarySelect"), label = div(style="color: white;", "Spectral Library:"), 
-                c(list.files(path = "output/hdwSpectralLibraries", full.names = FALSE))),
+                c(list.files(path = "output/spectralLibraries", full.names = FALSE))),
     
     radioButtons(inputId = ns("classifierRadioButtons"),
                  label = div(style="color: white;", "Classifier:"),
@@ -163,7 +163,7 @@ selectDataServer <- function(input, output, session, spectralLibraryModuleValues
                                  importance = input$importance,
                                  classifierName = input$classifierName)
     
-    newProcess <- list(libraryDirectory = paste("output/hdwSpectralLibraries/", input$librarySelect, sep = ""),
+    newProcess <- list(libraryDirectory = paste("output/spectralLibraries/", input$librarySelect, sep = ""),
                        classifierParameters = classifierParameters,
                        imageDirectory = imageDirectory, 
                        outputFileName = input$outputFileName)

@@ -313,12 +313,17 @@ generateSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
     
     ##Lets save our bandpasses and other outputs
     write(WV,"output/WV")
-    write.csv(spectralLibrary_df        , paste(paste("output/outputSpectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""), row.names = FALSE)
-    write.csv(spectralLibrary_df_equal25, paste(paste("output/outputSpectralLibraries/", outputName, sep = ""), "_df_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_df        , paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_df_equal25, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df_equal25.csv", sep = ""), row.names = FALSE)
     
     ##Now lets save our New spectral library
-    saveRDS(spectralLibrary, paste(paste("output/outputSpectralLibraries/", outputName, sep = ""), ".rds", sep = ""))
+    saveRDS(spectralLibrary, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), ".rds", sep = ""))
     
+    directories <- list(wv = "output/WV",
+                        df = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""),
+                        equal25 = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df_equal25.csv", sep = ""))
+    
+    return(directories)
   }, warning = function(warning) {
     message <- paste("WARNING - While processing spectral library", directory)
     message <- paste(message, warning, sep = " : ")

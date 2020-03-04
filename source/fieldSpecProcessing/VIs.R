@@ -54,8 +54,9 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
     colnames(spectralLibrary_VIs)[-1:-7]<-Newcolnames
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(spectralLibrary_VIs, paste(paste("output/outputSpectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_VIs, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""), row.names = FALSE)
     
+    return(paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""))
   }, warning = function(warning) {
     message <- paste("WARNING - While processing VIs", directory)
     message <- paste(message, warning, sep = " : ")

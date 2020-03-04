@@ -98,7 +98,6 @@ server <- function(input, output, session) {
   #execute when 'add to queue' is clicked in the select data module
   observeEvent(selectDataModule$addToQueue, {
     processParameters <- selectDataModule$processParameters
-    print(processParameters)
     
     #add all relevant parameters as a list to the list of processes
     queueData$processes[[length(queueData$processes) + 1]] <<- processParameters
@@ -113,7 +112,6 @@ server <- function(input, output, session) {
     #display classifier parameters if a new classifier is being created, else just display the directory to the classifier
     if (classifierParameters$newClassifier == 1) {
       textVector <- c(textVector, paste("Classifier Name:", classifierParameters$classifierName))
-      print(classifierParameters$classifierName)
       textVector <- c(textVector, paste("mtry:", classifierParameters$mtry))
       textVector <- c(textVector, paste("ntree:", classifierParameters$ntree))
       textVector <- c(textVector, paste("importance:", classifierParameters$importance))
