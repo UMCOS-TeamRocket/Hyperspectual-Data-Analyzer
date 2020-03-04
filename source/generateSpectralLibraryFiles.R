@@ -21,7 +21,7 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
       
       directories <- c(resampledDirectories$equal25_010nm, 
                        resampledDirectories$equal25_050nm, 
-                       resampledDirectories$equal25_0100nm, 
+                       resampledDirectories$equal25_100nm, 
                        viDirectory)
       
       setProgress(0.8, detail = "All Preds")
