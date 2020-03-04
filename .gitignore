@@ -53,10 +53,13 @@ output/hdwImagery/
 output/plots/
 output/spectralLibraries/
 data/large_data
+data/
 
 #weird test data
 tests/
+
 data/other_test_imagery/EightMile_TSTIMG
 data/other_test_imagery/EightMile_TSTIMG.hdr
 data/other_test_imagery/raw_5968_rd_rf_or
 data/other_test_imagery/raw_5968_rd_rf_or.hdr
+=======
