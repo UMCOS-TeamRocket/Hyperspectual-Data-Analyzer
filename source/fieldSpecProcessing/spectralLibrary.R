@@ -1,8 +1,8 @@
-###############################Creates a spectral library from spectroradiometeric scans based on headwall bandpasses##################################################
+###############################Creates a spectral library from spectroradiometeric scans based on bandpasses##################################################
 library(spectrolab)
 library(tidyverse)
 
-headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
+generateSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
   tryCatch({
     ##Reads in spectral library as a spectral object
     ##This is the spectral library that had all uncalibrated scans removed
@@ -10,7 +10,7 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
     
     ##creates and object of bandpasses from imagery
     ##We'll omit bandpasses 900-1000 since there is alot of random noise in that region of the spectrum
-    Headwall_wv<-c(397.593
+    WV<-c(397.593
                    ,399.444
                    ,401.296
                    ,403.148
@@ -284,47 +284,52 @@ headwallSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
                    ,899.424)
     
     ##Now we want to resample alsakSpeclib based on the band passes
-    spectralLibrary_HDW<-spectrolab::resample(spectralLibrary,Headwall_wv)
+    spectralLibrary<-spectrolab::resample(spectralLibrary,WV)
     
     ###Lets convert our new spectral library spectral object  to a dataframe
     ##Run logical test to see if this conversion affect reflectance values
     ##Are there values outside of the rane 0-2???
-    spectralLibrary_test<-spectralLibrary_HDW%>%as.data.frame()%>%dplyr::select(-sample_name)
+    spectralLibrary_test<-spectralLibrary%>%as.data.frame()%>%dplyr::select(-sample_name)
     
     #tst2 %>% subset(V1 <0) %>% View() ##There a bunch of negative values across 128 columns, this might be one row, lets test this
     
     spectralLibrary_test[-1:-7] %>% 
       as.data.frame()%>%
-      'colnames<-'(Headwall_wv) %>% #dim() ] 1917  333
+      'colnames<-'(WV) %>% #dim() ] 1917  333
       dplyr::select(`445.739`) %>% 
       subset(`445.739`<0) %>% nrow() ###there is only one row here that has negative values, we could try this on multiple columns
     ##all those columns that we know have rows that have negative values
     
     ##Lets remove this row and convert our new spectral library back to a dataframe
-    spectralLibrary_HDW1<-spectralLibrary_test%>%subset(`445.739`>0) ##dim()  1916  333
+    spectralLibrary1<-spectralLibrary_test%>%subset(`445.739`>0) ##dim()  1916  333
     
     ##Now lets convert to a spectral object and add metadata
-    spectralLibrary_HDW<-spectralLibrary_HDW1[-1:-7]%>%as.spectra()
-    meta(spectralLibrary_HDW)<-data.frame(spectralLibrary_HDW1[1:7], stringsAsFactors = FALSE)
+    spectralLibrary<-spectralLibrary1[-1:-7]%>%as.spectra()
+    meta(spectralLibrary)<-data.frame(spectralLibrary1[1:7], stringsAsFactors = FALSE)
     
     #Now lets create a dataframe with all scans that are equal to 25 scans per functional group
-    spectralLibrary_HDW_df<-spectralLibrary_HDW%>%as.data.frame()%>%dplyr::select(-sample_name)##convert to a dataframe first
-    spectralLibrary_HDW_df_equal25<-spectralLibrary_HDW_df%>% group_by(PFT_3) %>% sample_n(25,replace = TRUE)
+    spectralLibrary_df<-spectralLibrary%>%as.data.frame()%>%dplyr::select(-sample_name)##convert to a dataframe first
+    spectralLibrary_df_equal25<-spectralLibrary_df%>% group_by(PFT_3) %>% sample_n(25,replace = TRUE)
     
     ##Lets save our bandpasses and other outputs
-    write(Headwall_wv,"output/Headwall_wv")
-    write.csv(spectralLibrary_HDW_df        , paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_df.csv", sep = ""), row.names = FALSE)
-    write.csv(spectralLibrary_HDW_df_equal25, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW_df_equal25.csv", sep = ""), row.names = FALSE)
+    write(WV,"output/WV")
+    write.csv(spectralLibrary_df        , paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""), row.names = FALSE)
+    write.csv(spectralLibrary_df_equal25, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df_equal25.csv", sep = ""), row.names = FALSE)
     
-    ##Now lets save our New headwall spectral library
-    saveRDS(spectralLibrary_HDW, paste(paste("output/hdwSpectralLibraries/", outputName, sep = ""), "_HDW.rds", sep = ""))
+    ##Now lets save our New spectral library
+    saveRDS(spectralLibrary, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), ".rds", sep = ""))
     
+    directories <- list(wv = "output/WV",
+                        df = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""),
+                        equal25 = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df_equal25.csv", sep = ""))
+    
+    return(directories)
   }, warning = function(warning) {
-    message <- paste("WARNING - While processing headwall spectral library", directory)
+    message <- paste("WARNING - While processing spectral library", directory)
     message <- paste(message, warning, sep = " : ")
     warning(message)
   }, error = function(error) {
-    message <- paste("ERROR - While processing headwall spectral library", directory)
+    message <- paste("ERROR - While processing spectral library", directory)
     message <- paste(message, error, sep = " : ")
     stop(message)
   })

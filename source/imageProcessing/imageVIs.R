@@ -1,24 +1,24 @@
-####################Calculates the Vegitation indices for the spectral library developed from headwall's bandpases####
+####################Calculates the Vegitation indices for the spectral library developed from bandpases####
 library(spectrolab)
 library(tidyverse)
 library(hsdar)
 library(foreach)
 library(doParallel)
 
-createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
+createImgVi <- function(imgDfDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe
-    IMG_HDW<-read.csv(imgHdwDfDirectory, check.names = FALSE)
+    IMG<-read.csv(imgDfDirectory, check.names = FALSE)
     
     ##Reads in bandpasses for imagery to be used later
-    HDW_ng_wv<-scan("output/Headwall_wv", numeric())
+    ng_wv<-scan("output/WV", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
-    IMG_HDW_matrix   <-as.matrix(IMG_HDW   [-1:-2])
+    IMG_matrix <-as.matrix(IMG [-1:-2])
     
     ##Now that we have our matrix we can create our spectralib object that will be used to create a df with all the veg indices
-    IMG_HDW_speclib   <-speclib  (IMG_HDW_matrix   ,HDW_ng_wv[1:272])
+    IMG_speclib <-speclib  (IMG_matrix, ng_wv[1:272])
     
     ##creates a vectror of names of all the vegitation indices...there are 115 of these
     VIs<-vegindex()
@@ -30,17 +30,21 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     if(cores>2){
       cores<-cores-2
     }
+    #prepare for parallel process
     c1<- makeCluster(cores)
     registerDoParallel(c1)
     
     tme<- Sys.time()
 
+    #run vegindex using one formula at a time, in parallel
     ##Creates dataframe with Vegitation indices
     IMG_VIs<-foreach(i=1:length(VIs), .combine=cbind, .packages = 'hsdar') %dopar%{
-      a<-vegindex(IMG_HDW_speclib,index=VIs[[i]])
+      a<-vegindex(IMG_speclib,index=VIs[[i]])
     }
     
+    #calculate how long vegindex() took to finish
     runTime <- Sys.time()-tme
+    print(runTime)
     stopCluster(c1)
     
     #Convert matrix to data frame
@@ -48,7 +52,7 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     
     ##rename columns
     colnames(IMG_VIs  )<-VIs
-    IMG_VIs_A  <-cbind(IMG_HDW   [1:2],IMG_VIs   )
+    IMG_VIs_A  <-cbind(IMG   [1:2],IMG_VIs   )
     
     ##Now we have to ensure that all column names have no spaces nor arithmetic operators
     newcolnames<-c("Boochs"        ,"Boochs2"       ,"CARI"          ,"Carter"        ,"Carter2"      
@@ -69,15 +73,15 @@ createImgHDWVi <- function(imgHdwDfDirectory, fileName = "image") {
     colnames(IMG_VIs_A )[-1:-2]<-newcolnames
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(IMG_VIs_A, paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
+    write.csv(IMG_VIs_A, paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
     
-    return(paste(paste("output/hdwImagery/", fileName, sep = ""), "_HDW_VIs.csv", sep = ""))
+    return(paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
   }, warning = function(warning) {
-    message <- paste ("WARNING - While creating image VI", imgHdwDfDirectory)
+    message <- paste ("WARNING - While creating image VI", imgDfDirectory)
     message <- paste(message, warning, sep = " : ")
     warning(message)
   }, error = function(error) {
-    message <- paste ("ERROR - While creating image VI", imgHdwDfDirectory)
+    message <- paste ("ERROR - While creating image VI", imgDfDirectory)
     message <- paste(message, error, sep = " : ")
     stop(message)
   })

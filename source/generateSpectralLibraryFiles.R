@@ -1,5 +1,5 @@
 source("source/fieldSpecProcessing/createSpectralLibrary.R")
-source("source/fieldSpecProcessing/headwallSpectralLibrary.R")
+source("source/fieldSpecProcessing/spectralLibrary.R")
 source("source/fieldSpecProcessing/resampled.R")
 source("source/fieldSpecProcessing/VIs.R")
 source("source/fieldSpecProcessing/allPreds.R")
@@ -8,32 +8,24 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
   withProgress(message = 'Generating Spectral Library Files', min = 0, max = 1, value = 0, {
     tryCatch({
       setProgress(0, detail = "Creating Spectral Library")
+      spectralLibraryDirectories <- createSpectralLibrary(spectraDirectories, name)
       
-      createSpectralLibrary(spectraDirectories, name)
-      
-      setProgress(0.2, detail = "Creating Headwall Spectral Library")
-      
-      spectralLibraryRDSDirectory <- paste(paste("output/spectralLibraries/", name, sep = ""), ".rds", sep = "")
-      headwallSpectralLibrary(spectralLibraryRDSDirectory, name)
+      setProgress(0.2, detail = "Creating Spectral Library Pt. 2")
+      wvLibraryDirectories <- generateSpectralLibrary(spectralLibraryDirectories$rds, name)
       
       setProgress(0.4, detail = "Resampling")
-      
-      hdwDfEqual25Directory <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_df_equal25.csv", sep = "")
-      fieldSpecResampled(hdwDfEqual25Directory, name)
+      resampledDirectories <- fieldSpecResampled(wvLibraryDirectories$equal25, name)
       
       setProgress(0.6, detail = "VI")
+      viDirectory <- fieldSpecVI(wvLibraryDirectories$equal25, name)
       
-      fieldSpecVI(hdwDfEqual25Directory, name)
-      
-      hdw10nm <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_010nm_equal25.csv", sep = "")
-      hdw50nm <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_050nm_equal25.csv", sep = "")
-      hdw100nm <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_100nm_equal25.csv", sep = "")
-      hdwVi <- paste(paste("output/hdwSpectralLibraries/", name, sep = ""), "_HDW_VIs_equal25.csv", sep = "")
-      hdwDirectories <- c(hdw10nm, hdw50nm, hdw100nm, hdwVi)
+      directories <- c(resampledDirectories$equal25_010nm, 
+                       resampledDirectories$equal25_050nm, 
+                       resampledDirectories$equal25_100nm, 
+                       viDirectory)
       
       setProgress(0.8, detail = "All Preds")
-      
-      fieldSpecAllPreds(hdwDirectories, name)
+      fieldSpecAllPreds(directories, name)
       
       setProgress(1)
     }, warning = function(warning) {

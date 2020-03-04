@@ -2,6 +2,7 @@ library(magrittr)
 source("source/processqueue.R")
 
 queueModuleUI <- function(id) {
+  #namespace for the module
   ns <- NS(id)
   
   tagList(
@@ -30,6 +31,9 @@ queueModuleServer <- function(input, output, session, queueData) {
     queueData$processes <- list()
     queueData$outputImageDirectories <- list()
     queueData$outputStatistics <- list()
+    
+    #log info
+    flog.info("Queue Cleared", name = "logFile")
   })
   
   #Display what processes are in the queue
@@ -43,8 +47,11 @@ queueModuleServer <- function(input, output, session, queueData) {
   
   #Run all processes in queue
   observeEvent(input$runQueue, {
+    #log info
+    flog.info(paste("Run Queue of length", length(queueData$processes)), name = "logFile")
+    
     if (length(queueData$processes) > 0) {
-      #clear output section
+      #clear output variables
       queueData$outputImageDirectories <- list()
       queueData$outputStatistics <- list()
       
@@ -53,13 +60,17 @@ queueModuleServer <- function(input, output, session, queueData) {
       errors <- processQueue(queueData)
       
       print("Finished Processing Queue")
+      flog.info("Finished Processing Queue", name = "logFile")
       
+      #check if any errors occured
       if (length(errors) != 0) {
-        outputString <- errors[[1]]
-        for(i in 2:length(errors)) {
-          outputString <- paste(outputString, errors[[i]], sep = "<br><br>")
+        #separate each error with a couple newlines
+        outputString <- ""
+        for(i in 1:length(errors)) {
+          outputString <- paste(outputString, errors[[i]], "<br><br>")
         }
         
+        #display an error dialog with all error messages
         showModal(modalDialog(
           fluidRow(
             h4(HTML(outputString))
@@ -69,6 +80,7 @@ queueModuleServer <- function(input, output, session, queueData) {
         ))
       }
     } else {
+      #display an error dialog if the queue is empty
       showModal(modalDialog(
         fluidRow(
           h4("Queue is empty")

@@ -22,6 +22,7 @@ imageOutputModuleServer <- function(input, output, session, data) {
       tagList()
     } else {
       image_output_list <- lapply(1:length(data$outputImageDirectories), function(i) {
+        #create a name for image and text output
         imageName <- paste("image", i, sep="")
         textName <- paste(imageName, "Stats", sep = "")
         
@@ -46,11 +47,17 @@ imageOutputModuleServer <- function(input, output, session, data) {
         # of i in the renderImage()/renderText() will be the same across all instances, because
         # of when the expression is evaluated.
         local({
+          #create the names the same way we did in the previous function
           imageName <- paste("image", i, sep="")
           textName <- paste(imageName, "Stats", sep = "")
           
+          #get the directory to the image
           directoryString <- data$outputImageDirectories[[i]]
           
+          #log info
+          flog.info(paste("Displaying Image: ", directoryString), name = "logFile")
+          
+          #render the image in the image output with the name stored in imageName
           output[[imageName]] <- renderImage({
             list(src = directoryString,
                  width = "600",
@@ -58,6 +65,7 @@ imageOutputModuleServer <- function(input, output, session, data) {
                  alt = "Could not find image")
           }, deleteFile = FALSE)
           
+          #character vector of data to be sidplayed along with the image
           textVector = data$outputStatistics[[i]]
           
           #text is a character vector of size 3
@@ -66,6 +74,7 @@ imageOutputModuleServer <- function(input, output, session, data) {
             outputText <- paste(outputText, textVector[i], sep = " :: ")
           }
           
+          #render the text in the UI
           output[[textName]] <- renderText({outputText})
         })
       }
