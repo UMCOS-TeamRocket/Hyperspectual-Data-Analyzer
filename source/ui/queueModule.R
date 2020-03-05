@@ -55,12 +55,18 @@ queueModuleServer <- function(input, output, session, queueData) {
       queueData$outputImageDirectories <- list()
       queueData$outputStatistics <- list()
       
+      startTime <- Sys.time()
+      
       print("Processing Queue...")
       
       errors <- processQueue(queueData)
       
+      endTime <- difftime(Sys.time(), startTime, units = "mins")
       print("Finished Processing Queue")
+      print(endTime)
+      
       flog.info("Finished Processing Queue", name = "logFile")
+      flog.info(paste("Queue finished in", endTime, "minutes"), name = "logFile")
       
       #check if any errors occured
       if (length(errors) != 0) {

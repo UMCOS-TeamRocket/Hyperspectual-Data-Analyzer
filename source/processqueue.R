@@ -13,7 +13,7 @@ processQueue <- function(queueData) {
     for (process in queueData$processes) {
       tryCatch({
         #time the process
-        startTime <- proc.time()
+        startTime <- Sys.time()
         
         classifierParameters <- process$classifierParameters
         
@@ -71,7 +71,8 @@ processQueue <- function(queueData) {
           outputDirectory <- predictFunction(classifierDirectory, process$imageDirectory, directory, process$outputFileName)
           
           #endTime is the amount of time the process took to complete
-          endTime <- proc.time() - startTime
+          endTime <- difftime(Sys.time(), startTime, units = "mins")
+          print(endTime)
           
           #save output image directory
           queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
@@ -80,7 +81,7 @@ processQueue <- function(queueData) {
           #create output text
           statistics <- c(paste("Process#:", index + 1), 
                           paste("Output File Name:", process$outputFileName),
-                          paste("Run Time:", endTime[[1]], "seconds"))
+                          paste("Run Time:", endTime, "minutes"))
           
           #add output text to list of outputStatistics
           queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- statistics
