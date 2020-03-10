@@ -10,7 +10,7 @@ createImgVi <- function(imgDfDirectory, fileName = "image") {
     ##Reads in image as dataframe
     IMG<-(imgDfDirectory)
     ##Reads in bandpasses for imagery to be used later
-    ng_wv<-scan("output/WV", numeric())
+    ng_wv<-scan("output/intermediateFiles/WV", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans

@@ -30,7 +30,7 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     IMG<-brick(imageDirectory)%>%rasterToPoints()%>%as.data.frame()
   
     ##Reads in bandpasses for imagery to be used later
-    ng_wv<-scan("output/WV", numeric())
+    ng_wv<-scan("output/intermediateFiles/WV", numeric())
   
     ##lets remove all those bads that had noise
     IMG[275:328]<-NULL
