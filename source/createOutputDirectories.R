@@ -11,6 +11,6 @@ createOutputDirectories <- function() {
   dir.create(file.path(here(), "output/logs"), recursive = TRUE, showWarnings = FALSE)
   
   dir.create(file.path(here(), "output/intermediateFiles"), recursive = TRUE, showWarnings = FALSE)
-  dir.create(file.path(here(), "output/intermediateFiles/spectralLibraries"), recursive = TRUE, showWarnings = FALSE)
-  dir.create(file.path(here(), "output/intermediateFiles/imagery"), recursive = TRUE, showWarnings = FALSE)
+  #dir.create(file.path(here(), "output/intermediateFiles/spectralLibraries"), recursive = TRUE, showWarnings = FALSE)
+  #dir.create(file.path(here(), "output/intermediateFiles/imagery"), recursive = TRUE, showWarnings = FALSE)
 }

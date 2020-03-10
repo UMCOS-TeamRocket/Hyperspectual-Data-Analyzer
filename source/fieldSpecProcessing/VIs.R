@@ -2,13 +2,12 @@ library(spectrolab)
 library(tidyverse)
 library(hsdar)
 
-fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
+fieldSpecVI <- function(outputName = "spectralLibrary") {
   tryCatch({
     ##Reads in spectral library....dim 1974  333
-    spectralLibrary<-read.csv(directory)
-    
+    spectralLibrary<-read.csv("output/intermediateFiles/temp.csv")
     ##Reads in bandpasses for imagery to be used later
-    ng_wv<-scan("output/WV", numeric())
+    ng_wv<-scan("output/intermediateFiles/WV", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
@@ -54,9 +53,9 @@ fieldSpecVI <- function(directory, outputName = "spectralLibrary") {
     colnames(spectralLibrary_VIs)[-1:-7]<-Newcolnames
     
     ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(spectralLibrary_VIs, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""), row.names = FALSE)
+    # write.csv(spectralLibrary_VIs, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""), row.names = FALSE)
     
-    return(paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""))
+    return(spectralLibrary_VIs)
   }, warning = function(warning) {
     message <- paste("WARNING - While processing VIs", directory)
     message <- paste(message, warning, sep = " : ")
