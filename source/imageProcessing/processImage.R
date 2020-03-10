@@ -9,19 +9,20 @@ processImage <- function (imageDirectory) {
     fileName <- substr(fileName, 1, nchar(fileName) - 4)
   
     print("Resampling")
-    resampledDirectories <- resampleBands(imageDirectory, fileName)
+    bandList <- resampleBands(imageDirectory, fileName)
 
-    dfDirectory <- resampledDirectories[1]
+    dfDirectory <- bandList[1]
 
     print("Generating VIs")
-    ViDirectory <- createImgVi(resampledDirectories[["df"]], fileName)
+    bandVi <- createImgVi(bandList[[1]], fileName)
     
+
     #Read in resampled files
-    band_010nm<-read.csv(resampledDirectories[["nm10"]])
-    band_050nm<-read.csv(resampledDirectories[["nm50"]])
-    band_100nm<-read.csv(resampledDirectories[["nm100"]])
-    VI<-read.csv(ViDirectory)
-    
+    band_010nm<-(bandList[[2]])
+    band_050nm<-(bandList[[3]])
+    band_100nm<-(bandList[[4]])
+    VI<-(bandVi)
+
     #Change coloumn names
     colnames(band_010nm)[-1:-2]<-paste0(colnames(band_010nm)[-1:-2],"_010nm")
     colnames(band_050nm)[-1:-2]<-paste0(colnames(band_050nm)[-1:-2],"_050nm")

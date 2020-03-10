@@ -32,7 +32,11 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     classifier <- readRDS(classifierDirectory)
     
     #Remove random column from data
-    data<- select(data,-c(y_VIs))
+    if("y_VIs" %in% colnames(data))
+    {
+      data<- select(data,-c(y_VIs))
+    }
+    
     imageLatLong <-imageLatLong %>% slice(1:nrow(data))
     
     ##Save the confusion Matrix for these models

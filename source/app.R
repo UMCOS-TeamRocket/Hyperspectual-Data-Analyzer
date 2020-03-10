@@ -76,9 +76,6 @@ server <- function(input, output, session) {
   #VARIABLES
   root <- c(home = fs::path_home(), project = here())
   
-  # #CLASSIFIER PARAMETERS MODULE
-  # rfClassifierParameters <- callModule(rfClassifierParametersServer, "rfClassifierParameters")
-  
   #SPECTRAL LIBRARY MODULE
   spectralLibraryModuleValues <- callModule(spectralLibraryModuleServer, "spectralLibrary")
   

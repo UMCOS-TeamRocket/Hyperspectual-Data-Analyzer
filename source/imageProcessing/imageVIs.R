@@ -8,10 +8,9 @@ library(doParallel)
 createImgVi <- function(imgDfDirectory, fileName = "image") {
   tryCatch({
     ##Reads in image as dataframe
-    IMG<-read.csv(imgDfDirectory, check.names = FALSE)
-    
+    IMG<-(imgDfDirectory)
     ##Reads in bandpasses for imagery to be used later
-    ng_wv<-scan("output/WV", numeric())
+    ng_wv<-scan("output/intermediateFiles/WV", numeric())
     
     ###you'll need to convert your dfs to a matrix before VIS can be applied
     ##lets fo this for df created from the image and our spectral library of scans
@@ -51,8 +50,8 @@ createImgVi <- function(imgDfDirectory, fileName = "image") {
     IMG_VIs <- as.data.frame(IMG_VIs)
     
     ##rename columns
-    colnames(IMG_VIs  )<-VIs
-    IMG_VIs_A  <-cbind(IMG   [1:2],IMG_VIs   )
+    colnames(IMG_VIs)<-VIs
+    IMG_VIs_A <-cbind(IMG[1:2],IMG_VIs)
     
     ##Now we have to ensure that all column names have no spaces nor arithmetic operators
     newcolnames<-c("Boochs"        ,"Boochs2"       ,"CARI"          ,"Carter"        ,"Carter2"      
@@ -70,12 +69,9 @@ createImgVi <- function(imgDfDirectory, fileName = "image") {
                    ,"SRPI"          ,"Sum_Dr1"       ,"Sum_Dr2"       ,"TCARI"         ,"TCARIOSAVI"    ,"TCARI2"        ,"TCARI2OSAVI2"
                    ,"TGI"           ,"TVI"           ,"Vogelmann"     ,"Vogelmann2"    ,"Vogelmann3"    ,"Vogelmann4") 
     
-    colnames(IMG_VIs_A )[-1:-2]<-newcolnames
+    colnames(IMG_VIs_A)[-1:-2]<-newcolnames
     
-    ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    write.csv(IMG_VIs_A, paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
-    
-    return(paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_VIs.csv", sep = ""))
+    return(IMG_VIs_A)
   }, warning = function(warning) {
     message <- paste ("WARNING - While creating image VI", imgDfDirectory)
     message <- paste(message, warning, sep = " : ")

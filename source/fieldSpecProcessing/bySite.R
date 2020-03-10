@@ -18,8 +18,34 @@ processFieldSpec <- function(fieldSpecDirectory) {
         #increase progress bar and change detail text
         setProgress(index, detail = directory)
         
-        ####Read in data as spectra (all scans collected at this location)
-        spectra <- read_spectra(directory, format="sed")
+        sedError <- FALSE
+        tryCatch({
+          ####Read in data as spectra (all scans collected at this location)
+          spectra <- read_spectra(directory, format="sed")
+          
+        }, warning = function(warning) {
+          #Catch any warnings or errors and save them in the errors variable
+          message <- paste("WARNING - While processing by site:", directory, "does not contain any .sed files")
+          
+          #add message to list of error messages
+          errors <<- c(errors, message)
+          
+          #R doesnt know it is in a loop while in the warning/error function of the try catch
+          #so we need to set a flag that is checked outside of these functions
+          sedError <<- TRUE
+        }, error = function(error) {
+          message <- paste("ERROR - While processing by site:", directory, "does not contain any .sed files")
+          errors <<- c(errors, message)
+          sedError <<- TRUE
+        })
+        
+        if (sedError) {
+          #increment index for the progress bar
+          index <- index + 1
+          
+          #skip to the next iteration of the for loop
+          next
+        }
         
         ##Fix Names (removes file extensions)
         names(spectra) <- gsub(".sed","",names(spectra))

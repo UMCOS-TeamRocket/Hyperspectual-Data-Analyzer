@@ -30,7 +30,7 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     IMG<-brick(imageDirectory)%>%rasterToPoints()%>%as.data.frame()
   
     ##Reads in bandpasses for imagery to be used later
-    ng_wv<-scan("output/WV", numeric())
+    ng_wv<-scan("output/intermediateFiles/WV", numeric())
   
     ##lets remove all those bads that had noise
     IMG[275:328]<-NULL
@@ -99,18 +99,10 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     IMG_100nm<-IMG_100nm%>%subset(`399.444`>0)
     IMG <-IMG %>% slice(1:nrow(IMG_010nm))
     
-    directories <- list(df = paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_df.csv", sep = ""),
-                        nm10 = paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_010nm.csv", sep = ""),
-                        nm50 = paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_050nm.csv", sep = ""),
-                        nm100 = paste(paste("output/intermediateFiles/imagery/", fileName, sep = ""), "_100nm.csv", sep = ""))
+    bandList<-list(IMG,IMG_010nm,IMG_050nm,IMG_100nm)
     
-    ###Lets save our new df
-    write.csv(IMG       , directories$df, row.names = FALSE)
-    write.csv(IMG_010nm , directories$nm10, row.names = FALSE)
-    write.csv(IMG_050nm , directories$nm50, row.names = FALSE)
-    write.csv(IMG_100nm , directories$nm100,row.names = FALSE)
-    
-    return(directories)
+
+    return(bandList)
   }, warning = function(warning) {
     message <- paste ("WARNING - While resampling bands", imageDirectory)
     message <- paste(message, warning, sep = " : ")

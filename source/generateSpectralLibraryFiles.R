@@ -11,21 +11,16 @@ generateSpectralLibraryFiles <- function(spectraDirectories, name) {
       spectralLibraryDirectories <- createSpectralLibrary(spectraDirectories, name)
       
       setProgress(0.2, detail = "Creating Spectral Library Pt. 2")
-      wvLibraryDirectories <- generateSpectralLibrary(spectralLibraryDirectories$rds, name)
+      generateSpectralLibrary(spectralLibraryDirectories, name)
       
       setProgress(0.4, detail = "Resampling")
-      resampledDirectories <- fieldSpecResampled(wvLibraryDirectories$equal25, name)
-      
+      resampledDirectories <- fieldSpecResampled(name)
+
       setProgress(0.6, detail = "VI")
-      viDirectory <- fieldSpecVI(wvLibraryDirectories$equal25, name)
-      
-      directories <- c(resampledDirectories$equal25_010nm, 
-                       resampledDirectories$equal25_050nm, 
-                       resampledDirectories$equal25_100nm, 
-                       viDirectory)
+      viDirectory <- fieldSpecVI(name)
       
       setProgress(0.8, detail = "All Preds")
-      fieldSpecAllPreds(directories, name)
+      fieldSpecAllPreds(resampledDirectories,viDirectory, name)
       
       setProgress(1)
     }, warning = function(warning) {
