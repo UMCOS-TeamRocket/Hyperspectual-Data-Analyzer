@@ -1,6 +1,6 @@
 # Hyperspectual Data Analyzer
 
-**V1.1.0**
+**V1.2.0**
 
 **Team Rocket**: University of Maine, COS 397/497 Capstone Project
 
