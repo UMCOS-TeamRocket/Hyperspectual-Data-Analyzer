@@ -95,6 +95,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
     
     print("Processing Spectra By Site...")
     
+    #CALL TO BACKEND CODE. located here: source/fieldSpecProcessing/bySite.R
     #create a specra object for each directory under fieldSpecDirectory recursively
     #return any errors that occur during this process and store in 'errors' variable
     errors <- processFieldSpec(fieldSpecDirectory)
@@ -190,6 +191,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
       print("Generating Spectral Library Files...")
       flog.info("Generating Spectral Library Files", name = "logFile")
       
+      #CALL TO BACKEND CODE. located here: source/generateSpectralLibraryFiles.R
       #create a spectral library
       generateSpectralLibraryFiles(listOfSpectraDirectories, spectralLibraryName)
       

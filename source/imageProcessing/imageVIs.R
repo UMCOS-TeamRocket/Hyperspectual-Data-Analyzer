@@ -5,10 +5,10 @@ library(hsdar)
 library(foreach)
 library(doParallel)
 
-createImgVi <- function(imgDfDirectory, fileName = "image") {
+createImgVi <- function(imgDf) {
   tryCatch({
     ##Reads in image as dataframe
-    IMG<-(imgDfDirectory)
+    IMG<-(imgDf)
     ##Reads in bandpasses for imagery to be used later
     ng_wv<-scan("output/intermediateFiles/WV", numeric())
     

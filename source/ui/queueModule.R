@@ -59,6 +59,8 @@ queueModuleServer <- function(input, output, session, queueData) {
       
       print("Processing Queue...")
       
+      #CALL TO BACKEND CODE. located here: source/processqueue.R
+      #create a map for each process in the queue
       errors <- processQueue(queueData)
       
       endTime <- difftime(Sys.time(), startTime, units = "mins")

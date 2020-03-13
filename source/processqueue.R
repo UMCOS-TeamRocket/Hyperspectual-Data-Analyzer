@@ -5,6 +5,14 @@ source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
 source("source/imageProcessing/processImage.R")
 
+#params:
+##queueData: list of reactive values
+##  queueData$process: list. each element is a list containing parameters necessary for map creation
+##  queueData$outputImageDirectories: list of strings. save all successfully created maps here
+##  queueData$outputStatistics: list of strings. save any text you would like to be displayed next to the map on the ui here
+#
+#output: list of strings. list of any errors that occured while processing the queue
+
 processQueue <- function(queueData) {
   #progress bar that displays what processes the queue is currently on
   withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
@@ -36,6 +44,7 @@ processQueue <- function(queueData) {
             print("Generating RF Classifier")
             flog.info(paste("Generating New Classifier:", classifierParameters$classifierName), name = "logFile")
             
+            #CALL TO BACKEND CODE. located here: source/imageModels/generateRFClassifier.R
             classifierDirectory <- generateRFClassifier(process$libraryDirectory, classifierParameters)
           }
           
@@ -59,6 +68,7 @@ processQueue <- function(queueData) {
             print("Processing Image")
             flog.info(paste("Processing Image:", process$imageDirectory), name = "logFile")
             
+            #CALL TO BACKEND CODE. located here: "source/imageProcessing/processImage.R"
             directory <- processImage(process$imageDirectory)
           }
           
@@ -67,6 +77,7 @@ processQueue <- function(queueData) {
           print("Predicting")
           flog.info("Predicting", name = "logFile")
           
+          #CALL TO BACKEND CODE. located here: "source/imageModels/predict.R"
           #pass the directory of the classifier, the original image, the processed image, and the desired name of the output file
           outputDirectory <- predictFunction(classifierDirectory, process$imageDirectory, directory, process$outputFileName)
           

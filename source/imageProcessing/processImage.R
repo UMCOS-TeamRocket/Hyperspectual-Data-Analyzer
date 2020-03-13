@@ -1,6 +1,11 @@
 source("source/imageProcessing/resampleBands.R")
 source("source/imageProcessing/imageVIs.R")
 
+#params:
+##imageDirectory: string
+#
+#output: does not return anything. writes output to .csv file in output/imagery/
+
 processImage <- function (imageDirectory) {
   tryCatch({
     #get file name from directory
@@ -9,12 +14,14 @@ processImage <- function (imageDirectory) {
     fileName <- substr(fileName, 1, nchar(fileName) - 4)
   
     print("Resampling")
-    bandList <- resampleBands(imageDirectory, fileName)
+    #CALL TO BACKEND CODE. located here: source/imageProcessing/resampleBands.R
+    bandList <- resampleBands(imageDirectory)
 
     dfDirectory <- bandList[1]
 
     print("Generating VIs")
-    bandVi <- createImgVi(bandList[[1]], fileName)
+    #CALL TO BACKEND CODE located here: source/imageProcessing/imageVIs.R
+    bandVi <- createImgVi(bandList[[1]])
     
 
     #Read in resampled files
