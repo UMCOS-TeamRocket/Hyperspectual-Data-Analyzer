@@ -14,7 +14,13 @@ queueModuleUI <- function(id) {
     ),
     br(),
     
-    HTML(paste0("#", ns("queue"), " {background-color: #383a40; border-color: #383a40; color: white; font-size: 15px; padding-left: 10px;}")) %>% 
+    HTML(paste0("#", ns("queue"), " {
+                background-color: #383a40; 
+                border-color: #383a40; 
+                color: white; 
+                font-size: 15px; 
+                padding-left: 10px;}
+                ")) %>% 
     tags$style() %>%
     tags$head(),
     
