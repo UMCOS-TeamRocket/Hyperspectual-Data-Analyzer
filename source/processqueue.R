@@ -13,7 +13,7 @@ source("source/imageProcessing/processImage.R")
 #
 #output: list of strings. list of any errors that occured while processing the queue
 
-processQueue <- function(queueData) {
+processQueue <- function(queueData, imageOutput) {
   #progress bar that displays what processes the queue is currently on
   withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
     errors <- list()
@@ -86,7 +86,7 @@ processQueue <- function(queueData) {
           print(endTime)
           
           #save output image directory
-          queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
+          imageOutput$directories[[length(imageOutput$directories) + 1]] <- outputDirectory
           flog.info(paste("Prediction Output Directory:", outputDirectory), name = "logFile")
           
           #create output text
@@ -95,7 +95,7 @@ processQueue <- function(queueData) {
                           paste("Run Time:", endTime, "minutes"))
           
           #add output text to list of outputStatistics
-          queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- statistics
+          imageOutput$statistics[[length(imageOutput$statistics) + 1]] <- statistics
           
           flog.info(paste("Prediction Output Statistics:", statistics), name = "logFile")
           
