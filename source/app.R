@@ -82,58 +82,16 @@ server <- function(input, output, session) {
   #SELECT DATA MODULE
   selectDataModule <- callModule(selectDataServer, "selectData", spectralLibraryModuleValues)
   
-  #variable to 
-  queueData <- reactiveValues()
-  queueData$processes <- list()
-  queueData$text <- ""
-  queueData$outputImageDirectories <- list()
-  queueData$outputStatistics <- list()
+  #keep track of output images to be displayed
+  imageOutput <- reactiveValues()
+  imageOutput$directories <- list()
+  imageOutput$statistics <- list()
   
   #QUEUE MODULE
-  queueModule <- callModule(queueModuleServer, "queue", queueData)
-  
-  #execute when 'add to queue' is clicked in the select data module
-  observeEvent(selectDataModule$addToQueue, {
-    processParameters <- selectDataModule$processParameters
-    
-    #add all relevant parameters as a list to the list of processes
-    queueData$processes[[length(queueData$processes) + 1]] <<- processParameters
-    
-    #build the string that represents each process to be displayed on the ui
-    textVector <- c(paste("Process#:", length(queueData$processes)))
-    textVector <- c(textVector, paste("Spectral Library:", processParameters$libraryDirectory))
-    
-    #get classifierParameters from processParameters
-    classifierParameters <- processParameters$classifierParameters
-    
-    #display classifier parameters if a new classifier is being created, else just display the directory to the classifier
-    if (classifierParameters$newClassifier == 1) {
-      textVector <- c(textVector, paste("Classifier Name:", classifierParameters$classifierName))
-      textVector <- c(textVector, paste("mtry:", classifierParameters$mtry))
-      textVector <- c(textVector, paste("ntree:", classifierParameters$ntree))
-      textVector <- c(textVector, paste("importance:", classifierParameters$importance))
-    } else {
-      textVector <- c(textVector, paste("Classifier Directory:", classifierParameters$classifierFile))
-    }
-    
-    #add image directory and desired output file
-    textVector <- c(textVector, paste("Image:", processParameters$imageDirectory))
-    textVector <- c(textVector, paste("Output File Name:", processParameters$outputFileName))
-    
-    #seperate each parameter with a newline
-    outputString <- ""
-    for (string in textVector) {
-      outputString <- paste(outputString, string, sep = "\n")
-    }
-    
-    #append this string to the existing string of all processes
-    queueData$text <<- paste(queueData$text, outputString, sep = "\n")
-    
-    flog.info(paste("Process Added to Queue:", outputString), name = "logFile")
-  })
+  queueModule <- callModule(queueModuleServer, "queue", selectDataModule, imageOutput)
   
   #IMAGE OUTPUT MODULE
-  imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput", queueData)
+  imageOutputModule <- callModule(imageOutputModuleServer, "imageOutput", imageOutput)
 }
 
 flog.info("Application Start", name = "logFile")
