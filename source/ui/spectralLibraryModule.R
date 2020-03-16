@@ -26,7 +26,10 @@ spectralLibraryModuleUI <- function(id) {
       )
     ),
     
-    actionButton(ns("selectAllSpectra"), "Select All Spectra"),
+    fluidRow(
+      column(2, actionButton(ns("selectAllSpectra"), "Select All Spectra")),
+      column(2, actionButton(ns("removeAllSpectra"), "Remove All Spectra"),)
+    ),
     
     br(),
     br(),
@@ -140,6 +143,18 @@ spectralLibraryModuleServer <- function(input, output, session) {
     )
     
     flog.info("Select all Spectra Objects", name = "logFile")
+  })
+  
+  #de-select all selected spectra objects
+  observeEvent(input$removeAllSpectra, {
+    updateMultiInput(
+      session = session,
+      inputId = "spectralList",
+      choices = spectraList,
+      selected = c()
+    )
+    
+    flog.info("Remove all Spectra Objects", name = "logFile")
   })
   
   #execute when 'create spectral library' is clicked
