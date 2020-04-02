@@ -6,18 +6,8 @@ generateImage <- function(raster, outputName, plotColors, plantVector) {
     print(ncol(raster))
     print(nrow(raster))
     
-    textSize<-10
-    textHoriz <- FALSE
-    
     colIMG <- ncol(raster)
     rowIMG <- nrow(raster)
-    
-    
-     if (colIMG > 2*rowIMG){
-       textHoriz <- TRUE
-       textSize <-5
-     }
-    
     
     if(colIMG > 1000){
       sizeIMG <- 5
@@ -25,7 +15,7 @@ generateImage <- function(raster, outputName, plotColors, plantVector) {
       sizeIMG <- 50
     }
     
-    plotWidth <- colIMG*sizeIMG +3000
+    plotWidth <- colIMG*sizeIMG
     plotHeight <- rowIMG*sizeIMG
   
   
@@ -44,9 +34,9 @@ generateImage <- function(raster, outputName, plotColors, plantVector) {
    
   dev.off()
   
-  png(paste(paste("output/plots/LEGEND", outputName, sep = ""), ".png", sep = ""), 
+  png(paste(paste("output/plots/", outputName, "_Legend", sep = ""), ".png", sep = ""), 
       width=(500), 
-      height=(1500)
+      height=(length(plantVector)*50)
   )
   plot(
     raster,
@@ -65,7 +55,7 @@ generateImage <- function(raster, outputName, plotColors, plantVector) {
     bty = "n",
     cex= 2.5,
     xjust =1,
-    horiz = textHoriz,
+    horiz = FALSE,
     inset = -0.007,
     par(cex=0.4)
     
