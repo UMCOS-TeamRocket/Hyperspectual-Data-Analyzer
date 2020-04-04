@@ -22,6 +22,9 @@ library(futile.logger)
 library(here)
 setwd(here())
 
+closeAllConnections()
+rm(list=ls())
+
 source("source/createOutputDirectories.R")
 source("source/ui/selectDataModule.R")
 source("source/ui/queueModule.R")

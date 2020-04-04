@@ -84,7 +84,7 @@ processQueue <- function(queueData, imageOutput) {
           #endTime is the amount of time the process took to complete
           endTime <- difftime(Sys.time(), startTime, units = "mins")
           print(endTime)
-          
+          closeAllConnections()
           #save output image directory
           imageOutput$directories[[length(imageOutput$directories) + 1]] <- outputDirectory
           flog.info(paste("Prediction Output Directory:", outputDirectory), name = "logFile")
