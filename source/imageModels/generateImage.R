@@ -2,8 +2,11 @@ library(tidyverse)
 library(hsdar)
 
 generateImage <- function(raster, outputName, plotColors, plantVector) {
+  
+  plotFileName <- paste("output/plots/", outputName, ".png", sep = "")
+  plotLegendFileName <- paste("output/plots/", outputName, "_Legend.png", sep = "")
 
-  png(paste(paste("output/plots/", outputName, sep = ""), ".png", sep = ""), 
+  png(plotFileName, 
       width=(ncol(raster)*10), 
       height=(nrow(raster)*10)
   )
@@ -16,7 +19,7 @@ generateImage <- function(raster, outputName, plotColors, plantVector) {
   )
   dev.off()
   
-  png(paste(paste("output/plots/", outputName, "_Legend", sep = ""), ".png", sep = ""), 
+  png(plotLegendFileName, 
       width=(500), 
       height=(length(plantVector)*50)
   )
@@ -45,5 +48,6 @@ generateImage <- function(raster, outputName, plotColors, plantVector) {
   dev.off()
   
 
-  return(paste(paste("output/plots/", outputName, sep = ""), ".png", sep = ""))
+  return(list(plot = plotFileName,
+              legend = plotLegendFileName))
   }
