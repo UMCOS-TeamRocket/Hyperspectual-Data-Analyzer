@@ -1,4 +1,5 @@
 imageOutputModuleUI <- function(id) {
+  
   ns <- NS(id)
   
   tagList(
@@ -29,9 +30,10 @@ imageOutputModuleServer <- function(input, output, session, data) {
         
         list(
           fluidRow(
-            column(4, imageOutput(session$ns(imageName))),
-            column(4, imageOutput(session$ns(legendName))),
-            column(3, textOutput(session$ns(textName)))
+            column(12, align="center", textOutput(session$ns(textName))),
+            column(9, imageOutput(session$ns(imageName), height="530px")),
+            column(3, imageOutput(session$ns(legendName)))
+            
           )
         )
       })
@@ -64,17 +66,17 @@ imageOutputModuleServer <- function(input, output, session, data) {
           #render the plot
           output[[imageName]] <- renderImage({
             list(src = plotDirectory,
-                 width = "600",
-                 height = "350",
-                 alt = "Could not find image")
+                 width = "auto",
+                 height = "525",
+                 alt = "Could not find the image")
           }, deleteFile = FALSE)
           
           #render the legend
           output[[legendName]] <- renderImage({
             list(src = legendDirectory,
-                 width = "600",
-                 height = "350",
-                 alt = "Could not find image")
+                 width = "300",
+                 height = "auto",
+                 alt = "Could not find the legend")
           }, deleteFile = FALSE)
           
           #character vector of data to be sidplayed along with the image
