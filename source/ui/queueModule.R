@@ -39,8 +39,9 @@ queueModuleServer <- function(input, output, session, selectDataModule, imageOut
   observeEvent(input$clearQueue, {
     queueData$text <- ""
     queueData$processes <- list()
-    queueData$outputImageDirectories <- list()
-    queueData$outputStatistics <- list()
+    
+    imageOutput$directories <- list()
+    imageOutput$statistics <- list()
     
     #log info
     flog.info("Queue Cleared", name = "logFile")

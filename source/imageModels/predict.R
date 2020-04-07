@@ -5,6 +5,8 @@ library(tidyverse)
 library(hsdar)
 library(parallel)
 
+source("source/imageModels/generateImage.R")
+
 predictFunction <- function(classifierDirectory, imageDirectory, directory, outputName) {
   tryCatch({
     #Get Core Numbers
@@ -74,7 +76,7 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     
     
     foreach(i=1:length(plants), .combine=cbind) %do%{
-      vector <- (unlist(plants))
+      plantVector <- (unlist(plants))
     }
     
     foreach(i=1:length(plants)) %do%{
@@ -88,30 +90,9 @@ predictFunction <- function(classifierDirectory, imageDirectory, directory, outp
     #plotColors <- randomColor(count = 100)
     #write.csv(plotColors, "source/www/colorChart.csv", row.names = FALSE)
 
-    jpeg(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""), width=7200, height=4200)
-    plot(
-      raster,
-      legend = FALSE,
-      axes=FALSE,
-      col = plotColors,
-      box= FALSE
-    )
-    legend(
-      "right",
-      legend = vector,
-      fill =plotColors,
-      border = FALSE,
-      bty = "n",
-      cex=10,
-      xjust =1,
-      horiz = FALSE,
-      inset = -0.007,
-      par(cex=0.4)
-      
-    )             
-    dev.off()
+    finalImage <- generateImage(raster, outputName, plotColors, plantVector)
     
-    return(paste(paste("output/plots/", outputName, sep = ""), ".jpg", sep = ""))
+    return(finalImage)
   }, warning = function(warning) {
     message <- paste("WARNING - While predicting", warning, sep = " : ")
     warning(message)

@@ -1,4 +1,5 @@
 imageOutputModuleUI <- function(id) {
+  
   ns <- NS(id)
   
   tagList(
@@ -24,12 +25,15 @@ imageOutputModuleServer <- function(input, output, session, data) {
       image_output_list <- lapply(1:length(data$directories), function(i) {
         #create a name for image and text output
         imageName <- paste("image", i, sep="")
+        legendName <- paste("legend", i, sep="")
         textName <- paste(imageName, "Stats", sep = "")
         
         list(
           fluidRow(
-            column(5, imageOutput(session$ns(imageName))),
-            column(3, textOutput(session$ns(textName)))
+            column(12, align="center", textOutput(session$ns(textName))),
+            column(9, imageOutput(session$ns(imageName), height="530px")),
+            column(3, imageOutput(session$ns(legendName)))
+            
           )
         )
       })
@@ -49,20 +53,30 @@ imageOutputModuleServer <- function(input, output, session, data) {
         local({
           #create the names the same way we did in the previous function
           imageName <- paste("image", i, sep="")
+          legendName <- paste("legend", i, sep="")
           textName <- paste(imageName, "Stats", sep = "")
           
           #get the directory to the image
-          directoryString <- data$directories[[i]]
+          plotDirectory <- data$directories[[i]][["plot"]]
+          legendDirectory <- data$directories[[i]][["legend"]]
           
           #log info
-          flog.info(paste("Displaying Image: ", directoryString), name = "logFile")
+          flog.info(paste("Displaying Image: ", plotDirectory), name = "logFile")
           
-          #render the image in the image output with the name stored in imageName
+          #render the plot
           output[[imageName]] <- renderImage({
-            list(src = directoryString,
-                 width = "600",
-                 height = "350",
-                 alt = "Could not find image")
+            list(src = plotDirectory,
+                 width = "auto",
+                 height = "525",
+                 alt = "Could not find the image")
+          }, deleteFile = FALSE)
+          
+          #render the legend
+          output[[legendName]] <- renderImage({
+            list(src = legendDirectory,
+                 width = "300",
+                 height = "auto",
+                 alt = "Could not find the legend")
           }, deleteFile = FALSE)
           
           #character vector of data to be sidplayed along with the image
@@ -71,7 +85,7 @@ imageOutputModuleServer <- function(input, output, session, data) {
           #text is a character vector of size 3
           outputText <- textVector[1]
           for (i in 2:length(textVector)) {
-            outputText <- paste(outputText, textVector[i], sep = " :: ")
+            outputText <- paste(outputText, textVector[i], sep = " // ")
           }
           
           #render the text in the UI
