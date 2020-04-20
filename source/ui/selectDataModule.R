@@ -16,6 +16,9 @@ selectDataUI <- function(id) {
     
     uiOutput(ns("classifierSection")),
     
+    #label for data cube selection section
+    HTML("<h5 style=color:white; font-weight:bold;> Select Data Cube: </h5>"),
+    
     #TODO: limit file types
     fluidRow(
       column(2, shinyFilesButton(ns("imageInput"), "Browse", title = "Select Image", multiple = FALSE)),
