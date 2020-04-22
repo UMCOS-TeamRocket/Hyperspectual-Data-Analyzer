@@ -82,7 +82,7 @@ processQueue <- function(queueData, imageOutput) {
           outputDirectories <- predictFunction(classifierDirectory, process$imageDirectory, directory, process$outputFileName)
           
           #endTime is the amount of time the process took to complete
-          endTime <- difftime(Sys.time(), startTime, units = "mins")
+          endTime <- signif(difftime(Sys.time(), startTime, units = "mins"), 3)
           print(endTime)
           closeAllConnections()
           #save output image directory
