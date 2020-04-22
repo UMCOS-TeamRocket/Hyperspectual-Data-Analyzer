@@ -5,10 +5,10 @@ library(hsdar)
 library(foreach)
 library(doParallel)
 
-createImgVi <- function(imgDfDirectory, fileName = "image") {
+createImgVi <- function(imgDf) {
   tryCatch({
     ##Reads in image as dataframe
-    IMG<-(imgDfDirectory)
+    IMG<-(imgDf)
     ##Reads in bandpasses for imagery to be used later
     ng_wv<-scan("output/intermediateFiles/WV", numeric())
     
@@ -29,12 +29,22 @@ createImgVi <- function(imgDfDirectory, fileName = "image") {
     if(cores>2){
       cores<-cores-2
     }
+    
+    print(object.size(IMG_speclib))
+    
+    if((object.size(IMG_speclib)/10^6> 450)&(cores>4)){
+      print("Limiting Cores")
+      cores<-4
+    }
+    
+    
+    #if (object.size(IMG_speclib) > )
     #prepare for parallel process
     c1<- makeCluster(cores)
     registerDoParallel(c1)
     
     tme<- Sys.time()
-
+    
     #run vegindex using one formula at a time, in parallel
     ##Creates dataframe with Vegitation indices
     IMG_VIs<-foreach(i=1:length(VIs), .combine=cbind, .packages = 'hsdar') %dopar%{

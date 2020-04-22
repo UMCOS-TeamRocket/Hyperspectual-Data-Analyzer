@@ -1,0 +1,13 @@
+Backend Call Locations:
+
+source/ui/spectralLibraryModuyle.R
+  line 101: source/fieldSpecProcessing/bySite.R
+  line 196: source/generateSpectralLibraryFiles.R
+
+source/ui/queueModule.R
+  line 63: source/processqueue.R
+  
+source/processqueue.R
+  line 48: source/imageModels/generateRFClassifier.R
+  line 72: source/imageProcessing/processImage.R
+  line 82: source/imageModels/predict.R

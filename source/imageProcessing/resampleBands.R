@@ -23,8 +23,13 @@ toDataFrame<-function(IMG_ALL, cords, i){
   return(IMG)
 }
 
+#params:
+##imageDirectry: string
+#
+#output:
+##bandList: list of R objects. length of 4
 
-resampleBands <- function(imageDirectory, fileName = "image") {
+resampleBands <- function(imageDirectory) {
   tryCatch({
     ##Reads in image as dataframe 
     IMG<-brick(imageDirectory)%>%rasterToPoints()%>%as.data.frame()
@@ -99,7 +104,10 @@ resampleBands <- function(imageDirectory, fileName = "image") {
     IMG_100nm<-IMG_100nm%>%subset(`399.444`>0)
     IMG <-IMG %>% slice(1:nrow(IMG_010nm))
     
-    bandList<-list(IMG,IMG_010nm,IMG_050nm,IMG_100nm)
+    bandList<-list(IMG = IMG, 
+                   IMG_010nm = IMG_010nm,
+                   IMG_050nm = IMG_050nm,
+                   IMG_100nm = IMG_100nm)
     
 
     return(bandList)

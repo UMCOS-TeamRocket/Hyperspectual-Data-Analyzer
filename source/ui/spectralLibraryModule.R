@@ -26,7 +26,10 @@ spectralLibraryModuleUI <- function(id) {
       )
     ),
     
-    actionButton(ns("selectAllSpectra"), "Select All Spectra"),
+    fluidRow(
+      column(2, actionButton(ns("selectAllSpectra"), "Select All Spectra")),
+      column(2, actionButton(ns("removeAllSpectra"), "Remove All Spectra"),)
+    ),
     
     br(),
     br(),
@@ -95,6 +98,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
     
     print("Processing Spectra By Site...")
     
+    #CALL TO BACKEND CODE. located here: source/fieldSpecProcessing/bySite.R
     #create a specra object for each directory under fieldSpecDirectory recursively
     #return any errors that occur during this process and store in 'errors' variable
     errors <- processFieldSpec(fieldSpecDirectory)
@@ -139,6 +143,18 @@ spectralLibraryModuleServer <- function(input, output, session) {
     )
     
     flog.info("Select all Spectra Objects", name = "logFile")
+  })
+  
+  #de-select all selected spectra objects
+  observeEvent(input$removeAllSpectra, {
+    updateMultiInput(
+      session = session,
+      inputId = "spectralList",
+      choices = spectraList,
+      selected = c()
+    )
+    
+    flog.info("Remove all Spectra Objects", name = "logFile")
   })
   
   #execute when 'create spectral library' is clicked
@@ -190,6 +206,7 @@ spectralLibraryModuleServer <- function(input, output, session) {
       print("Generating Spectral Library Files...")
       flog.info("Generating Spectral Library Files", name = "logFile")
       
+      #CALL TO BACKEND CODE. located here: source/generateSpectralLibraryFiles.R
       #create a spectral library
       generateSpectralLibraryFiles(listOfSpectraDirectories, spectralLibraryName)
       

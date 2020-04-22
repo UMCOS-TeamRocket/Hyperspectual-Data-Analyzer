@@ -1,7 +1,7 @@
 library(spectrolab)
 library(tidyverse)
 
-#fieldSpecDirectory is the directory to the folder containing the Field Spec data
+#fieldSpecDirectory is a string. It is the directory to the folder containing the Field Spec data
 #the function will look at each directory under fieldSpecDirectory recursively and create a spectra.rds file
 
 processFieldSpec <- function(fieldSpecDirectory) {

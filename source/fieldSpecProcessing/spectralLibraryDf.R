@@ -2,14 +2,13 @@
 library(spectrolab)
 library(tidyverse)
 
-generateSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
+#params:
+##spectralLibrary: r object. spectral library that had all uncalibrated scans removed
+#
+#output: function does not return a value. writes .csv files for wv and df_equal25
+
+generateSpectralLibraryDf <- function(spectralLibrary) {
   tryCatch({
-    ##Reads in spectral library as a spectral object
-    ##This is the spectral library that had all uncalibrated scans removed
-    #spectralLibrary<-readRDS(directory)
-    
-    spectralLibrary<-directory
-    
     ##creates and object of bandpasses from imagery
     ##We'll omit bandpasses 900-1000 since there is alot of random noise in that region of the spectrum
     WV<-c(397.593
@@ -316,17 +315,7 @@ generateSpectralLibrary <- function(directory, outputName = "spectralLibrary") {
     ##Lets save our bandpasses and other outputs
     write(WV,"output/intermediateFiles/WV")
     
-    # 
-    # write.csv(spectralLibrary_df        , paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""), row.names = FALSE)
-    write.csv(spectralLibrary_df_equal25, "output/intermediateFiles/temp.csv", row.names = FALSE)
-    
-    ##Now lets save our New spectral library
-    # saveRDS(spectralLibrary, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), ".rds", sep = ""))
-    # 
-    # directories <- list(wv = "output/WV",
-    #                     df = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df.csv", sep = ""),
-    #                     equal25 = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_df_equal25.csv", sep = ""))
-    # 
+    write.csv(spectralLibrary_df_equal25, "output/intermediateFiles/spectralLibrary_df_equal25.csv", row.names = FALSE)
     
   }, warning = function(warning) {
     message <- paste("WARNING - While processing spectral library", directory)

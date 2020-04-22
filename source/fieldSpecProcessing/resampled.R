@@ -2,11 +2,16 @@
 library(spectrolab)
 library(tidyverse)
 
-fieldSpecResampled <- function(outputName = "spectralLibrary") {
+#params:
+##spectralLibraryDfDirectory: string
+#
+#output: list of spectralLibrary objects. length of 3. list(nm10, nm50, nm100)
+
+fieldSpecResampled <- function(spectralLibraryDfDirectory) {
   tryCatch({
     ##Reads in spectral library as a dataframe
     ##this is the spectral library that had all uncalibrated bands removed
-    spectralLibrary_df<-read.csv("output/intermediateFiles/temp.csv", check.names = F)
+    spectralLibrary_df<-read.csv(spectralLibraryDfDirectory, check.names = F)
     
     #spectralLibrary_df<-directory
     
@@ -21,18 +26,11 @@ fieldSpecResampled <- function(outputName = "spectralLibrary") {
     spectralLibrary_010nm<-cbind(spectralLibrary_df[1:7],spectralLibrary_010nm)
     spectralLibrary_050nm<-cbind(spectralLibrary_df[1:7],spectralLibrary_050nm)
     spectralLibrary_100nm<-cbind(spectralLibrary_df[1:7],spectralLibrary_100nm)
-    
-    # directories <- list(equal25_010nm = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_010nm_equal25.csv", sep = ""),
-    #                     equal25_050nm = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_050nm_equal25.csv", sep = ""),
-    #                     equal25_100nm = paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_100nm_equal25.csv", sep = ""))
-    # 
-    # ###Lets save our new dfs
-    # write.csv(spectralLibrary_010nm, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_010nm_equal25.csv", sep = ""), row.names = FALSE)
-    # write.csv(spectralLibrary_050nm, directories$equal25_050nm, row.names = FALSE)
-    # write.csv(spectralLibrary_100nm, directories$equal25_100nm, row.names = FALSE)
-    # 
 
-    specList<-list(spectralLibrary_010nm,spectralLibrary_050nm,spectralLibrary_100nm)
+    specList<-list(nm10 = spectralLibrary_010nm,
+                   nm50 = spectralLibrary_050nm,
+                   nm100 = spectralLibrary_100nm)
+    
     return(specList)
     
   }, warning = function(warning) {

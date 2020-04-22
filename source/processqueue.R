@@ -5,7 +5,15 @@ source("source/imageModels/generateRFClassifier.R")
 source("source/imageModels/predict.R")
 source("source/imageProcessing/processImage.R")
 
-processQueue <- function(queueData) {
+#params:
+##queueData: list of reactive values
+##  queueData$process: list. each element is a list containing parameters necessary for map creation
+##  queueData$outputImageDirectories: list of strings. save all successfully created maps here
+##  queueData$outputStatistics: list of strings. save any text you would like to be displayed next to the map on the ui here
+#
+#output: list of strings. list of any errors that occured while processing the queue
+
+processQueue <- function(queueData, imageOutput) {
   #progress bar that displays what processes the queue is currently on
   withProgress(message = 'Processing Queue', min = 0, max = length(queueData$processes), value = 0, {
     errors <- list()
@@ -36,6 +44,7 @@ processQueue <- function(queueData) {
             print("Generating RF Classifier")
             flog.info(paste("Generating New Classifier:", classifierParameters$classifierName), name = "logFile")
             
+            #CALL TO BACKEND CODE. located here: source/imageModels/generateRFClassifier.R
             classifierDirectory <- generateRFClassifier(process$libraryDirectory, classifierParameters)
           }
           
@@ -59,6 +68,7 @@ processQueue <- function(queueData) {
             print("Processing Image")
             flog.info(paste("Processing Image:", process$imageDirectory), name = "logFile")
             
+            #CALL TO BACKEND CODE. located here: "source/imageProcessing/processImage.R"
             directory <- processImage(process$imageDirectory)
           }
           
@@ -67,16 +77,17 @@ processQueue <- function(queueData) {
           print("Predicting")
           flog.info("Predicting", name = "logFile")
           
+          #CALL TO BACKEND CODE. located here: "source/imageModels/predict.R"
           #pass the directory of the classifier, the original image, the processed image, and the desired name of the output file
-          outputDirectory <- predictFunction(classifierDirectory, process$imageDirectory, directory, process$outputFileName)
+          outputDirectories <- predictFunction(classifierDirectory, process$imageDirectory, directory, process$outputFileName)
           
           #endTime is the amount of time the process took to complete
-          endTime <- difftime(Sys.time(), startTime, units = "mins")
+          endTime <- signif(difftime(Sys.time(), startTime, units = "mins"), 3)
           print(endTime)
-          
+          closeAllConnections()
           #save output image directory
-          queueData$outputImageDirectories[[length(queueData$outputImageDirectories) + 1]] <- outputDirectory
-          flog.info(paste("Prediction Output Directory:", outputDirectory), name = "logFile")
+          imageOutput$directories[[length(imageOutput$directories) + 1]] <- outputDirectories
+          flog.info(paste("Prediction Output Directory:", outputDirectories["plot"]), name = "logFile")
           
           #create output text
           statistics <- c(paste("Process#:", index + 1), 
@@ -84,7 +95,7 @@ processQueue <- function(queueData) {
                           paste("Run Time:", endTime, "minutes"))
           
           #add output text to list of outputStatistics
-          queueData$outputStatistics[[length(queueData$outputStatistics) + 1]] <- statistics
+          imageOutput$statistics[[length(imageOutput$statistics) + 1]] <- statistics
           
           flog.info(paste("Prediction Output Statistics:", statistics), name = "logFile")
           

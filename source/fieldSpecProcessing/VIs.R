@@ -2,10 +2,16 @@ library(spectrolab)
 library(tidyverse)
 library(hsdar)
 
-fieldSpecVI <- function(outputName = "spectralLibrary") {
+#params:
+##spectralLibraryDfDirectory: string
+#
+#output: spectralLibrary_vi object
+
+fieldSpecVI <- function(spectralLibraryDfDirectory) {
   tryCatch({
     ##Reads in spectral library....dim 1974  333
-    spectralLibrary<-read.csv("output/intermediateFiles/temp.csv")
+    spectralLibrary<-read.csv(spectralLibraryDfDirectory)
+    
     ##Reads in bandpasses for imagery to be used later
     ng_wv<-scan("output/intermediateFiles/WV", numeric())
     
@@ -51,9 +57,6 @@ fieldSpecVI <- function(outputName = "spectralLibrary") {
                    ,"TGI"           ,"TVI"           ,"Vogelmann"     ,"Vogelmann2"    ,"Vogelmann3"    ,"Vogelmann4")
     
     colnames(spectralLibrary_VIs)[-1:-7]<-Newcolnames
-    
-    ##Now that we have our VIs calculated we can go ahead and export these dataframes
-    # write.csv(spectralLibrary_VIs, paste(paste("output/intermediateFiles/spectralLibraries/", outputName, sep = ""), "_VIs_equal25.csv", sep = ""), row.names = FALSE)
     
     return(spectralLibrary_VIs)
   }, warning = function(warning) {
